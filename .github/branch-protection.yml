@@ -1,0 +1,42 @@
+# Branch Protection Configuration for QuantaPilot
+# This file documents the required branch protection settings
+# Configure these settings in GitHub UI: Settings > Branches > Add rule
+
+branch: main
+
+# Required Status Checks
+required_status_checks:
+  strict: true  # Require branches to be up to date before merging
+  contexts:
+    - "policy/enforcer"    # Blocks bot changes to protected paths
+    - "docs-lint"          # Validates documentation front-matter
+    - "quality-gate"       # Quality assurance checks
+    - "security-scan"      # Security vulnerability scanning
+
+# Pull Request Reviews
+required_pull_request_reviews:
+  required_approving_review_count: 1
+  dismiss_stale_reviews: true
+  require_code_owner_reviews: true
+  require_last_push_approval: false
+
+# Restrictions
+restrictions:
+  users: []  # No direct pushes allowed
+  teams: []  # No team direct pushes allowed
+  apps: []   # No app direct pushes allowed
+
+# Additional Settings
+enforce_admins: false
+allow_force_pushes: false
+allow_deletions: false
+block_creations: false
+required_conversation_resolution: true
+require_linear_history: true
+require_deployments: false
+
+# Lock Branch
+lock_branch: false
+
+# Allow Fork Syncing
+allow_fork_syncing: false

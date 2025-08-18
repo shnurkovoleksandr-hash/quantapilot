@@ -37,4 +37,27 @@ This document records significant architectural and process decisions made durin
 
 ---
 
+## ADR‑0003: CI/CD workflow implementation
+
+**Context.** The factory needs robust CI/CD workflows to ensure code quality, validate documentation, and protect against unauthorized changes to critical infrastructure files. We need to implement branch protection rules and automated validation that aligns with the project's security and quality requirements.
+
+**Decision.** We implemented a comprehensive CI/CD system with:
+
+- **`policy/enforcer`** workflow that blocks bot changes to protected paths (`.github/workflows/`, `ops/`, `contracts/`, `db/migrations/`, `infra/`, `Dockerfile`, `docker/`, `package(-lock)?.json`)
+- **`docs-lint`** workflow that validates documentation front-matter against JSON schemas
+- **Branch protection rules** requiring mandatory status checks (`policy/enforcer`, `docs-lint`, `quality-gate`, `security-scan`)
+- **CODEOWNERS** file defining code ownership and review requirements
+- **PR template** with change control checklist for transparency
+
+**Consequences.**
+
+- Protected paths are safeguarded against unauthorized bot modifications
+- Documentation quality is enforced through automated validation
+- Branch protection ensures all changes go through proper review processes
+- Clear ownership and review requirements improve code quality and security
+- Additional overhead for contributors who must follow the established processes
+- Setup requires manual configuration in GitHub UI using the provided guidance
+
+---
+
 Further ADRs will document decisions such as retry strategies, database schema design, error taxonomy and UI choices. Each should be added as a new section with an incrementing identifier.

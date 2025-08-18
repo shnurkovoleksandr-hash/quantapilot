@@ -1,0 +1,36 @@
+# Code Owners for QuantaPilot
+# This file defines who is responsible for reviewing changes to different parts of the codebase
+
+# Operations and Infrastructure (requires ops-leads review)
+/.github/workflows/ @ops-leads
+/ops/ @ops-leads
+/contracts/ @ops-leads
+/db/migrations/ @ops-leads
+/infra/ @ops-leads
+/Dockerfile @ops-leads
+/docker/ @ops-leads
+
+# Documentation (requires documentation review)
+/docs/ @docs-team
+/guide/ @docs-team
+
+# Schemas and Validation (requires schema review)
+/_schemas/ @schema-team
+/scripts/validate-*.mjs @schema-team
+/scripts/docs-lint.mjs @schema-team
+
+# Core Packages (requires core team review)
+/packages/core/ @core-team
+/packages/cli/ @core-team
+/packages/diagnostics/ @core-team
+
+# Applications (requires app team review)
+/apps/ @app-team
+
+# Root Configuration (requires admin review)
+/package.json @admin-team
+/pnpm-workspace.yaml @admin-team
+/tsconfig.base.json @admin-team
+
+# Default owners for everything else
+* @quantapilot-team

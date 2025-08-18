@@ -7,7 +7,7 @@ updated: '2025-08-18'
 owners: ['shnurkovoleksandr-hash']
 ---
 
-QuantaPilot exposes an integration API in the form of triggers and events. Triggers allow external systems to start runs; events allow external systems to react to state changes. This document describes the high‑level contract of these APIs. The detailed JSON schemas live under `_schemas/api.schema.json`.
+QuantaPilot exposes an integration API in the form of triggers and events. Triggers allow external systems to start runs; events allow external systems to react to state changes. This document describes the high‑level contract of these APIs. The detailed JSON schemas live under `_schemas/api.schema.json` and examples are provided in `_schemas/api.examples.json`.
 
 ## Triggers
 

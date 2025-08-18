@@ -1,7 +1,7 @@
 name: policy/enforcer
 on: [pull_request]
 jobs:
-  paths:
+  policy-enforcer:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -9,14 +9,39 @@ jobs:
         id: cf
       - name: Block bot on protected paths
         run: |
+          # Input validation - ensure we have changed files
+          if [ -z "${{ steps.cf.outputs.all_changed_files }}" ]; then
+            echo "No files changed, skipping validation"
+            exit 0
+          fi
+          
+          # Define protected paths pattern
           PROTECTED='^(\.github/workflows/|ops/|contracts/|db/migrations/|infra/|Dockerfile|docker/|package(-lock)?\.json)'
+          
+          # Validate each changed file
           for f in ${{ steps.cf.outputs.all_changed_files }}; do
             if [[ "$f" =~ $PROTECTED ]] && [[ "${{ github.actor }}" == "quantapilot-bot" ]]; then
-              echo "Bot cannot change protected file: $f"; exit 1
+              echo "❌ Bot cannot change protected file: $f"
+              echo "Protected paths require human approval and proper labels"
+              exit 1
             fi
           done
+          
+          echo "✅ No protected path violations detected"
       - name: Require label for workflow edits
         if: contains(steps.cf.outputs.all_changed_files, '.github/workflows/')
         run: |
-          gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | \
-          grep -qx 'ops:workflow-change' || { echo "Missing ops:workflow-change label"; exit 1; }
+          # Validate PR exists and has labels
+          if [ -z "${{ github.event.pull_request.number }}" ]; then
+            echo "❌ Cannot determine PR number"
+            exit 1
+          fi
+          
+          # Check for required label
+          if gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | grep -qx 'ops:workflow-change'; then
+            echo "✅ Required label 'ops:workflow-change' found"
+          else
+            echo "❌ Missing required label 'ops:workflow-change'"
+            echo "Workflow changes require the 'ops:workflow-change' label and proper approvals"
+            exit 1
+          fi
