@@ -3,7 +3,7 @@ id: '60_constraints'
 title: 'Constraints'
 status: 'ready'
 version: '0.1.0'
-updated: '2025-08-18'
+updated: '2025-08-19'
 owners: ['shnurkovoleksandr-hash']
 ---
 
@@ -11,7 +11,7 @@ This document captures the technical, process and compliance constraints that go
 
 ## Technical
 
-- **Supported versions:** The factory is developed and tested against Node 22, PNPM 9, Python 3.11 and PostgreSQL 15【832497655031489†L2-L32】.  
+- **Supported versions:** The factory is developed and tested against Node 22, PNPM 10.14.0, Python 3.11 and PostgreSQL 15【832497655031489†L2-L32】.  
   Other versions may work but are not officially supported.
 - **Operating systems:** Development is primarily on macOS and Linux. Windows is not currently supported.
 - **Orchestrator:** n8n is used as the sole orchestrator. Alternative orchestrators (e.g. temporal) are out of scope for the MVP.

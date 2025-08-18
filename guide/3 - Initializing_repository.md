@@ -12,7 +12,7 @@ gh repo create "$USER/quantapilot" --private --source=. --remote=origin --push
 
 ```bash
 pnpm init -y
-jq '. + {private:true, packageManager:"pnpm@9"}' package.json > package.tmp && mv package.tmp package.json
+jq '. + {private:true, packageManager:"pnpm@10.14.0"}' package.json > package.tmp && mv package.tmp package.json
 
 cat > pnpm-workspace.yaml <<'YAML'
 packages:

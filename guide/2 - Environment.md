@@ -35,7 +35,7 @@ brew install git gh jq yq gnu-sed coreutils wget make openssl@3 \
 ```bash
 # включить corepack и pnpm
 corepack enable
-corepack use pnpm@9
+corepack use pnpm@10.14.0
 node -v && pnpm -v
 # глобальные утилиты по желанию
 pnpm add -g npm-check-updates
@@ -150,7 +150,7 @@ jq --version && yq --version
 
 15. Выходы шага
 
-- Готовая система с Node 22, PNPM 9, Python 3.11, Docker, gh, sops/age, jq/yq, ajv.
+- Готовая система с Node 22, PNPM 10.14.0, Python 3.11, Docker, gh, sops/age, jq/yq, ajv.
 - Сгенерирован age-ключ, подтверждена работа Docker и Postgres-образа, проверен образ n8n.
 - Shell и PATH настроены.
 
