@@ -28,6 +28,11 @@ Welcome to **QuantaPilot** — an autonomous software‑factory that turns a pro
    direnv allow
    ```
 
+4. **Setup Database** (optional):
+   ```bash
+   pnpm run db:setup
+   ```
+
 ## Documentation
 
 This repository contains comprehensive documentation for the QuantaPilot factory. The `docs/` folder is the living specification for how the factory operates. Each Markdown file is prefaced with a front‑matter block validated by the `_schemas/frontmatter.schema.json` schema.
@@ -57,6 +62,7 @@ If you are new to QuantaPilot, begin with [docs/ANCHOR.md](./docs/ANCHOR.md). It
 - **[Operations Overview](./ops/README.md)** - Operations documentation and procedures
 - **[Security & Secrets](./ops/security/secrets-rotation.md)** - Secrets rotation policy
 - **[Setup Guide](./ops/setup-guide.md)** - Complete setup and configuration guide
+- **[Database Setup](./ops/db/README.md)** - Database configuration and management
 
 ### Additional Resources
 

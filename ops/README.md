@@ -18,6 +18,11 @@ ops/
 ├── security/                   # Security policies and procedures
 │   ├── secrets-rotation.md     # Secrets rotation policy
 └── docker/                     # Docker configuration files
+    └── docker-compose.yml     # Database and services
+└── db/                        # Database configuration
+    ├── README.md              # Database setup and management
+    ├── init/                  # Database initialization scripts
+    └── migrations/            # Database migrations
 ```
 
 ## Security
@@ -54,6 +59,13 @@ ops/
 - **Docker**: Containerized deployment with security best practices
 - **Environment Variables**: Encrypted configuration management
 - **Health Checks**: Automated health monitoring
+
+### Database
+
+- **PostgreSQL 15**: Primary database with health checks
+- **Migrations**: Managed with `dbmate` for version control
+- **Seeds**: Initial data and RLS policies
+- **Backup**: Automated backup and retention policies
 
 ## Getting Started
 
@@ -94,6 +106,11 @@ ops/
 4. **Test CI Pipeline**:
    - Push changes to trigger CI
    - Verify secrets are decrypted correctly
+
+5. **Setup Database**:
+   ```bash
+   pnpm run db:setup
+   ```
 
 ## Security Checklist
 

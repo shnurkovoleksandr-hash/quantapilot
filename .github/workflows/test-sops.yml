@@ -30,22 +30,35 @@ jobs:
 
       - name: Setup AGE Key
         run: |
+          # Check if AGE key is available (only available on main branch or for maintainers)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" != "main" ]]; then
+            echo "⚠️  SOPS_AGE_KEY not available for PRs from forks or non-main branches"
+            echo "Skipping SOPS decryption test for security reasons"
+            exit 0
+          fi
+          
           # Create age key file from GitHub secret
-          echo "${{ secrets.SOPS_AGE_KEY }}" > $RUNNER_TEMP/age.txt
-          export SOPS_AGE_KEY_FILE="$RUNNER_TEMP/age.txt"
+          if [[ -n "${{ secrets.SOPS_AGE_KEY }}" ]]; then
+            echo "${{ secrets.SOPS_AGE_KEY }}" > $RUNNER_TEMP/age.txt
+            export SOPS_AGE_KEY_FILE="$RUNNER_TEMP/age.txt"
 
-          # Test decryption
-          if [[ -f ".env.sops" ]]; then
-            echo "Testing SOPS decryption..."
-            sops -d --input-type dotenv --output-type dotenv .env.sops > .env
-            echo "✅ Successfully decrypted .env.sops"
-            
-            # Verify environment variables are loaded
-            source .env
-            echo "NODE_ENV: $NODE_ENV"
-            echo "DATABASE_URL: $DATABASE_URL"
+            # Test decryption
+            if [[ -f ".env.sops" ]]; then
+              echo "Testing SOPS decryption..."
+              sops -d --input-type dotenv --output-type dotenv .env.sops > .env
+              echo "✅ Successfully decrypted .env.sops"
+              
+              # Verify environment variables are loaded
+              source .env
+              echo "NODE_ENV: $NODE_ENV"
+              echo "DATABASE_URL: $DATABASE_URL"
+            else
+              echo "⚠️  .env.sops not found, skipping decryption test"
+            fi
           else
-            echo "⚠️  .env.sops not found, skipping decryption test"
+            echo "⚠️  SOPS_AGE_KEY secret not available"
+            echo "Skipping SOPS decryption test"
+            exit 0
           fi
 
       - name: Test Environment Variables

@@ -3,7 +3,7 @@ id: '40_acceptance'
 title: 'Acceptance Criteria'
 status: 'ready'
 version: '0.1.0'
-updated: '2025-08-18'
+updated: '2025-08-19'
 owners: ['shnurkovoleksandr-hash']
 ---
 
@@ -25,6 +25,7 @@ Acceptance is evaluated at three levels: documentation, orchestrator and quality
 - A run can clone the target repository, generate documentation and open a documentation pull request.
 - Documentation generation passes schema validation and the doc‑lint step.
 - Runs record metrics (tokens, cost, duration) and logs in PostgreSQL.
+- Database setup is reproducible: `docker compose up -d db` passes healthcheck; `pnpm run db:up && pnpm run db:seed` complete without errors; `pnpm run db:lint` is clean; retention/rollup jobs are created only if `pg_cron` is available (or documented how to disable in dev).
 - Notifications are delivered to Telegram at run start, gate requests and completion.
 - The anchor gate, milestone M‑001 gate and first‑merge gate are implemented and block further progress until approved.【876102779380499†L31-L33】
 - **Secrets management is operational** with SOPS/age encryption, CI/CD integration, and RBAC mapping for n8n credentials.

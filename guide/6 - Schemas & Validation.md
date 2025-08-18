@@ -398,9 +398,9 @@ git push -u origin chore/schemas-and-docs-lint
 
 **Acceptance**
 
-- `pnpm run schema:all` passes in CI and locally.
-- `quantapilot.schema.json` contains required sections and does not break existing keys.
-- `docs/*.md` front-matter validates.
-- API schema and example validate.
+- ✅ `pnpm run schema:all` passes in CI and locally.
+- ✅ `quantapilot.schema.json` contains required sections and does not break existing keys.
+- ✅ `docs/*.md` front-matter validates.
+- ✅ API schema and example validate.
 
 ---

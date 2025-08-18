@@ -4,7 +4,7 @@
    Кратко зафиксировать назначение, режимы, роли, HITL.
 
 2. Окружение
-   Установить Node 22, PNPM 9, Python 3.11, Docker, Postgres, n8n, sops/age, ajv-cli, jq, yq, gh.
+   Установить Node 22, PNPM 10.14.0, Python 3.11, Docker, Postgres, n8n, sops/age, ajv-cli, jq, yq, gh.
 
 3. Инициализация репозитория
    Скелет каталогов, базовые скрипты, лицензия, редакторконфиг.
