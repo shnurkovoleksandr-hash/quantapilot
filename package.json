@@ -1,0 +1,26 @@
+{
+  "name": "QuantaPilot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm -r --filter ./packages... run build",
+    "dev": "pnpm -r --filter ./packages... run dev",
+    "test": "echo \"(tests will be added in step 20)\"",
+    "clean": "git clean -xdf -e docs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9",
+  "private": true,
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^24.3.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@quantapilot/cli",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": { "qp": "dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@quantapilot/core": "workspace:*",
+    "@quantapilot/diagnostics": "workspace:*"
+  }
+}

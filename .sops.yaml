@@ -1,0 +1,4 @@
+# .sops.yaml
+creation_rules:
+  - path_regex: '.*\.env$|^\.env(\..+)?$|^config/.*\.env$|^\.env\.sops$'
+    age: "age1ca4lzlnvd93wtdr250ru94sangcsss5p46r7662gppmx2v6ufaaqc6tujw"
