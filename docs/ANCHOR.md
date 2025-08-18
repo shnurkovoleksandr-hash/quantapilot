@@ -84,4 +84,4 @@ If a decision affects a target project rather than the factory itself, an ADR sh
 - [90_api.md](90_api.md) – integration API and events.
 - [99_glossary.md](99_glossary.md) – glossary of terms.
 
-Refer to the index in `docs/README.md` for a tabular overview.
+Refer to the index in the main [README.md](../README.md) for a tabular overview.

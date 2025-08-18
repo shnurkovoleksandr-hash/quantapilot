@@ -1,0 +1,79 @@
+name: Test SOPS Decryption
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-sops:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SOPS
+        run: |
+          # Install SOPS
+          curl -L https://github.com/mozilla/sops/releases/download/v3.10.2/sops-v3.10.2.linux.amd64 -o sops
+          chmod +x sops
+          sudo mv sops /usr/local/bin/
+
+          # Install age
+          curl -L https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-linux-amd64.tar.gz -o age.tar.gz
+          tar -xzf age.tar.gz
+          sudo mv age/age /usr/local/bin/
+          sudo mv age/age-keygen /usr/local/bin/
+
+      - name: Setup AGE Key
+        run: |
+          # Create age key file from GitHub secret
+          echo "${{ secrets.SOPS_AGE_KEY }}" > $RUNNER_TEMP/age.txt
+          export SOPS_AGE_KEY_FILE="$RUNNER_TEMP/age.txt"
+
+          # Test decryption
+          if [[ -f ".env.sops" ]]; then
+            echo "Testing SOPS decryption..."
+            sops -d --input-type dotenv --output-type dotenv .env.sops > .env
+            echo "✅ Successfully decrypted .env.sops"
+            
+            # Verify environment variables are loaded
+            source .env
+            echo "NODE_ENV: $NODE_ENV"
+            echo "DATABASE_URL: $DATABASE_URL"
+          else
+            echo "⚠️  .env.sops not found, skipping decryption test"
+          fi
+
+      - name: Test Environment Variables
+        run: |
+          if [[ -f ".env" ]]; then
+            echo "Testing environment variables..."
+            source .env
+            
+            # Test that key variables are set
+            if [[ -n "$NODE_ENV" ]]; then
+              echo "✅ NODE_ENV is set: $NODE_ENV"
+            else
+              echo "❌ NODE_ENV is not set"
+              exit 1
+            fi
+            
+            if [[ -n "$DATABASE_URL" ]]; then
+              echo "✅ DATABASE_URL is set: $DATABASE_URL"
+            else
+              echo "❌ DATABASE_URL is not set"
+              exit 1
+            fi
+          else
+            echo "⚠️  .env file not found, skipping environment test"
+          fi
+
+      - name: Cleanup
+        run: |
+          # Remove sensitive files
+          rm -f .env
+          rm -f $RUNNER_TEMP/age.txt

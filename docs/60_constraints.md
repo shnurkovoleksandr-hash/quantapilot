@@ -30,7 +30,7 @@ This document captures the technical, process and compliance constraints that go
 ## Compliance
 
 - **Privacy:** Do not store sensitive personal data in logs or artefacts. Use opaque identifiers for user references. Ensure compliance with GDPR or local regulations as applicable.
-- **Secrets:** Secrets must be encrypted using `sops`/`age`. A public age key is generated during environment setup and stored in `.sops.yaml`【832497655031489†L84-L90】.
+- **Secrets:** Secrets must be encrypted using `sops`/`age` with dual-secret rotation. Environment variables are encrypted in `.env.sops`, CI keys are managed via GitHub Secrets, and RBAC is implemented for n8n credentials. Rotation follows the schedule in `ops/security/secrets-rotation.md`.
 - **Data retention:** Define retention periods for logs, metrics and artefacts. Automatically purge expired data via scheduled jobs (e.g. using `pg_cron`).
 - **Licensing:** Respect the licences of any open‑source tools or models integrated into the factory. The factory itself is released under the MIT licence (by default) and contributors must agree to contributor licence agreements as required.
 

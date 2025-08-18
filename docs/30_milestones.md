@@ -21,12 +21,14 @@ Each milestone has clearly defined goals, acceptance criteria and artefacts. Mil
 - Two ADRs are recorded: one selecting n8n as the orchestrator and another mandating PR‑only workflow【876102779380499†L82-L83】.
 - Roles and responsibilities are agreed (Operator, Reviewer, System, Data Steward)【876102779380499†L19-L23】.
 - Mandatory gates and decision format are defined【876102779380499†L31-L33】.
+- **Secrets management system implemented** with SOPS/age encryption, dual-secret rotation, and CI/CD integration.
 
 **Artefacts.**
 
 - Repository skeleton with PNPM monorepo setup, package scaffolding and directory structure (docs, packages, apps, ops, contracts, prompts, tests, mocks).
 - Documentation skeleton with populated front‑matter.
 - ADRs for orchestrator choice and PR‑only policy.
+- **Complete secrets management infrastructure**: `.sops.yaml`, `.env.example`, `.envrc`, encrypted `.env.sops`, setup scripts, and comprehensive documentation.
 
 ## M‑002 — Orchestrator
 

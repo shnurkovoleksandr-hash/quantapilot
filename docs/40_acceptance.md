@@ -17,6 +17,7 @@ Acceptance is evaluated at three levels: documentation, orchestrator and quality
 - Cross‑links between documents resolve correctly; there are no broken links.
 - Two ADRs are recorded: one selecting n8n as the orchestrator and one mandating PR‑only workflow【876102779380499†L82-L83】.
 - The anchor document is accepted by the reviewer through the anchor gate.【876102779380499†L31-L33】
+- **Secrets management documentation is complete** with setup guides, rotation policies, and operational procedures.
 
 ## Orchestrator
 
@@ -26,6 +27,7 @@ Acceptance is evaluated at three levels: documentation, orchestrator and quality
 - Runs record metrics (tokens, cost, duration) and logs in PostgreSQL.
 - Notifications are delivered to Telegram at run start, gate requests and completion.
 - The anchor gate, milestone M‑001 gate and first‑merge gate are implemented and block further progress until approved.【876102779380499†L31-L33】
+- **Secrets management is operational** with SOPS/age encryption, CI/CD integration, and RBAC mapping for n8n credentials.
 
 ## Quality Gates
 

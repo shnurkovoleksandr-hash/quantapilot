@@ -26,6 +26,7 @@ This runbook provides practical guidance for operators and maintainers of Quanta
 - **Inspect status.** Use the CLI (`pnpm qp status <run_id>`) or the n8n UI to inspect current status, pending gates, token consumption, cost and logs. Run IDs and correlation IDs are displayed in notifications.
 - **Adjust budgets.** If a run pauses due to token budget exhaustion, operators can increase the budget in `quantapilot.yml` and resume the run. Budget increases are recorded in the run history.
 - **Handle validation errors.** If the doc‑lint step fails, review the error messages, adjust the `README.md` or agent prompts, and restart the run. Validation failures do not attempt retries.
+- **Secrets management.** Use `./scripts/setup-env.sh` for initial environment setup. For CI/CD, run `./scripts/setup-ci-keys.sh` to generate keys and follow the setup guide in `ops/setup-guide.md`. Rotate secrets according to the schedule in `ops/security/secrets-rotation.md`.
 
 ## Incident Response
 
@@ -36,6 +37,6 @@ Common incidents and remediation steps:
 - **Database unavailable.** If PostgreSQL is unreachable, n8n will fail to record run state. Restore the database from backups and restart n8n. Ensure `pg_cron` jobs are running to clean up old logs.
 - **n8n crash.** Restart n8n. Because run state is stored externally, crashed runs can be resumed. Investigate logs in `packages/diagnostics` for root cause.
 - **Budget exceeded.** When token or cost budgets are exceeded, the run pauses. Operators can increase budgets or cancel the run. Budget changes should be recorded in an ADR.
-- **Secrets compromised.** Rotate compromised secrets immediately. Update the encrypted secrets file using `sops` and re‑deploy. Review access logs and revoke affected tokens.
+- **Secrets compromised.** Rotate compromised secrets immediately using the dual-secret rotation process documented in `ops/security/secrets-rotation.md`. Update the encrypted secrets file using `sops` and re‑deploy. Review access logs and revoke affected tokens.
 
 For any incident not covered here, consult the project’s ADRs and open an issue. The ADR log serves as the canonical record of past decisions and rationales.
