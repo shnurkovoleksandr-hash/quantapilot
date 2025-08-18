@@ -1,0 +1,22 @@
+name: docs-lint
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '_schemas/**'
+      - 'examples/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+jobs:
+  docs-lint:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: 'pnpm' }
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm run schema:all # включает validate:quantapilot и docs:lint
