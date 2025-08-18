@@ -1,0 +1,22 @@
+name: policy/enforcer
+on: [pull_request]
+jobs:
+  paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tj-actions/changed-files@v45
+        id: cf
+      - name: Block bot on protected paths
+        run: |
+          PROTECTED='^(\.github/workflows/|ops/|contracts/|db/migrations/|infra/|Dockerfile|docker/|package(-lock)?\.json)'
+          for f in ${{ steps.cf.outputs.all_changed_files }}; do
+            if [[ "$f" =~ $PROTECTED ]] && [[ "${{ github.actor }}" == "quantapilot-bot" ]]; then
+              echo "Bot cannot change protected file: $f"; exit 1
+            fi
+          done
+      - name: Require label for workflow edits
+        if: contains(steps.cf.outputs.all_changed_files, '.github/workflows/')
+        run: |
+          gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' | \
+          grep -qx 'ops:workflow-change' || { echo "Missing ops:workflow-change label"; exit 1; }

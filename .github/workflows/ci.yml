@@ -5,6 +5,15 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'docs/**'
+      - 'packages/**'
+      - 'apps/**'
+      - 'scripts/**'
+      - '!ops/**'
+      - '!.github/workflows/**'
 
 jobs:
   test:
