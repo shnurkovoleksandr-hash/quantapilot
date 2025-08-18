@@ -3,7 +3,7 @@ id: 'changelog'
 title: 'Changelog'
 status: 'ready'
 version: '0.1.0'
-updated: '2025-08-18'
+updated: '2025-08-19'
 owners: ['shnurkovoleksandr-hash']
 ---
 

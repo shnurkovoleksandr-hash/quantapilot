@@ -24,7 +24,7 @@ id: "anchor"
 title: "ANCHOR — контекст фабрики"
 status: "draft"
 version: "0.1.0"
-updated: "2025-08-18"
+updated: "2025-08-19"
 owners: ["shnurkovoleksandr-hash"]
 ---
 
@@ -52,7 +52,7 @@ MD
 4. Шаблон для всех docs/\* (минимальные разделы)
 
 ```bash
-TODAY="2025-08-18"
+TODAY="2025-08-19"
 
 cat > docs/00_overview.md <<MD
 ---
