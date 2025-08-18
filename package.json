@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm -r --filter ./packages... run build",
-    "dev": "pnpm -r --filter ./packages... run dev",
+    "build": "pnpm -r --filter \"@quantapilot/*\" run build",
+    "dev": "pnpm -r --filter \"@quantapilot/*\" run dev",
     "test": "echo \"(tests will be added in step 20)\"",
     "clean": "git clean -xdf -e docs",
     "validate:quantapilot": "node scripts/validate-quantapilot.mjs",
