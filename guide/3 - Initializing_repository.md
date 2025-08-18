@@ -226,7 +226,7 @@ git push -u origin main
 
 12. Acceptance для шага №3
 
-- `pnpm -r build` проходит без ошибок.
-- `qp` после `pnpm --filter @quantapilot/cli run dev` выводит «QuantaPilot CLI ready».
-- Пуш в `main` выполнен.
-- В дереве присутствуют все каталоги и файлы из пунктов 3–7.
+- ✅ `pnpm -r build` проходит без ошибок.
+- ✅ `qp` после `pnpm --filter @quantapilot/cli run dev` выводит «QuantaPilot CLI ready».
+- ✅ Пуш в `main` выполнен.
+- ✅ В дереве присутствуют все каталоги и файлы из пунктов 3–7.

@@ -17,6 +17,7 @@ This document captures the technical, process and compliance constraints that go
 - **Orchestrator:** n8n is used as the sole orchestrator. Alternative orchestrators (e.g. temporal) are out of scope for the MVP.
 - **AI models:** Specific model versions (e.g. GPT‑5/mini, Cursor) and seeds are fixed to ensure reproducibility【876102779380499†L37-L40】. Changing a model requires an ADR and a gate.
 - **Database:** PostgreSQL is the default database. Other databases may be supported via adapters but are not required in the MVP.
+  The canonical connection variable is `DATABASE_URL`. Database schema changes use reversible migrations under `db/migrations/` (dbmate). Seed data and RLS policies live in `db/seeds/`.
 - **Language:** English is the single project language for all artifacts.
 
 ## Process
@@ -31,7 +32,7 @@ This document captures the technical, process and compliance constraints that go
 
 - **Privacy:** Do not store sensitive personal data in logs or artefacts. Use opaque identifiers for user references. Ensure compliance with GDPR or local regulations as applicable.
 - **Secrets:** Secrets must be encrypted using `sops`/`age` with dual-secret rotation. Environment variables are encrypted in `.env.sops`, CI keys are managed via GitHub Secrets, and RBAC is implemented for n8n credentials. Rotation follows the schedule in `ops/security/secrets-rotation.md`.
-- **Data retention:** Define retention periods for logs, metrics and artefacts. Automatically purge expired data via scheduled jobs (e.g. using `pg_cron`).
+- **Data retention:** Define retention periods for logs, metrics and artefacts. Automatically purge expired data via scheduled jobs (e.g. using `pg_cron`). In development environments where `pg_cron` is not available, retention jobs MUST be disabled or documented as optional.
 - **Licensing:** Respect the licences of any open‑source tools or models integrated into the factory. The factory itself is released under the MIT licence (by default) and contributors must agree to contributor licence agreements as required.
 
 These constraints are intentionally strict to ensure reproducibility, auditability and compliance. Any deviation requires an ADR and may introduce additional gates.

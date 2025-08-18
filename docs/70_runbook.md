@@ -28,6 +28,21 @@ This runbook provides practical guidance for operators and maintainers of Quanta
 - **Handle validation errors.** If the doc‑lint step fails, review the error messages, adjust the `README.md` or agent prompts, and restart the run. Validation failures do not attempt retries.
 - **Secrets management.** Use `./scripts/setup-env.sh` for initial environment setup. For CI/CD, run `./scripts/setup-ci-keys.sh` to generate keys and follow the setup guide in `ops/setup-guide.md`. Rotate secrets according to the schedule in `ops/security/secrets-rotation.md`.
 
+## Database operations
+
+The factory uses PostgreSQL 15. The canonical environment variable for connections is `DATABASE_URL`.
+
+- Start database: `docker compose up -d db`
+- Apply migrations: `pnpm run db:up`
+- Seed data: `pnpm run db:seed`
+- Lint SQL: `pnpm run db:lint`
+
+Notes:
+
+- Local default: `postgres://qp:qp@localhost:5432/quantapilot?sslmode=disable`
+- Init scripts enable `pgcrypto` and conditionally `pg_cron` if available. In development, retention/rollup jobs are skipped if `pg_cron` is not present.
+- See `ops/db/README.md` for details.
+
 ## Incident Response
 
 Common incidents and remediation steps:

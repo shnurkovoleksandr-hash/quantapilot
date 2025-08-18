@@ -156,8 +156,8 @@ jq --version && yq --version
 
 16. Acceptance для шага №2
 
-- Все версии соответствуют.
-- `docker run hello-world` проходит.
-- `gh auth status` без ошибок.
-- Публичный age-ключ получен.
-- Команда `ajv --version` отрабатывает.
+- ✅ Все версии соответствуют.
+- ✅ `docker run hello-world` проходит.
+- ✅ `gh auth status` без ошибок.
+- ✅ Публичный age-ключ получен.
+- ✅ Команда `ajv --version` отрабатывает.

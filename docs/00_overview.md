@@ -39,7 +39,7 @@ Externally, QuantaPilot integrates with:
 
 - **GitHub** – via a GitHub App that reads and writes repositories, opens PRs and reports statuses.
 - **Telegram** – for notifications and interactions with operators.
-- **PostgreSQL** – to store run history, metrics, budgets and logs.
+- **PostgreSQL** – to store run history, metrics, budgets and logs. The canonical connection variable is `DATABASE_URL`; migrations are managed with `dbmate`.
 - **OpenAI (or other AI providers)** – to supply the models behind each agent. Model versions and seeds are fixed for reproducibility【876102779380499†L37-L40】.
 - **SOPS/age** – for secure secrets management with encryption and dual-secret rotation.
 
