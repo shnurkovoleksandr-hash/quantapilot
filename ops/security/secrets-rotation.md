@@ -1,17 +1,20 @@
 ---
-id: "secrets-rotation"
-title: "Secrets Rotation Policy"
-status: "draft"
-version: "0.1.0"
-updated: "2025-08-18"
-owners: ["@security", "@ops"]
+id: 'secrets-rotation'
+title: 'Secrets Rotation Policy'
+status: 'draft'
+version: '0.1.0'
+updated: '2025-08-18'
+owners: ['@security', '@ops']
 ---
 
 ## Purpose
+
 Политика ротации секретов для обеспечения безопасности QuantaPilot.
 
 ## Scope
+
 Все секреты, используемые в системе:
+
 - API ключи
 - Токены доступа
 - Пароли базы данных
@@ -21,28 +24,33 @@ owners: ["@security", "@ops"]
 ## Rotation Schedule
 
 ### Critical Secrets (30 days)
+
 - API ключи внешних сервисов
 - Токены аутентификации
 - SSH ключи для production
 
 ### Standard Secrets (90 days)
+
 - Пароли базы данных
 - Сертификаты TLS
 - Внутренние API ключи
 
 ### Long-term Secrets (365 days)
+
 - Корневые сертификаты
 - Backup ключи
 
 ## Process
 
 ### Automated Rotation
+
 1. Система автоматически генерирует новые секреты
 2. Обновляет конфигурации без downtime
 3. Валидирует работоспособность
 4. Удаляет старые секреты после grace period
 
 ### Manual Rotation
+
 1. Создание новых секретов
 2. Обновление конфигураций
 3. Тестирование в staging
@@ -51,11 +59,13 @@ owners: ["@security", "@ops"]
 6. Удаление старых секретов
 
 ## Monitoring
+
 - Алерты на приближающуюся ротацию
 - Уведомления об успешной/неуспешной ротации
 - Логирование всех операций с секретами
 
 ## Emergency Procedures
+
 - Процедуры экстренной ротации при компрометации
 - Rollback процедуры
 - Контакты для экстренных ситуаций

@@ -20,24 +20,28 @@ The audit system provides comprehensive logging and monitoring capabilities for:
 ## Key Features
 
 ### Audit Policy
+
 - Defines what events are logged
 - Specifies retention periods
 - Outlines compliance requirements (GDPR, SOX, SOC 2)
 - Establishes monitoring and alerting procedures
 
 ### Database Schema
+
 - `audit_events` - Main audit log table
 - `audit_trails` - Change tracking for specific resources
 - `audit_event_types` - Event type definitions
 - `audit_queries` - Predefined compliance queries
 
 ### Functions
+
 - `log_audit_event()` - Manual audit logging
 - `audit_trigger_function()` - Automatic audit trails
 
 ## Usage
 
 ### Manual Logging
+
 ```sql
 SELECT log_audit_event(
     'user.login',
@@ -53,6 +57,7 @@ SELECT log_audit_event(
 ```
 
 ### Automatic Audit Trails
+
 ```sql
 -- Enable audit triggers on tables
 CREATE TRIGGER audit_users_trigger
@@ -61,6 +66,7 @@ CREATE TRIGGER audit_users_trigger
 ```
 
 ### Compliance Queries
+
 ```sql
 -- Failed logins in last 24 hours
 SELECT * FROM audit_queries WHERE name = 'failed_logins';
@@ -72,6 +78,7 @@ SELECT * FROM audit_queries WHERE name = 'pii_access';
 ## Compliance
 
 The audit system supports:
+
 - **GDPR** - PII tracking, consent logging, right to be forgotten
 - **SOX** - Financial data changes, critical system access
 - **SOC 2** - Access control, configuration changes, incident response

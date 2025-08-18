@@ -1,11 +1,15 @@
-{ "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://schemas.quantapilot/milestone.schema.json",
-  "type":"object",
-  "properties":{
-    "id":{"type":"string"},
-    "title":{"type":"string"},
-    "criteria":{"type":"array","items":{"type":"string"}}
+{ "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantapilot/milestone.schema.json",
+  "title": "Milestone Schema",
+  "description": "Schema for milestone definitions in 30_milestones.md or external configuration.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Machine‑readable identifier (e.g. M-001)." },
+    "title": { "type": "string", "description": "Human‑readable name of the milestone." },
+    "criteria": { "type": "array", "items": { "type": "string" }, "description": "List of acceptance criteria." },
+    "due_date": { "type": "string", "format": "date", "description": "Optional due date (YYYY‑MM‑DD)." },
+    "status": { "type": "string", "enum": ["planned", "active", "completed", "cancelled"], "description": "Lifecycle status of the milestone." }
   },
-  "required":["id","title"],
-  "additionalProperties":true
+  "required": ["id", "title"],
+  "additionalProperties": true
 }

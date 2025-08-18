@@ -1,17 +1,20 @@
 ---
-id: "audit-policy"
-title: "Audit Policy"
-status: "draft"
-version: "0.1.0"
-updated: "2025-08-18"
-owners: ["@security", "@compliance"]
+id: 'audit-policy'
+title: 'Audit Policy'
+status: 'draft'
+version: '0.1.0'
+updated: '2025-08-18'
+owners: ['@security', '@compliance']
 ---
 
 ## Purpose
+
 Политика аудита для обеспечения подотчетности и соответствия требованиям безопасности QuantaPilot.
 
 ## Scope
+
 Все действия, подлежащие аудиту:
+
 - Доступ к системе
 - Изменения конфигурации
 - Операции с данными
@@ -21,22 +24,26 @@ owners: ["@security", "@compliance"]
 ## Audit Events
 
 ### Authentication Events
+
 - Успешные и неуспешные логины
 - Изменения паролей
 - Блокировка/разблокировка аккаунтов
 - Использование API ключей
 
 ### Authorization Events
+
 - Изменения ролей пользователей
 - Изменения разрешений
 - Доступ к защищенным ресурсам
 
 ### Data Events
+
 - Создание, изменение, удаление данных
 - Экспорт данных
 - Доступ к PII
 
 ### System Events
+
 - Изменения конфигурации
 - Развертывания
 - Системные ошибки
@@ -45,6 +52,7 @@ owners: ["@security", "@compliance"]
 ## Logging Requirements
 
 ### Log Format
+
 ```json
 {
   "timestamp": "2025-08-18T10:30:00Z",
@@ -59,6 +67,7 @@ owners: ["@security", "@compliance"]
 ```
 
 ### Required Fields
+
 - timestamp (ISO 8601)
 - event_type
 - user_id (если применимо)
@@ -69,22 +78,26 @@ owners: ["@security", "@compliance"]
 ## Retention Policy
 
 ### Production Logs
+
 - **90 дней** - стандартные логи
 - **1 год** - логи безопасности
 - **7 лет** - логи соответствия
 
 ### Development Logs
+
 - **30 дней** - все логи
 
 ## Monitoring and Alerting
 
 ### Real-time Alerts
+
 - Множественные неуспешные логины
 - Необычные паттерны доступа
 - Изменения критических конфигураций
 - Доступ к PII
 
 ### Periodic Reviews
+
 - Еженедельный анализ аномалий
 - Ежемесячный отчет по безопасности
 - Ежеквартальный аудит соответствия
@@ -92,16 +105,19 @@ owners: ["@security", "@compliance"]
 ## Compliance Requirements
 
 ### GDPR
+
 - Логирование согласий
 - Отслеживание обработки PII
 - Право на забвение
 
 ### SOX
+
 - Изменения финансовых данных
 - Доступ к критическим системам
 - Разделение обязанностей
 
 ### SOC 2
+
 - Контроль доступа
 - Изменения конфигурации
 - Обработка инцидентов
@@ -109,11 +125,13 @@ owners: ["@security", "@compliance"]
 ## Incident Response
 
 ### Audit Trail Preservation
+
 - Защита логов от модификации
 - Резервное копирование
 - Цифровые подписи
 
 ### Investigation Procedures
+
 - Процедуры анализа логов
 - Эскалация инцидентов
 - Документирование расследований

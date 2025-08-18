@@ -1,0 +1,125 @@
+---
+description: 'QuantaPilot development rules and guidelines based on project documentation from /docs and /guide folders'
+alwaysApply: false
+---
+
+````
+
+**Reference:** `guide/4 - Documentation.md`
+
+## Quality Standards
+
+### Code Quality
+
+- **TypeScript**: Use strict settings with proper typing
+- **Linting**: Enforce ESLint rules and Prettier formatting
+- **Testing**: Unit tests for pure logic, integration tests for key flows
+- **Documentation**: Keep inline comments for non-obvious code
+
+### Security
+
+- **Input validation**: Validate all inputs at boundaries
+- **Secrets management**: Use environment variables, never hardcode
+- **Minimal permissions**: GitHub App with least privilege access
+- **Data sanitization**: Sanitize outputs to logs and HTML
+
+**Reference:** `docs/20_requirements.md` (Non-functional requirements)
+
+## Integration Guidelines
+
+### External Services
+
+- **GitHub**: Via GitHub App for repository operations
+- **Telegram**: For notifications and operator interactions
+- **PostgreSQL**: For run history and metrics storage
+- **OpenAI/AI providers**: For agent model access
+
+### Internal Contracts
+
+- **Agent contracts**: Defined under `contracts/` directory
+- **JSON schemas**: For documentation validation (`_schemas/`)
+- **Type definitions**: Shared in `@quantapilot/core` package
+
+**Reference:** `docs/90_api.md`
+
+## Operational Procedures
+
+### Gates and Approvals
+
+**Mandatory gates:**
+
+- Acceptance of `ANCHOR.md`
+- Milestone M-001 completion
+- First code merge to default branch
+
+**Optional gates:**
+
+- Expensive prompts
+- Model changes
+- CI policy changes
+- Schema migrations
+
+### Monitoring and Observability
+
+- **Structured logging**: With correlation IDs
+- **Metrics collection**: Tokens, cost, duration, retry counts
+- **Health checks**: Readiness and liveness probes
+- **Audit trails**: All decisions recorded in ADRs
+
+**Reference:** `docs/70_runbook.md`
+
+## Development Commands
+
+### Package Management
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm run build
+
+# Development mode
+pnpm run dev
+
+# Clean workspace (preserves docs)
+pnpm run clean
+````
+
+### Documentation
+
+```bash
+# Validate documentation schemas
+npm run docs:lint
+```
+
+**Reference:** `guide/3 - Initializing_repository.md`
+
+## Error Handling
+
+### Fallback Strategy
+
+- **Primary**: Main execution path
+- **Secondary**: Retry with exponential backoff
+- **User-visible error**: Clear error messages, no silent failures
+
+### Recovery Procedures
+
+- **Idempotent operations**: Where possible for retry safety
+- **Resumable runs**: After system crashes
+- **Budget enforcement**: Graceful failure when limits exceeded
+
+**Reference:** `docs/70_runbook.md` (Recovery scenarios)
+
+## Terminology
+
+Key terms used throughout the project:
+
+- **HITL**: Human-in-the-Loop process with approval gates
+- **Gate**: Checkpoint requiring operator/reviewer approval
+- **Agent**: Specialized AI service for development phases
+- **ADR**: Architectural Decision Record
+- **Milestone**: Logical work phase with defined criteria
+- **SLO/SLA**: Service Level Objective/Agreement
+
+**Reference:** `docs/99_glossary.md`

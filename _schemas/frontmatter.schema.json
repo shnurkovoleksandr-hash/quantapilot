@@ -1,14 +1,16 @@
-{ "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://schemas.quantapilot/frontmatter.schema.json",
-  "type":"object",
-  "properties":{
-    "id":{"type":"string"},
-    "title":{"type":"string"},
-    "status":{"enum":["draft","ready","deprecated"]},
-    "version":{"type":"string"},
-    "updated":{"type":"string","format":"date"},
-    "owners":{"type":"array","items":{"type":"string"}}
+{ "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantapilot/frontmatter.schema.json",
+  "title": "Front‑Matter Schema",
+  "description": "Schema for the YAML front‑matter at the top of each documentation file.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier of the document." },
+    "title": { "type": "string", "description": "Human‑readable title." },
+    "status": { "type": "string", "enum": ["draft", "ready", "deprecated"], "description": "Publication status." },
+    "version": { "type": "string", "description": "Semantic version of the document." },
+    "updated": { "type": "string", "format": "date", "description": "Date of last update (YYYY‑MM‑DD)." },
+    "owners": { "type": "array", "items": { "type": "string" }, "description": "List of GitHub usernames responsible for the document." }
   },
-  "required":["id","title","status","version","updated","owners"],
-  "additionalProperties":true
+  "required": ["id", "title", "status", "version", "updated", "owners"],
+  "additionalProperties": true
 }

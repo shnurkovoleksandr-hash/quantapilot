@@ -1,10 +1,52 @@
-{ "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://schemas.quantapilot/quantapilot.schema.json",
-  "type":"object",
-  "properties":{
-    "stack":{"type":"object"},
-    "limits":{"type":"object"},
-    "policies":{"type":"object"}
+{ "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantapilot/quantapilot.schema.json",
+  "title": "QuantaPilot Configuration Schema",
+  "description": "Schema for the optional quantapilot.yml file in a target project.",
+  "type": "object",
+  "properties": {
+    "stack": {
+      "type": "object",
+      "description": "Overrides for the technology stack.",
+      "properties": {
+        "node": { "type": "string", "description": "Desired Node.js version." },
+        "python": { "type": "string", "description": "Desired Python version." },
+        "database": { "type": "string", "enum": ["postgres"], "description": "Database choice (currently only postgres supported)." },
+        "orchestrator": { "type": "string", "enum": ["n8n"], "description": "Orchestrator choice." },
+        "agents": {
+          "type": "object",
+          "description": "Overrides for agent models.",
+          "properties": {
+            "architecture": { "type": "string", "description": "Model identifier for the architecture agent." },
+            "development": { "type": "string", "description": "Model identifier for the development agent." },
+            "qa": { "type": "string", "description": "Model identifier for the QA agent." }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "description": "Resource and budget limits.",
+      "properties": {
+        "tokens_per_run": { "type": "integer", "minimum": 0, "description": "Maximum number of tokens per run." },
+        "tokens_per_day": { "type": "integer", "minimum": 0, "description": "Daily token budget." },
+        "timeout_seconds": { "type": "integer", "minimum": 0, "description": "Global timeout per run in seconds." },
+        "max_retries": { "type": "integer", "minimum": 0, "description": "Maximum number of retries per step." }
+      },
+      "additionalProperties": false
+    },
+    "policies": {
+      "type": "object",
+      "description": "Process policies.",
+      "properties": {
+        "merge": { "type": "string", "enum": ["squash", "merge", "rebase"], "description": "Preferred merge strategy for PRs." },
+        "gates": { "type": "array", "items": { "type": "string" }, "description": "Additional optional gates to enforce." },
+        "data_retention_days": { "type": "integer", "minimum": 0, "description": "Days to retain logs and metrics." },
+        "model_change_requires_gate": { "type": "boolean", "description": "If true, changing model versions requires a gate." }
+      },
+      "additionalProperties": false
+    }
   },
-  "additionalProperties":true
+  "additionalProperties": true
 }

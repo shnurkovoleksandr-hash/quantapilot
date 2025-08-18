@@ -1,9 +1,37 @@
-{ "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://schemas.quantapilot/api.schema.json",
-  "type":"object",
-  "properties":{
-    "triggers":{"type":"array","items":{"type":"string"}},
-    "events":{"type":"array","items":{"type":"string"}}
+{ "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quantapilot/api.schema.json",
+  "title": "QuantaPilot API Schema",
+  "description": "Schema for triggers and events emitted by the factory.",
+  "type": "object",
+  "properties": {
+    "triggers": {
+      "type": "array",
+      "description": "List of supported triggers.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Trigger name." },
+          "description": { "type": "string", "description": "Human‑readable description." },
+          "payload_schema": { "type": "object", "description": "JSON schema describing the request body." }
+        },
+        "required": ["name", "payload_schema"],
+        "additionalProperties": false
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "List of events emitted by the factory.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Event name." },
+          "description": { "type": "string", "description": "Human‑readable description." },
+          "payload_schema": { "type": "object", "description": "JSON schema describing the event payload." }
+        },
+        "required": ["name", "payload_schema"],
+        "additionalProperties": false
+      }
+    }
   },
-  "additionalProperties":true
+  "additionalProperties": true
 }
