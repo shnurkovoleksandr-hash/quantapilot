@@ -1,0 +1,11 @@
+{ "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.quantapilot/milestone.schema.json",
+  "type":"object",
+  "properties":{
+    "id":{"type":"string"},
+    "title":{"type":"string"},
+    "criteria":{"type":"array","items":{"type":"string"}}
+  },
+  "required":["id","title"],
+  "additionalProperties":true
+}

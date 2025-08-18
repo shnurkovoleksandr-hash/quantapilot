@@ -1,0 +1,10 @@
+{ "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.quantapilot/quantapilot.schema.json",
+  "type":"object",
+  "properties":{
+    "stack":{"type":"object"},
+    "limits":{"type":"object"},
+    "policies":{"type":"object"}
+  },
+  "additionalProperties":true
+}

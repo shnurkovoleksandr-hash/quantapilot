@@ -1,2 +1,2 @@
 # QuantaPilot Factory
-Repo: фабрика разработки. См. /docs для проектной документации.
+Фабрика разработки. Точка входа: [/docs/ANCHOR.md](./docs/ANCHOR.md).

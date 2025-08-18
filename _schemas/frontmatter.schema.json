@@ -1,0 +1,14 @@
+{ "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.quantapilot/frontmatter.schema.json",
+  "type":"object",
+  "properties":{
+    "id":{"type":"string"},
+    "title":{"type":"string"},
+    "status":{"enum":["draft","ready","deprecated"]},
+    "version":{"type":"string"},
+    "updated":{"type":"string","format":"date"},
+    "owners":{"type":"array","items":{"type":"string"}}
+  },
+  "required":["id","title","status","version","updated","owners"],
+  "additionalProperties":true
+}
