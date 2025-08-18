@@ -1,10 +1,10 @@
 ---
-id: "80_adrs"
-title: "Architectural Decisions"
-status: "ready"
-version: "0.1.0"
-updated: "2025-08-18"
-owners: ["@owner"]
+id: '80_adrs'
+title: 'Architectural Decisions'
+status: 'ready'
+version: '0.1.0'
+updated: '2025-08-18'
+owners: ['shnurkovoleksandr-hash']
 ---
 
 This document records significant architectural and process decisions made during the development of QuantaPilot. Each entry follows the format **Context → Decision → Consequences**. ADRs are immutable historical records; when a decision is superseded, a new ADR should be created rather than editing an existing one.
@@ -17,10 +17,10 @@ This document records significant architectural and process decisions made durin
 
 **Consequences.**
 
-* Workflows are defined as n8n nodes and stored in version control. Custom functionality is encapsulated in JavaScript/TypeScript functions.
-* n8n must be deployed and secured as part of the factory environment. Operators need to monitor its health.
-* Concurrency and scaling are limited by n8n’s single‑instance architecture. Future ADRs may introduce horizontal scaling if required.
-* Switching to another orchestrator later would require re‑implementing flows and integrations.
+- Workflows are defined as n8n nodes and stored in version control. Custom functionality is encapsulated in JavaScript/TypeScript functions.
+- n8n must be deployed and secured as part of the factory environment. Operators need to monitor its health.
+- Concurrency and scaling are limited by n8n’s single‑instance architecture. Future ADRs may introduce horizontal scaling if required.
+- Switching to another orchestrator later would require re‑implementing flows and integrations.
 
 ## ADR‑0002: Pull‑request only policy
 
@@ -30,10 +30,10 @@ This document records significant architectural and process decisions made durin
 
 **Consequences.**
 
-* Every change is reviewable. Reviewers can approve or request changes, and their decisions are recorded.
-* Automated CI checks (linting, tests, doc‑lint) run on pull requests before merge.
-* Feature development may take longer due to the overhead of PRs and reviews.
-* Scripts and agents must be able to create branches and open pull requests with appropriate credentials.
+- Every change is reviewable. Reviewers can approve or request changes, and their decisions are recorded.
+- Automated CI checks (linting, tests, doc‑lint) run on pull requests before merge.
+- Feature development may take longer due to the overhead of PRs and reviews.
+- Scripts and agents must be able to create branches and open pull requests with appropriate credentials.
 
 ---
 

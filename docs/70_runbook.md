@@ -1,10 +1,10 @@
 ---
-id: "70_runbook"
-title: "Runbook"
-status: "ready"
-version: "0.1.0"
-updated: "2025-08-18"
-owners: ["@owner"]
+id: '70_runbook'
+title: 'Runbook'
+status: 'ready'
+version: '0.1.0'
+updated: '2025-08-18'
+owners: ['shnurkovoleksandr-hash']
 ---
 
 This runbook provides practical guidance for operators and maintainers of QuantaPilot. It covers onboarding a new project, routine operations and responding to incidents.
@@ -21,21 +21,21 @@ This runbook provides practical guidance for operators and maintainers of Quanta
 
 ## Operations
 
-* **Pause/Resume.** Operators can pause a run at any time (e.g. before an expensive agent call). Pausing serialises the run state to PostgreSQL. Resuming restores the state and continues execution.
-* **Retry.** If a step fails with a retriable error (rate limit, network error, upstream timeout), the orchestrator retries automatically. Operators can manually trigger an additional retry or abort the run.
-* **Inspect status.** Use the CLI (`pnpm qp status <run_id>`) or the n8n UI to inspect current status, pending gates, token consumption, cost and logs. Run IDs and correlation IDs are displayed in notifications.
-* **Adjust budgets.** If a run pauses due to token budget exhaustion, operators can increase the budget in `quantapilot.yml` and resume the run. Budget increases are recorded in the run history.
-* **Handle validation errors.** If the doc‑lint step fails, review the error messages, adjust the `README.md` or agent prompts, and restart the run. Validation failures do not attempt retries.
+- **Pause/Resume.** Operators can pause a run at any time (e.g. before an expensive agent call). Pausing serialises the run state to PostgreSQL. Resuming restores the state and continues execution.
+- **Retry.** If a step fails with a retriable error (rate limit, network error, upstream timeout), the orchestrator retries automatically. Operators can manually trigger an additional retry or abort the run.
+- **Inspect status.** Use the CLI (`pnpm qp status <run_id>`) or the n8n UI to inspect current status, pending gates, token consumption, cost and logs. Run IDs and correlation IDs are displayed in notifications.
+- **Adjust budgets.** If a run pauses due to token budget exhaustion, operators can increase the budget in `quantapilot.yml` and resume the run. Budget increases are recorded in the run history.
+- **Handle validation errors.** If the doc‑lint step fails, review the error messages, adjust the `README.md` or agent prompts, and restart the run. Validation failures do not attempt retries.
 
 ## Incident Response
 
 Common incidents and remediation steps:
 
-* **Merge conflict in documentation PR.** Resolve the conflict in the target repository and rebase the feature branch. Resume the run from the paused state.
-* **Timeout or model error.** The orchestrator retries transient errors automatically. Persistent failures may require adjusting timeouts or budgets, or updating the model version via an ADR and gate.
-* **Database unavailable.** If PostgreSQL is unreachable, n8n will fail to record run state. Restore the database from backups and restart n8n. Ensure `pg_cron` jobs are running to clean up old logs.
-* **n8n crash.** Restart n8n. Because run state is stored externally, crashed runs can be resumed. Investigate logs in `packages/diagnostics` for root cause.
-* **Budget exceeded.** When token or cost budgets are exceeded, the run pauses. Operators can increase budgets or cancel the run. Budget changes should be recorded in an ADR.
-* **Secrets compromised.** Rotate compromised secrets immediately. Update the encrypted secrets file using `sops` and re‑deploy. Review access logs and revoke affected tokens.
+- **Merge conflict in documentation PR.** Resolve the conflict in the target repository and rebase the feature branch. Resume the run from the paused state.
+- **Timeout or model error.** The orchestrator retries transient errors automatically. Persistent failures may require adjusting timeouts or budgets, or updating the model version via an ADR and gate.
+- **Database unavailable.** If PostgreSQL is unreachable, n8n will fail to record run state. Restore the database from backups and restart n8n. Ensure `pg_cron` jobs are running to clean up old logs.
+- **n8n crash.** Restart n8n. Because run state is stored externally, crashed runs can be resumed. Investigate logs in `packages/diagnostics` for root cause.
+- **Budget exceeded.** When token or cost budgets are exceeded, the run pauses. Operators can increase budgets or cancel the run. Budget changes should be recorded in an ADR.
+- **Secrets compromised.** Rotate compromised secrets immediately. Update the encrypted secrets file using `sops` and re‑deploy. Review access logs and revoke affected tokens.
 
 For any incident not covered here, consult the project’s ADRs and open an issue. The ADR log serves as the canonical record of past decisions and rationales.

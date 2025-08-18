@@ -93,6 +93,23 @@ pnpm run clean
 npm run docs:lint
 ```
 
+### Documentation Metadata Updates
+
+**Important**: When editing files in `/docs/`, always update the `updated` field in frontmatter to the current date. This is required for doc-lint validation to pass.
+
+**Example:**
+
+```yaml
+---
+id: '10_architecture'
+title: 'Architecture'
+status: 'ready'
+version: '0.1.0'
+updated: '2025-01-27' # Update this date on every edit
+owners: ['shnurkovoleksandr-hash']
+---
+```
+
 **Reference:** `guide/3 - Initializing_repository.md`
 
 ## Error Handling

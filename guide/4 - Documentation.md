@@ -25,7 +25,7 @@ title: "ANCHOR — контекст фабрики"
 status: "draft"
 version: "0.1.0"
 updated: "2025-08-18"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Purpose
@@ -61,7 +61,7 @@ title: "Обзор"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Summary
@@ -81,7 +81,7 @@ title: "Архитектура"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## System Context
@@ -104,7 +104,7 @@ title: "Требования"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Functional
@@ -124,7 +124,7 @@ title: "Milestones"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## M-001 — Bootstrap
@@ -144,7 +144,7 @@ title: "Acceptance Criteria"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Documentation
@@ -164,7 +164,7 @@ title: "Нефункциональные требования"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Reliability / SLO
@@ -184,7 +184,7 @@ title: "Ограничения"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Technical
@@ -204,7 +204,7 @@ title: "Runbook"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Onboarding
@@ -224,7 +224,7 @@ title: "Architectural Decisions"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## ADR-0001: n8n как оркестратор
@@ -241,7 +241,7 @@ title: "Интеграции и API"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Triggers
@@ -261,7 +261,7 @@ title: "Глоссарий"
 status: "draft"
 version: "0.1.0"
 updated: "${TODAY}"
-owners: ["@owner"]
+owners: ["shnurkovoleksandr-hash"]
 ---
 
 ## Terms

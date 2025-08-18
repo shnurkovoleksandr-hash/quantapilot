@@ -1,10 +1,10 @@
 ---
-id: "20_requirements"
-title: "Requirements"
-status: "ready"
-version: "0.1.0"
-updated: "2025-08-18"
-owners: ["@owner"]
+id: '20_requirements'
+title: 'Requirements'
+status: 'ready'
+version: '0.1.0'
+updated: '2025-08-18'
+owners: ['shnurkovoleksandr-hash']
 ---
 
 ## Functional requirements
@@ -26,21 +26,21 @@ QuantaPilot must:
 
 During the development and testing of QuantaPilot the following non‑functional requirements apply. Production NFRs for target applications are deliberately out of scope【876102779380499†L24-L28】.
 
-* **Reliability:** The orchestrator must handle transient failures via retries with exponential backoff. Steps should be idempotent where possible. Runs must be resumable after a crash.
-* **Performance:** Documentation generation for a typical project should complete within minutes. Agents should respect per‑step timeouts and token budgets.
-* **Scalability:** The system should support multiple concurrent runs, each isolated from others【876102779380499†L37-L40】.
-* **Security & Privacy:** Use minimal GitHub permissions and store secrets encrypted with `sops`/`age`. Do not persist personal data beyond what is needed for audit. Follow the data policies described in [`60_constraints.md`](60_constraints.md).
-* **Observability:** Emit structured logs, metrics and traces to PostgreSQL and optionally to other monitoring back‑ends. Provide dashboards or queries to inspect runs and budgets.
-* **Maintainability:** Structure the codebase as a PNPM monorepo with clear package boundaries (core, diagnostics, CLI). Use TypeScript with strict settings and enforce linting and formatting.
-* **Extensibility:** Support adding new agent types or workflows without breaking existing contracts. Version agent contracts and schemas following semantic versioning.
+- **Reliability:** The orchestrator must handle transient failures via retries with exponential backoff. Steps should be idempotent where possible. Runs must be resumable after a crash.
+- **Performance:** Documentation generation for a typical project should complete within minutes. Agents should respect per‑step timeouts and token budgets.
+- **Scalability:** The system should support multiple concurrent runs, each isolated from others【876102779380499†L37-L40】.
+- **Security & Privacy:** Use minimal GitHub permissions and store secrets encrypted with `sops`/`age`. Do not persist personal data beyond what is needed for audit. Follow the data policies described in [`60_constraints.md`](60_constraints.md).
+- **Observability:** Emit structured logs, metrics and traces to PostgreSQL and optionally to other monitoring back‑ends. Provide dashboards or queries to inspect runs and budgets.
+- **Maintainability:** Structure the codebase as a PNPM monorepo with clear package boundaries (core, diagnostics, CLI). Use TypeScript with strict settings and enforce linting and formatting.
+- **Extensibility:** Support adding new agent types or workflows without breaking existing contracts. Version agent contracts and schemas following semantic versioning.
 
 ## Assumptions
 
 The requirements above assume:
 
-* **Environment readiness.** The host system has Node 22, PNPM 9, Python 3.11, Docker, `gh`, `sops`/`age`, `jq` and `yq` installed【832497655031489†L2-L32】.
-* **Project specification.** Each target repository provides a comprehensive `README.md` describing what to build and may provide a `quantapilot.yml` for custom settings【876102779380499†L10-L15】.
-* **Roles exist.** Operators and reviewers are available to start runs, approve gates and provide feedback【876102779380499†L19-L23】.
-* **Budget awareness.** A daily token budget is defined; the factory must operate within this budget and fail gracefully when exceeded.
-* **Isolated pipelines.** Each project is processed in its own pipeline; there is no shared mutable state between runs【876102779380499†L37-L40】.
-* **Model stability.** AI model versions and seeds are fixed for reproducibility【876102779380499†L37-L40】.
+- **Environment readiness.** The host system has Node 22, PNPM 9, Python 3.11, Docker, `gh`, `sops`/`age`, `jq` and `yq` installed【832497655031489†L2-L32】.
+- **Project specification.** Each target repository provides a comprehensive `README.md` describing what to build and may provide a `quantapilot.yml` for custom settings【876102779380499†L10-L15】.
+- **Roles exist.** Operators and reviewers are available to start runs, approve gates and provide feedback【876102779380499†L19-L23】.
+- **Budget awareness.** A daily token budget is defined; the factory must operate within this budget and fail gracefully when exceeded.
+- **Isolated pipelines.** Each project is processed in its own pipeline; there is no shared mutable state between runs【876102779380499†L37-L40】.
+- **Model stability.** AI model versions and seeds are fixed for reproducibility【876102779380499†L37-L40】.

@@ -1,0 +1,26 @@
+stack:
+  runtime: node22
+  package_manager: pnpm9
+models:
+  arch: { model: 'gpt-5-thinking', temperature: 0.2, max_output_tokens: 2000 }
+  dev: { model: 'gpt-5', temperature: 0.3, max_output_tokens: 4000 }
+  qa: { model: 'gpt-5', temperature: 0.0, max_output_tokens: 1500 }
+budgets:
+  tokens: 60000
+  usd: 10
+steps:
+  - { name: plan, timeout_s: 300, retries: 2, tokens_budget: 6000 }
+  - { name: impl, timeout_s: 1500, retries: 2, tokens_budget: 20000 }
+  - { name: test, timeout_s: 600, retries: 2, tokens_budget: 8000 }
+  - { name: doc, timeout_s: 300, retries: 1, tokens_budget: 3000 }
+  - { name: pr, timeout_s: 300, retries: 1, tokens_budget: 1000 }
+gates:
+  docs_lint: true
+  tests_required: true
+rag:
+  snapshot_id: 'v1'
+  sources: ['https://example.com/policy']
+env_refs:
+  openai_key: 'OPENAI_API_KEY'
+  github_key: 'GITHUB_TOKEN'
+  db_url: 'DATABASE_URL'

@@ -4,3 +4,4 @@ dist
 .envrc
 .DS_Store
 coverage
+.tmp.*

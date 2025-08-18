@@ -1,4 +1,5 @@
-{ "$schema": "https://json-schema.org/draft/2020-12/schema",
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.quantapilot/api.schema.json",
   "title": "QuantaPilot API Schema",
   "description": "Schema for triggers and events emitted by the factory.",
@@ -9,13 +10,20 @@
       "description": "List of supported triggers.",
       "items": {
         "type": "object",
+        "required": ["name", "payload_schema"],
         "properties": {
           "name": { "type": "string", "description": "Trigger name." },
-          "description": { "type": "string", "description": "Human‑readable description." },
-          "payload_schema": { "type": "object", "description": "JSON schema describing the request body." }
+          "description": {
+            "type": "string",
+            "description": "Human‑readable description."
+          },
+          "payload_schema": {
+            "type": "string",
+            "description": "JSON schema describing the request body."
+          },
+          "version": { "type": "string" }
         },
-        "required": ["name", "payload_schema"],
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "events": {
@@ -23,13 +31,20 @@
       "description": "List of events emitted by the factory.",
       "items": {
         "type": "object",
+        "required": ["name", "payload_schema"],
         "properties": {
           "name": { "type": "string", "description": "Event name." },
-          "description": { "type": "string", "description": "Human‑readable description." },
-          "payload_schema": { "type": "object", "description": "JSON schema describing the event payload." }
+          "description": {
+            "type": "string",
+            "description": "Human‑readable description."
+          },
+          "payload_schema": {
+            "type": "string",
+            "description": "JSON schema describing the event payload."
+          },
+          "version": { "type": "string" }
         },
-        "required": ["name", "payload_schema"],
-        "additionalProperties": false
+        "additionalProperties": true
       }
     }
   },
