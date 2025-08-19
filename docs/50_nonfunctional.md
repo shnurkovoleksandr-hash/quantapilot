@@ -16,6 +16,7 @@ This document describes the non‑functional requirements (NFRs) of the QuantaPi
 - **Timeouts:** Each agent call specifies a timeout (e.g. 180 s for code generation). Orchestrator steps have global timeouts and can be resumed.
 - **Run statuses:** Runs progress through statuses (`queued`, `running`, `ok`, `error`, `canceled`). Runs can be paused and resumed without loss of state.
 - **Service Level Objectives:** The factory aims to complete documentation generation within minutes and a full milestone within hours. These objectives inform timeouts and budgets.
+- **SLO Windows and Escalations:** Rolling 30-day window for SLO aggregation with hourly evaluation cycles. Error budget policy implements "warn ≥50%, freeze ≥100%" thresholds, corresponding to the adopted policy for feature development control.
 
 ## Security / Privacy
 

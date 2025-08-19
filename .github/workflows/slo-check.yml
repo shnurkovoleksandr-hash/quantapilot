@@ -1,0 +1,50 @@
+name: SLO Check
+
+on:
+  schedule:
+    # Run every hour
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  slo-check:
+    runs-on: ubuntu-latest
+
+    # Non-blocking check - won't block PRs or deployments
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup database
+        run: |
+          # Start database for SLO checks
+          docker-compose -f ops/docker/docker-compose.yml up -d db
+          # Wait for database to be ready
+          sleep 10
+
+      - name: Run SLO check
+        env:
+          DATABASE_URL: postgresql://qp:qp@localhost:5432/quantapilot
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          NODE_ENV: test
+        run: pnpm run slo:check
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f ops/docker/docker-compose.yml down

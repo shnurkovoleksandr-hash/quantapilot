@@ -13,6 +13,52 @@ owners: ['shnurkovoleksandr-hash']
 
 ### ✅ Added
 
+#### SLO/SLI/SLA System Implementation
+
+- **Complete SLO configuration system** implemented
+  - `ops/slo.yml` with task classes (docgen, feature_xs, feature_s) and SLO targets
+  - Rolling 30-day window for SLO aggregation with hourly evaluation cycles
+  - Error budget policy: "warn ≥50%, freeze ≥100%" thresholds
+  - 7 SLI definitions with database query references (e2e_lead_time_p95, success_rate, cost_p95_usd, etc.)
+
+#### SLO Monitoring and Alerting
+
+- **Automated SLO check script** `scripts/slo-check.mjs`
+  - Database query integration for SLI metrics calculation
+  - Error budget spent percentage calculation
+  - Status reporting (OK/WARN/FREEZE) for each task class
+  - Telegram notification integration for alerts
+  - Non-blocking warnings with appropriate exit codes
+
+#### CI/CD Integration for SLO Monitoring
+
+- **`.github/workflows/slo-check.yml`** - Scheduled SLO monitoring workflow
+  - Hourly execution via cron schedule (`0 * * * *`)
+  - Manual trigger support via `workflow_dispatch`
+  - Non-blocking execution (`continue-on-error: true`)
+  - Database setup and cleanup procedures
+  - Environment variable integration for Telegram notifications
+
+#### Documentation Updates
+
+- **Enhanced `docs/50_nonfunctional.md`** with SLO Windows and Escalations section
+  - Rolling 30-day window documentation
+  - Hourly evaluation cycles specification
+  - Error budget policy documentation
+  - All content in English as per project standards
+
+#### Package Integration
+
+- **Added `pg` dependency** for PostgreSQL connectivity
+- **Added `slo:check` script** to package.json for easy execution
+- **Made script executable** with proper shebang and permissions
+
+#### Guide Updates
+
+- **Updated `guide/11 - SLI_SLO_SLA.md`** to reflect completed implementation
+- **Updated `guide/overview/2_additions.md`** with actual SLO configuration format
+- **Marked all acceptance criteria as completed** with ✅ status indicators
+
 #### Data Policies and Governance System
 
 - **Complete data classification system** implemented

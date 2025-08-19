@@ -441,22 +441,57 @@ $$);
 `ops/slo.yml`:
 
 ```yaml
-version: v1
-classes:
-  docgen:   { e2e_p95_min: 25, success_rate: 0.95, cost_p95_usd: 0.70 }
-  feature_xs:{ e2e_p95_min: 40, success_rate: 0.90, cost_p95_usd: 1.20 }
-  feature_s: { e2e_p95_min: 60, success_rate: 0.85, cost_p95_usd: 2.00 }
-steps:
-  plan: { p95_s: 240, timeout_s: 300, retries: 2, tokens: 6000 }
-  impl: { p95_s: 1200, timeout_s: 1500, retries: 2, tokens: 20000 }
-  test: { p95_s: 480, timeout_s: 600, retries: 2, tokens: 8000 }
-  doc:  { p95_s: 240, timeout_s: 300, retries: 1, tokens: 3000 }
-  pr:   { p95_s: 240, timeout_s: 300, retries: 1, tokens: 1000 }
-sla:
-  availability: 0.995
-  queue_start_p95_min: 5
-  incident_targets: { P1: {ack_min: 5, restore_min: 30}, P2: {ack_min: 15, restore_min: 120} }
-ops_targets: { mttr_p1_min: 20, mttr_p2_min: 90, mtbf_h: 72 }
+windows:
+  reporting: 30d         # агрегирование SLO
+  alert_eval: 1h         # как часто считаем алерты
+task_classes:
+  - id: docgen
+    slo:
+      e2e_lead_time_p95: "≤ 25m"
+      success_rate: "≥ 95%"
+      cost_p95_usd: "≤ 0.70"
+  - id: feature_xs
+    slo:
+      e2e_lead_time_p95: "≤ 40m"
+      success_rate: "≥ 90%"
+      cost_p95_usd: "≤ 1.20"
+  - id: feature_s
+    slo:
+      e2e_lead_time_p95: "≤ 60m"
+      success_rate: "≥ 85%"
+      cost_p95_usd: "≤ 2.00"
+error_budget:
+  metric: success_rate
+  policy:
+    warn: "spent >= 50%"   # код-фриз фич
+    freeze: "spent >= 100%"# блок новых задач класса
+sli:
+  - id: e2e_lead_time_p95
+    source: db
+    query_ref: app.sql.sli.e2e_lead_time_p95
+  - id: step_latency_p95
+    source: db
+    query_ref: app.sql.sli.step_latency_p95
+  - id: success_rate
+    source: db
+    query_ref: app.sql.sli.success_rate
+  - id: pr_quality_rate
+    source: db
+    query_ref: app.sql.sli.pr_quality_rate
+  - id: cost_p95_usd
+    source: db
+    query_ref: app.sql.sli.cost_p95_usd
+  - id: tokens_p95
+    source: db
+    query_ref: app.sql.sli.tokens_p95
+  - id: queue_start_time_p95
+    source: db
+    query_ref: app.sql.sli.queue_start_time_p95
+alerts:
+  routes:
+    - channel: telegram
+      to: ${TELEGRAM_CHAT_ID}
+      on: [warn, freeze]
 ```
 
 ## 8) Привязка к рантайму

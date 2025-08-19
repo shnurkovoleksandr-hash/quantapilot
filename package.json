@@ -11,6 +11,7 @@
     "validate:quantapilot": "node scripts/validate-quantapilot.mjs",
     "validate:api": "node scripts/validate-api.mjs",
     "docs:lint": "node scripts/docs-lint.mjs",
+    "slo:check": "node scripts/slo-check.mjs",
     "schema:all": "pnpm run validate:quantapilot && pnpm run docs:lint",
     "db:up": "dbmate up",
     "db:down": "dbmate down",
@@ -35,6 +36,7 @@
     "glob": "^11.0.3",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
+    "pg": "8.16.3",
     "prettier": "^3.6.2",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2"
