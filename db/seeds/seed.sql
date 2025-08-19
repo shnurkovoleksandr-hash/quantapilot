@@ -14,9 +14,18 @@ CREATE TABLE IF NOT EXISTS pii."user" (
 -- Enable Row Level Security on PII tables
 ALTER TABLE pii."user" ENABLE ROW LEVEL SECURITY;
 
--- Create policy to restrict access to service role only
-CREATE POLICY pii_service_only ON pii."user"
-    USING (current_user = 'svc_quanta');
+-- Enforce RLS by default for all pii schema tables
+DO $$
+DECLARE r record;
+BEGIN
+  FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='pii' LOOP
+    EXECUTE format('ALTER TABLE pii.%I ENABLE ROW LEVEL SECURITY', r.tablename);
+  END LOOP;
+END $$;
+
+-- Block all by default, allow only svc role
+CREATE POLICY pii_deny_all ON pii."user" FOR SELECT USING (false);
+CREATE POLICY pii_service_only ON pii."user" FOR SELECT USING (current_user = 'svc_quanta');
 
 -- Create redacted view for safe data access
 CREATE OR REPLACE VIEW pii.user_redacted AS

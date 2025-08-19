@@ -12,7 +12,9 @@
         },
         "message": {
           "type": "string",
-          "description": "Human-readable error message"
+          "description": "Human-readable error message",
+          "pattern": "^(?!.*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})(?!.*\\b[A-Z][a-z]+ [A-Z][a-z]+\\b)(?!.*\\b\\d{3}-\\d{3}-\\d{4}\\b)(?!.*\\bghp_[a-zA-Z0-9]{36}\\b)(?!.*\\b[A-Z]{2}\\d{6,}\\b).*$",
+          "errorMessage": "Error messages must not contain email addresses, personal names, phone numbers, API tokens, or other PII"
         },
         "details": {
           "type": "object",
