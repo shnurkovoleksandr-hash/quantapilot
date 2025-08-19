@@ -68,4 +68,60 @@ Fields such as `error_code` are defined in the common error schema under `_schem
 - **Permissions:** Only authorised operators may trigger runs. Consumers of events must be authenticated and authorised to receive information about a particular run or project.
 - **Data protection:** Payloads avoid including sensitive data. Correlation IDs should not encode personal information.
 
+## PII-Free Logging and Events
+
+**CRITICAL:** All events and logs must be completely free of Personally Identifiable Information (PII). This is enforced through schema validation and CI checks.
+
+### Allowed Fields Only
+
+Events and logs may contain only the following safe fields:
+
+- **Identifiers:** `run_id`, `project_id`, `correlation_id` (UUID format only)
+- **Technical Data:** Repository URLs, branch names, file paths, error codes
+- **Aggregates:** Counts, statistics, performance metrics
+- **Timestamps:** ISO 8601 formatted dates/times
+- **Status Codes:** Success/failure indicators, progress percentages
+
+### Prohibited Patterns
+
+The following patterns are **strictly forbidden** in events and logs:
+
+- **Email addresses:** Any field matching email patterns (`user@domain.com`)
+- **Phone numbers:** Any field matching phone number patterns
+- **Personal names:** Full names, first names, last names
+- **Authentication tokens:** API keys, passwords, session tokens
+- **Personal identifiers:** Social security numbers, passport numbers, etc.
+- **IP addresses:** Client or server IP addresses (except internal network ranges)
+
+### Validation Enforcement
+
+- **Schema Validation:** All event payloads must conform to `_schemas/api.schema.json`
+- **Error Schema:** All error responses must conform to `_schemas/error.schema.json`
+- **CI Enforcement:** The `validate:api` CI job blocks deployments if PII patterns are detected
+- **Runtime Checks:** Application-level validation prevents PII from being logged
+
+### Examples
+
+✅ **Allowed:**
+
+```json
+{
+  "run_id": "550e8400-e29b-41d4-a716-446655440000",
+  "project_id": "proj_123",
+  "error_code": "REPO_CLONE_FAILED",
+  "message": "Repository clone failed due to authentication error"
+}
+```
+
+❌ **Forbidden:**
+
+```json
+{
+  "run_id": "550e8400-e29b-41d4-a716-446655440000",
+  "user_email": "alice@example.com", // PII - email address
+  "operator_name": "Alice Smith", // PII - personal name
+  "api_token": "ghp_1234567890" // PII - authentication token
+}
+```
+
 For further details see the API JSON schema in [`_schemas/api.schema.json`](../_schemas/api.schema.json) and the integration examples in the `scripts/` directory.

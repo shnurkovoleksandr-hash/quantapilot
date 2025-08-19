@@ -24,6 +24,7 @@ Welcome to **QuantaPilot** — an autonomous software‑factory that turns a pro
    ```
 
 3. **Enable direnv** (optional):
+
    ```bash
    direnv allow
    ```
@@ -60,6 +61,7 @@ If you are new to QuantaPilot, begin with [docs/ANCHOR.md](./docs/ANCHOR.md). It
 ### Operations & Security
 
 - **[Operations Overview](./ops/README.md)** - Operations documentation and procedures
+- **[Data Catalog](./ops/data-catalog.md)** - Data classification and governance policies
 - **[Security & Secrets](./ops/security/secrets-rotation.md)** - Secrets rotation policy
 - **[Setup Guide](./ops/setup-guide.md)** - Complete setup and configuration guide
 - **[Database Setup](./ops/db/README.md)** - Database configuration and management
@@ -69,5 +71,6 @@ If you are new to QuantaPilot, begin with [docs/ANCHOR.md](./docs/ANCHOR.md). It
 - **JSON Schemas**: [`_schemas/`](./_schemas/) - Validation schemas for documentation and configuration
 - **Examples**: [`examples/`](./examples/) - Example configurations and usage
 - **Scripts**: [`scripts/`](./scripts/) - Automation and utility scripts
+  - `pnpm run validate:api` - Validates API schemas for PII-free compliance
 
 Each document cross‑links to relevant sections, enabling you to navigate the factory's specification without losing context.

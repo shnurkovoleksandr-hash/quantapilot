@@ -39,9 +39,10 @@ Externally, QuantaPilot integrates with:
 
 - **GitHub** – via a GitHub App that reads and writes repositories, opens PRs and reports statuses.
 - **Telegram** – for notifications and interactions with operators.
-- **PostgreSQL** – to store run history, metrics, budgets and logs. The canonical connection variable is `DATABASE_URL`; migrations are managed with `dbmate`.
+- **PostgreSQL** – to store run history, metrics, budgets and logs. The canonical connection variable is `DATABASE_URL`; migrations are managed with `dbmate`. Row Level Security (RLS) policies protect PII data with deny-by-default access controls.
 - **OpenAI (or other AI providers)** – to supply the models behind each agent. Model versions and seeds are fixed for reproducibility【876102779380499†L37-L40】.
 - **SOPS/age** – for secure secrets management with encryption and dual-secret rotation.
+- **Data Governance** – comprehensive data classification system with 5-tier security levels, PII-free logging validation, and GDPR-compliant data subject request procedures.
 
 Internally, the factory is implemented as a PNPM monorepo with packages for the core contracts, diagnostics and CLI. The orchestrator is composed of n8n flows (see [`10_architecture.md`](10_architecture.md)) that call out to agents and manage retries and budgets.
 

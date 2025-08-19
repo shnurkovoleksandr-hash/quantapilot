@@ -2,7 +2,19 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.quantapilot/api.schema.json",
   "title": "QuantaPilot API Schema",
-  "description": "Schema for triggers and events emitted by the factory.",
+  "description": "Schema for triggers and events emitted by the factory. All payloads must be PII-free.",
+  "definitions": {
+    "piiFreeString": {
+      "type": "string",
+      "pattern": "^(?!.*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})(?!.*\\b[A-Z][a-z]+ [A-Z][a-z]+\\b)(?!.*\\b\\d{3}-\\d{3}-\\d{4}\\b)(?!.*\\bghp_[a-zA-Z0-9]{36}\\b)(?!.*\\b[A-Z]{2}\\d{6,}\\b)(?!.*\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b).*$",
+      "errorMessage": "Field must not contain email addresses, personal names, phone numbers, API tokens, passport numbers, or IP addresses"
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "UUID format identifier"
+    }
+  },
   "type": "object",
   "properties": {
     "triggers": {

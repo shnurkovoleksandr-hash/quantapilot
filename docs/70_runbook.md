@@ -54,4 +54,72 @@ Common incidents and remediation steps:
 - **Budget exceeded.** When token or cost budgets are exceeded, the run pauses. Operators can increase budgets or cancel the run. Budget changes should be recorded in an ADR.
 - **Secrets compromised.** Rotate compromised secrets immediately using the dual-secret rotation process documented in `ops/security/secrets-rotation.md`. Update the encrypted secrets file using `sops` and re‑deploy. Review access logs and revoke affected tokens.
 
-For any incident not covered here, consult the project’s ADRs and open an issue. The ADR log serves as the canonical record of past decisions and rationales.
+For any incident not covered here, consult the project's ADRs and open an issue. The ADR log serves as the canonical record of past decisions and rationales.
+
+## Data Subject Requests
+
+QuantaPilot supports Data Subject Requests (DSR) in compliance with GDPR and other data protection regulations. This section outlines the process for handling data export and deletion requests.
+
+### Process Overview
+
+1. **Request Initiation:** An operator creates a support ticket for the data subject request
+2. **Security Review:** A security auditor confirms the request and validates the subject's identity
+3. **Data Processing:** Export or deletion is performed according to the approved request
+4. **Documentation:** All actions are logged in the audit trail for compliance
+
+### Data Export Requests
+
+When a data subject requests access to their personal data:
+
+1. **Subject Identification:** Locate the subject using `user_id` or stable hash identifier
+2. **Data Collection:** Export data from the following sources:
+   - `pii.user_redacted` table (contains masked PII for safe access)
+   - Associated artifacts linked to the subject's `user_id`
+   - Run logs and events that reference the subject (if any)
+3. **Data Format:** Provide data in a structured, machine-readable format (JSON/CSV)
+4. **Delivery:** Securely deliver the export to the verified data subject
+
+### Data Deletion Requests
+
+When a data subject requests deletion of their personal data:
+
+1. **Soft Delete:** Initially perform a soft delete to mark records as deleted
+2. **Retention Period:** Allow for the configured retention period before hard purge
+3. **Hard Purge:** Permanently delete the data after retention period expires
+4. **Audit Preservation:** Preserve audit trail entries unless legally required to delete them
+5. **Linked Data:** Remove or anonymize references in related systems
+
+### Technical Implementation
+
+```sql
+-- Example: Soft delete a user
+UPDATE pii."user"
+SET deleted_at = NOW(),
+    email = 'deleted@quantapilot.local',
+    telegram_id = NULL,
+    github_username = NULL,
+    display_name = 'Deleted User'
+WHERE user_id = $1;
+
+-- Example: Export user data (redacted view)
+SELECT * FROM pii.user_redacted
+WHERE user_id = $1;
+```
+
+### Compliance Notes
+
+- **Response Time:** Data subject requests must be responded to within 30 days
+- **Identity Verification:** Always verify the identity of the requesting party
+- **Legal Basis:** Document the legal basis for any data retention
+- **Cross-Border:** Consider data residency requirements for international subjects
+- **Third Parties:** Coordinate with any third-party processors if applicable
+
+### Automation
+
+DSR operations can be automated through:
+
+- CLI commands: `pnpm qp dsr:export <user_id>` and `pnpm qp dsr:delete <user_id>`
+- API endpoints for verified operators
+- Scheduled purge jobs for expired soft-deleted records
+
+All DSR operations are logged in the audit system and require appropriate authentication and authorization.

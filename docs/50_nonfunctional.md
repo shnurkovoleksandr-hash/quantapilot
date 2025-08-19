@@ -21,12 +21,12 @@ This document describes the non‑functional requirements (NFRs) of the QuantaPi
 
 - **Minimal privileges:** The GitHub App uses only the scopes necessary to read/write contents, create pull requests and update commit statuses【876102779380499†L10-L15】.
 - **Secret management:** Secrets (API keys, encryption keys, database credentials) are stored encrypted with `sops`/`age` and decrypted at runtime. Public age keys are generated as part of environment setup【832497655031489†L84-L90】.
-- **Data policies:** Personally identifiable information is not stored in logs. Database rows reference users via opaque identifiers. Row‑level security and role‑based access control protect data. Retention policies purge run logs and metrics after a configurable period.
+- **Data policies:** Comprehensive data governance with 5-tier classification system (public, internal, operational, pii, secret). Personally identifiable information is strictly prohibited in logs and events, enforced through CI validation. Database implements Row Level Security with deny-by-default policies for PII protection. Data Subject Requests (DSR) procedures ensure GDPR compliance with secure export and deletion capabilities. Retention policies purge data according to classification levels with automated enforcement.
 - **Compliance:** The factory follows the GitHub terms of service, OpenAI usage policies and applicable data‑protection laws. Operators must ensure that project data and budgets comply with organisational policies.
 
 ## Observability
 
-- **Logging:** Each step emits structured logs containing timestamps, run IDs, step names, durations, tokens and cost. Logs are stored in PostgreSQL and optionally forwarded to external log aggregators.
+- **Logging:** Each step emits structured logs containing timestamps, run IDs, step names, durations, tokens and cost. All logs are validated to be PII-free before storage. Logs are stored in PostgreSQL and optionally forwarded to external log aggregators.
 - **Metrics:** Metrics include tokens consumed, cost (USD), step duration, success/failure counts and retry counts. Metrics drive SLO calculations.
 - **Tracing:** A correlation ID flows through all steps, allowing end‑to‑end tracing of a run.
 - **Dashboards:** n8n’s built‑in UI and/or custom dashboards expose the state of active runs, pending gates, budgets and historical runs.

@@ -7,6 +7,7 @@ This directory contains operational documentation, security policies, and infras
 ```
 ops/
 ├── README.md                    # This file
+├── data-catalog.md             # Data classification and governance policies
 ├── cicd-policy.md              # CI/CD policies and procedures
 ├── rbac.sql                    # Role-based access control definitions
 ├── n8n-credentials-mapping.md  # n8n credentials to env vars mapping
@@ -24,6 +25,21 @@ ops/
     ├── init/                  # Database initialization scripts
     └── migrations/            # Database migrations
 ```
+
+## Data Governance
+
+### Data Classification
+
+- **5-Tier System**: Data classified as public, internal, operational, pii, or secret
+- **Data Catalog**: Complete inventory in `data-catalog.md` with retention policies
+- **PII Protection**: Strict enforcement with CI validation to prevent PII in logs/events
+- **GDPR Compliance**: Complete DSR procedures for data export and deletion
+
+### Database Security
+
+- **Row Level Security**: Automatic RLS enablement for all PII tables
+- **Deny-by-Default**: Access blocked unless explicitly granted to service roles
+- **Backup Security**: Encrypted backups with role-based access control
 
 ## Security
 
@@ -64,8 +80,9 @@ ops/
 
 - **PostgreSQL 15**: Primary database with health checks
 - **Migrations**: Managed with `dbmate` for version control
-- **Seeds**: Initial data and RLS policies
-- **Backup**: Automated backup and retention policies
+- **Seeds**: Initial data and RLS policies with deny-by-default enforcement
+- **Data Classification**: 5-tier system with automatic policy application
+- **Backup**: Encrypted backups with classification-based retention policies
 
 ## Getting Started
 
@@ -114,6 +131,8 @@ ops/
 
 ## Security Checklist
 
+### Secrets & Access Control
+
 - [ ] SOPS/age keys generated and configured
 - [ ] Environment files encrypted with `.env.sops`
 - [ ] CI/CD secrets properly configured
@@ -123,6 +142,15 @@ ops/
 - [ ] Security scanning enabled
 - [ ] Branch protection configured
 
+### Data Governance
+
+- [ ] Data catalog implemented with classification system
+- [ ] RLS policies enabled for all PII tables
+- [ ] PII validation configured in CI pipeline (`validate:api`)
+- [ ] DSR procedures documented and tested
+- [ ] Backup encryption and access controls configured
+- [ ] Data retention policies implemented
+
 ## Maintenance
 
 ### Regular Tasks
@@ -131,6 +159,9 @@ ops/
 - **Key Rotation**: Rotate age keys every 180 days
 - **Audit Review**: Review audit logs monthly
 - **Security Updates**: Keep dependencies updated
+- **Data Governance**: Review data catalog and classification quarterly
+- **PII Validation**: Monitor CI validation results and update patterns as needed
+- **Backup Validation**: Test backup restoration and access controls monthly
 
 ### Emergency Procedures
 
