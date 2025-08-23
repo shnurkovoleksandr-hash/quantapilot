@@ -8,7 +8,7 @@ export default [
   // Base configuration for all files
   js.configs.recommended,
 
-  // Node.js CommonJS files (services)
+      // Node.js CommonJS files (services)
   {
     files: ['services/**/*.js'],
     languageOptions: {
@@ -16,6 +16,7 @@ export default [
       sourceType: 'commonjs',
       globals: {
         ...globals.node,
+        ...globals.jest,
       },
     },
     plugins: {
@@ -76,6 +77,7 @@ export default [
       },
       globals: {
         ...globals.node,
+        ...globals.jest,
       },
     },
     plugins: {
