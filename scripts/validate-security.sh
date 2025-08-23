@@ -2,7 +2,8 @@
 # QuantaPilot™ Security Validation Script
 # Validates that security configurations are properly set up
 
-set -e
+# Don't exit on errors - we want to collect all issues
+# set -e
 
 echo "🔍 QuantaPilot™ Security Validation"
 echo "=================================="
@@ -153,6 +154,7 @@ if [ -d "secrets" ]; then
     done
 else
     log_warning "secrets/ directory not found. Run ./scripts/generate-secrets.sh to create it."
+    # Don't fail CI for missing secrets directory - it's expected in CI environment
 fi
 
 echo ""
@@ -196,7 +198,13 @@ if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
     exit 0
 elif [ $ERRORS -eq 0 ]; then
     echo -e "${YELLOW}⚠️  $WARNINGS warning(s) found. Review and address them.${NC}"
-    exit 0
+    # In CI environment, warnings are acceptable - don't fail the build
+    if [ "$CI" = "true" ]; then
+        echo "🔧 CI environment detected - warnings are acceptable for build success"
+        exit 0
+    else
+        exit 0
+    fi
 else
     echo -e "${RED}❌ $ERRORS error(s) and $WARNINGS warning(s) found.${NC}"
     echo ""

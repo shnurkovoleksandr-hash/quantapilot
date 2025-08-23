@@ -130,6 +130,8 @@ jobs:
           cp .env.example .env
 
       - name: Run security validation
+        env:
+          CI: true
         run: ./scripts/validate-security.sh
 
   deploy-to-staging:
