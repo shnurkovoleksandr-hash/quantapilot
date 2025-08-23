@@ -23,25 +23,25 @@ This document outlines the complete development roadmap for QuantaPilot™, brok
 **Team**: Architecture Team
 
 #### Deliverables
-- [x] Complete project documentation structure
-- [x] Technical architecture design
-- [x] Development environment setup
-- [x] CI/CD pipeline configuration
-- [x] Git workflow and branching strategy
+- [ ] Complete project documentation structure
+- [ ] Technical architecture design
+- [ ] Development environment setup
+- [ ] CI/CD pipeline configuration
+- [ ] Git workflow and branching strategy
 
 #### Acceptance Criteria
-- [x] All documentation files created and reviewed
-- [x] Docker development environment functional
-- [x] CI/CD pipeline passes all checks
-- [x] Code quality gates established
+- All documentation files created and reviewed
+- Docker development environment functional
+- CI/CD pipeline passes all checks
+- Code quality gates established
 
 #### Technical Tasks
 ```
-- [x] Create docs/ structure with all required files
-- [x] Set up Docker Compose for development
-- [x] Configure GitHub Actions for CI/CD
-- [x] Set up code quality tools (ESLint, Prettier, etc.)
-- [x] Create development database schema
+- Create docs/ structure with all required files
+- Set up Docker Compose for development
+- Configure GitHub Actions for CI/CD
+- Set up code quality tools (ESLint, Prettier, etc.)
+- Create development database schema
 ```
 
 ### 1.2 Core Infrastructure

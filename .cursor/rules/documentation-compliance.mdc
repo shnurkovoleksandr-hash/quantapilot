@@ -6,6 +6,15 @@ alwaysApply: false
 
 # Documentation Compliance Rules for QuantaPilot™
 
+## STRICT REQUIREMENT ADHERENCE
+
+### Core Principle
+- **NEVER** implement features not explicitly described in requirements
+- **ALWAYS** follow the project plan and architecture strictly
+- **MAINTAIN** project context and avoid scope creep
+- **CONSULT** documentation before making any changes
+- **STICK** to the defined scope and avoid feature bloat
+
 ## MANDATORY DOCUMENTATION REQUIREMENTS
 
 ### 1. BEFORE ANY CODE CHANGES
