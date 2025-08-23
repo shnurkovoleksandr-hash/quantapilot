@@ -420,7 +420,7 @@ Authorization: Bearer <api_key>
       },
       {
         "id": "pr_architect_review",
-        "role": "pr_architect", 
+        "role": "pr_architect",
         "category": "review",
         "title": "Architecture Review and Validation",
         "version": "1.0.0",
@@ -483,12 +483,12 @@ Authorization: Bearer <api_key>
       "timeRange": "daily",
       "summary": {
         "totalTokens": 25000,
-        "totalCost": 15.50,
+        "totalCost": 15.5,
         "budgetStatus": {
           "tokensUsed": 25000,
           "tokensLimit": 100000,
           "tokenUsagePercent": 0.25,
-          "costUsed": 15.50,
+          "costUsed": 15.5,
           "costLimit": 50.0,
           "costUsagePercent": 0.31
         }
@@ -516,7 +516,7 @@ Authorization: Bearer <api_key>
       "tokensUsed": 25000,
       "tokensLimit": 100000,
       "tokenUsagePercent": 0.25,
-      "costUsed": 15.50,
+      "costUsed": 15.5,
       "costLimit": 50.0,
       "costUsagePercent": 0.31
     }
@@ -742,7 +742,7 @@ Authorization: Bearer <api_key>
 
 ```json
 {
-  "error": "SERVICE_UNAVAILABLE", 
+  "error": "SERVICE_UNAVAILABLE",
   "message": "Circuit breaker is OPEN",
   "correlationId": "req-123e4567-e89b-12d3"
 }
