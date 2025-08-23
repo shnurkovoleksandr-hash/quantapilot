@@ -1,0 +1,296 @@
+# QuantaPilot™ - Git Ignore File
+
+# ==============================================
+# Environment and Configuration
+# ==============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Environment-specific configs
+config/local.json
+config/production.json
+config/development.json
+
+# ==============================================
+# Logs and Monitoring
+# ==============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime logs
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ==============================================
+# Dependencies and Package Managers
+# ==============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ==============================================
+# Build and Distribution
+# ==============================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Compiled binary addons
+build/Release/
+
+# ==============================================
+# Testing and Coverage
+# ==============================================
+coverage/
+.nyc_output/
+.coverage/
+*.lcov
+
+# Jest
+jest.config.local.js
+jest-results.json
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# ==============================================
+# Development Tools
+# ==============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==============================================
+# Docker and Containers
+# ==============================================
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ==============================================
+# Database and Storage
+# ==============================================
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# PostgreSQL
+*.dump
+*.sql.gz
+
+# Redis dumps
+dump.rdb
+
+# Storage directories
+storage/
+uploads/
+temp/
+tmp/
+
+# ==============================================
+# Backup and Archive Files
+# ==============================================
+backups/
+archives/
+*.tar.gz
+*.tar.bz2
+*.zip
+*.rar
+*.7z
+
+# Database backups
+*.backup
+*.bak
+
+# ==============================================
+# Security and Secrets
+# ==============================================
+# Private keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# API keys and secrets (additional safety)
+secrets/
+credentials/
+.secrets
+api-keys.json
+
+# ==============================================
+# AI and ML Models
+# ==============================================
+models/
+*.model
+*.pkl
+*.h5
+
+# ==============================================
+# Documentation Build
+# ==============================================
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+site/
+
+# ==============================================
+# Runtime and Cache
+# ==============================================
+.cache/
+.parcel-cache/
+.sass-cache/
+.npm/
+.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# ==============================================
+# n8n Specific
+# ==============================================
+# n8n user data (if running locally)
+.n8n/
+n8n-data/
+
+# Workflow exports
+workflows-export/
+workflow-backups/
+
+# ==============================================
+# Monitoring and Analytics
+# ==============================================
+# Prometheus data
+prometheus-data/
+
+# Grafana data
+grafana-data/
+
+# Application performance monitoring
+apm-data/
+
+# ==============================================
+# Project Specific
+# ==============================================
+# Generated projects storage
+generated-projects/
+project-workspace/
+
+# AI agent conversations
+conversations/
+agent-logs/
+
+# HITL decision records
+decisions/
+
+# Cost tracking
+cost-reports/
+
+# Performance reports
+performance-reports/
+
+# ==============================================
+# Temporary Files
+# ==============================================
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Editor temporary files
+.#*
+#*#
+
+# ==============================================
+# Version Control
+# ==============================================
+# Git hooks (if not wanted in repo)
+.git/hooks/local-*
+
+# ==============================================
+# Package and Release
+# ==============================================
+# Release artifacts
+releases/
+packages/
+
+# Changelog automation
+CHANGELOG.md.backup
+
+# ==============================================
+# Linting and Formatting
+# ==============================================
+.eslintcache
+.stylelintcache
+
+# ==============================================
+# Miscellaneous
+# ==============================================
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# User-specific files
+.personal/
+personal-notes.md
+todo.md
+scratch.md

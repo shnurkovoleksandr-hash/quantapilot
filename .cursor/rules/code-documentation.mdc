@@ -1,0 +1,329 @@
+---
+description: "Code documentation standards for QuantaPilot™ - ensures all code is self-documenting and maintains high readability for AI agents and human developers"
+globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.clj", "**/*.vue", "**/*.svelte", "**/*.astro"]
+alwaysApply: false
+---
+
+# Code Documentation Standards for QuantaPilot™
+
+## MANDATORY INLINE DOCUMENTATION
+
+### 1. FUNCTION AND METHOD DOCUMENTATION
+
+#### Every function/method MUST have:
+```javascript
+/**
+ * Creates a new project with AI agent orchestration
+ * @param {string} repositoryUrl - GitHub repository URL
+ * @param {Object} config - Project configuration object
+ * @param {string[]} config.techStack - Array of technologies to use
+ * @param {number} config.tokenBudget - Maximum AI tokens to spend
+ * @returns {Promise<Object>} Project creation result with ID and status
+ * @throws {ValidationError} When repository URL is invalid
+ * @throws {BudgetError} When token budget exceeds limits
+ * @example
+ * const project = await createProject(
+ *   'https://github.com/user/repo',
+ *   { techStack: ['Node.js', 'React'], tokenBudget: 50000 }
+ * );
+ */
+async function createProject(repositoryUrl, config) {
+  // Implementation
+}
+```
+
+#### For Python:
+```python
+def create_project(repository_url: str, config: dict) -> dict:
+    """
+    Creates a new project with AI agent orchestration.
+    
+    Args:
+        repository_url (str): GitHub repository URL
+        config (dict): Project configuration containing:
+            - tech_stack (list): Array of technologies to use
+            - token_budget (int): Maximum AI tokens to spend
+    
+    Returns:
+        dict: Project creation result with ID and status
+    
+    Raises:
+        ValidationError: When repository URL is invalid
+        BudgetError: When token budget exceeds limits
+    
+    Example:
+        project = create_project(
+            'https://github.com/user/repo',
+            {'tech_stack': ['Python', 'FastAPI'], 'token_budget': 50000}
+        )
+    """
+    # Implementation
+```
+
+### 2. CLASS AND COMPONENT DOCUMENTATION
+
+#### Every class MUST have:
+```javascript
+/**
+ * Manages AI agent interactions and workflow orchestration
+ * 
+ * This class coordinates between PR/Architect, Senior Developer, and QA Engineer
+ * agents to create complete software projects autonomously.
+ * 
+ * @class AgentOrchestrator
+ * @example
+ * const orchestrator = new AgentOrchestrator({
+ *   cursorApiKey: 'api-key',
+ *   tokenBudget: 50000
+ * });
+ * await orchestrator.executeWorkflow(projectId);
+ */
+class AgentOrchestrator {
+  /**
+   * Initialize the agent orchestrator
+   * @param {Object} config - Configuration object
+   * @param {string} config.cursorApiKey - Cursor API key
+   * @param {number} config.tokenBudget - Token budget limit
+   */
+  constructor(config) {
+    // Implementation
+  }
+}
+```
+
+#### For React Components:
+```jsx
+/**
+ * Project status dashboard component showing real-time progress
+ * 
+ * Displays current project status, AI agent activities, and HITL decision points.
+ * Updates in real-time via WebSocket connection.
+ * 
+ * @component ProjectDashboard
+ * @param {Object} props - Component properties
+ * @param {string} props.projectId - Unique project identifier
+ * @param {Function} props.onDecisionRequired - Callback for HITL decisions
+ * @param {boolean} props.showDetails - Whether to show detailed view
+ * @returns {JSX.Element} Rendered dashboard component
+ * 
+ * @example
+ * <ProjectDashboard 
+ *   projectId="proj-123"
+ *   onDecisionRequired={handleDecision}
+ *   showDetails={true}
+ * />
+ */
+const ProjectDashboard = ({ projectId, onDecisionRequired, showDetails }) => {
+  // Implementation
+};
+```
+
+### 3. COMPLEX LOGIC DOCUMENTATION
+
+#### Document complex algorithms:
+```javascript
+/**
+ * Optimizes AI prompt tokens using dynamic compression techniques
+ * 
+ * This algorithm reduces token usage by:
+ * 1. Removing redundant context information
+ * 2. Compressing repetitive patterns
+ * 3. Prioritizing essential information based on project stage
+ * 
+ * Performance: O(n log n) where n is prompt length
+ * Memory usage: O(n) additional space for compression maps
+ */
+function optimizePromptTokens(prompt, context, stage) {
+  // Step 1: Analyze context relevance
+  const relevantContext = filterContextByStage(context, stage);
+  
+  // Step 2: Apply compression algorithms
+  const compressedPrompt = compressRedundantPatterns(prompt);
+  
+  // Step 3: Merge optimized components
+  return mergeOptimizedComponents(compressedPrompt, relevantContext);
+}
+```
+
+### 4. CONFIGURATION AND CONSTANTS
+
+#### Document all configuration:
+```javascript
+/**
+ * QuantaPilot™ Configuration Constants
+ * 
+ * These constants define operational limits and defaults for the autonomous
+ * project factory. Modify with caution as they affect AI agent behavior.
+ */
+const CONFIG = {
+  /** Maximum AI tokens per project stage (default: 50,000) */
+  MAX_TOKENS_PER_STAGE: 50000,
+  
+  /** Timeout for AI agent responses in milliseconds (default: 60 seconds) */
+  AI_RESPONSE_TIMEOUT: 60000,
+  
+  /** Maximum concurrent projects supported (default: 50) */
+  MAX_CONCURRENT_PROJECTS: 50,
+  
+  /** HITL decision timeout in hours (default: 24 hours) */
+  HITL_DECISION_TIMEOUT: 24,
+  
+  /** Retry attempts for failed operations (default: 3) */
+  MAX_RETRY_ATTEMPTS: 3
+};
+```
+
+### 5. ERROR HANDLING DOCUMENTATION
+
+#### Document error scenarios:
+```javascript
+/**
+ * Handles AI agent communication errors with intelligent retry logic
+ * 
+ * Error handling strategy:
+ * - Transient errors: Retry with exponential backoff
+ * - Rate limit errors: Wait and retry with longer delays
+ * - Authentication errors: Refresh tokens and retry once
+ * - Permanent errors: Fail fast and escalate to HITL
+ * 
+ * @param {Error} error - The error that occurred
+ * @param {Object} context - Operation context for debugging
+ * @param {number} attemptNumber - Current retry attempt (1-based)
+ * @returns {Promise<boolean>} True if retry should be attempted
+ */
+async function handleAIAgentError(error, context, attemptNumber) {
+  // Categorize error type
+  const errorType = categorizeError(error);
+  
+  switch (errorType) {
+    case 'TRANSIENT':
+      return attemptNumber <= CONFIG.MAX_RETRY_ATTEMPTS;
+    case 'RATE_LIMIT':
+      await waitForRateLimit(error.retryAfter);
+      return attemptNumber <= CONFIG.MAX_RETRY_ATTEMPTS;
+    case 'AUTH_ERROR':
+      await refreshAuthToken();
+      return attemptNumber === 1; // Only retry once for auth errors
+    case 'PERMANENT':
+      await escalateToHITL(context, error);
+      return false;
+  }
+}
+```
+
+### 6. API ENDPOINT DOCUMENTATION
+
+#### Document all endpoints:
+```javascript
+/**
+ * Creates a new project via REST API
+ * 
+ * POST /api/v1/projects
+ * 
+ * Request body:
+ * {
+ *   "repository_url": "https://github.com/user/repo",
+ *   "configuration": {
+ *     "tech_stack": ["Node.js", "React"],
+ *     "token_budget": 50000
+ *   }
+ * }
+ * 
+ * Response (201 Created):
+ * {
+ *   "project_id": "uuid",
+ *   "status": "initializing",
+ *   "estimated_completion": "2024-01-20T14:00:00Z"
+ * }
+ * 
+ * Errors:
+ * - 400: Invalid repository URL or configuration
+ * - 401: Authentication required
+ * - 429: Rate limit exceeded
+ * - 500: Internal server error
+ */
+router.post('/projects', async (req, res) => {
+  // Implementation
+});
+```
+
+### 7. WORKFLOW AND STATE DOCUMENTATION
+
+#### Document state machines:
+```javascript
+/**
+ * Project lifecycle state machine
+ * 
+ * States:
+ * - INITIALIZING: Project setup and analysis
+ * - PLANNING: PR/Architect creates project plan
+ * - IMPLEMENTING: Senior Developer generates code
+ * - TESTING: QA Engineer creates and runs tests
+ * - REVIEWING: HITL approval required
+ * - COMPLETED: Project delivered successfully
+ * - FAILED: Unrecoverable error occurred
+ * 
+ * Transitions:
+ * INITIALIZING → PLANNING (on successful analysis)
+ * PLANNING → IMPLEMENTING (on plan approval)
+ * IMPLEMENTING → TESTING (on code completion)
+ * TESTING → REVIEWING (on test completion)
+ * REVIEWING → COMPLETED (on HITL approval)
+ * Any state → FAILED (on unrecoverable error)
+ */
+const PROJECT_STATES = {
+  INITIALIZING: 'initializing',
+  PLANNING: 'planning',
+  IMPLEMENTING: 'implementing',
+  TESTING: 'testing',
+  REVIEWING: 'reviewing',
+  COMPLETED: 'completed',
+  FAILED: 'failed'
+};
+```
+
+### 8. PERFORMANCE CRITICAL CODE
+
+#### Document performance considerations:
+```javascript
+/**
+ * Caches AI responses to reduce token usage and improve performance
+ * 
+ * Cache strategy:
+ * - LRU eviction with 1000 item limit
+ * - TTL of 1 hour for prompt responses
+ * - Cache key includes prompt hash and model version
+ * - Memory usage: ~50MB max
+ * 
+ * Performance impact:
+ * - Cache hit: ~5ms response time
+ * - Cache miss: ~30-60s AI API call
+ * - Cache hit ratio target: >80%
+ * 
+ * @param {string} prompt - The AI prompt to cache
+ * @param {string} modelVersion - AI model version for cache key
+ * @returns {Promise<string|null>} Cached response or null if miss
+ */
+async function getCachedAIResponse(prompt, modelVersion) {
+  const cacheKey = generateCacheKey(prompt, modelVersion);
+  return await redisClient.get(cacheKey);
+}
+```
+
+## DOCUMENTATION MAINTENANCE
+
+### When to Update Code Documentation:
+1. **Every function change** - Update function documentation
+2. **New parameters** - Update parameter documentation
+3. **Changed behavior** - Update description and examples
+4. **Performance changes** - Update performance notes
+5. **Error handling changes** - Update error documentation
+
+### Quality Checks:
+- All public functions have complete JSDoc/docstring
+- All complex algorithms have explanation comments
+- All configuration options are documented
+- All error cases are documented
+- Examples are tested and working
+
+## REMEMBER: Code documentation enables AI agents to understand and maintain the codebase autonomously!

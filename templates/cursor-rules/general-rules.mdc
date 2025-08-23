@@ -1,0 +1,144 @@
+---
+description: "General development rules template for QuantaPilot™ generated projects - ensures code quality, testing, and best practices"
+globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.sql", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.vue", "**/*.svelte", "**/Dockerfile", "**/docker-compose.yml", "**/*.tf", "**/*.hcl"]
+alwaysApply: false
+---
+
+# {{PROJECT_NAME}} Development Rules
+
+## CODE QUALITY STANDARDS
+
+### Function Documentation
+```{{LANGUAGE_EXAMPLE}}
+/**
+ * Brief description of what the function does
+ * @param {type} param - Parameter description
+ * @returns {type} Return value description
+ * @example
+ * const result = functionName(param);
+ */
+```
+
+### Error Handling
+- **ALL functions** must handle errors appropriately
+- **Use try-catch** for async operations
+- **Log errors** with context and correlation IDs
+- **Return meaningful** error messages to users
+
+### Code Organization
+- **Small functions** - max 20-30 lines per function
+- **Single responsibility** - one function, one purpose
+- **Clear naming** - descriptive variable and function names
+- **Consistent style** - follow project formatting rules
+
+## TESTING REQUIREMENTS
+
+### Test Coverage
+- **Minimum 80%** code coverage for new code
+- **Test critical paths** - all main functionality
+- **Include edge cases** - error conditions and boundaries
+- **Mock external dependencies** - no external API calls in tests
+
+### Test Types
+- **Unit tests** - individual functions and components
+- **Integration tests** - service interactions
+- **End-to-end tests** - complete user workflows
+- **Performance tests** - for critical operations
+
+### Test Documentation
+```{{LANGUAGE_EXAMPLE}}
+describe('Feature Name', () => {
+  it('should handle specific scenario correctly', () => {
+    // Arrange - set up test data
+    // Act - execute function
+    // Assert - verify results
+  });
+});
+```
+
+## SECURITY PRACTICES
+
+### Input Validation
+- **Validate ALL inputs** at API boundaries
+- **Sanitize user data** before processing
+- **Use parameterized queries** for database operations
+- **Implement rate limiting** on public endpoints
+
+### Authentication & Authorization
+- **Secure token storage** - never hardcode secrets
+- **Validate permissions** for every protected operation
+- **Use environment variables** for sensitive configuration
+- **Implement proper session management**
+
+## PERFORMANCE GUIDELINES
+
+### Database Operations
+- **Use indexes** for frequently queried fields
+- **Optimize queries** - avoid N+1 problems
+- **Connection pooling** for database connections
+- **Cache frequently** accessed data
+
+### API Performance
+- **Response times** < 200ms for simple operations
+- **Pagination** for large data sets
+- **Compression** for large responses
+- **Monitoring** for performance metrics
+
+## GIT WORKFLOW
+
+### Commit Standards
+```
+type(scope): description
+
+feat: add user authentication
+fix: resolve database connection issue
+docs: update API documentation
+test: add unit tests for user service
+```
+
+### Code Review
+- **All code** must be reviewed before merge
+- **Test coverage** maintained or improved
+- **Documentation** updated for changes
+- **No direct commits** to main branch
+
+## DEPLOYMENT STANDARDS
+
+### Environment Configuration
+- **Separate configs** for dev/staging/production
+- **Environment variables** for all configuration
+- **Health checks** for all services
+- **Logging configured** for monitoring
+
+### CI/CD Pipeline
+- **Automated testing** on all commits
+- **Code quality checks** - linting, formatting
+- **Security scanning** for vulnerabilities
+- **Deployment automation** with rollback capability
+
+## MONITORING & LOGGING
+
+### Logging Standards
+- **Structured logging** - JSON format preferred
+- **Log levels** - DEBUG, INFO, WARN, ERROR
+- **Correlation IDs** for request tracing
+- **No sensitive data** in logs
+
+### Metrics Collection
+- **Performance metrics** - response times, throughput
+- **Error rates** - track and alert on spikes
+- **Business metrics** - feature usage, conversions
+- **Infrastructure metrics** - CPU, memory, disk usage
+
+## BEFORE EVERY COMMIT
+
+### Checklist
+- [ ] **Code compiles** without errors or warnings
+- [ ] **All tests pass** - unit, integration, e2e
+- [ ] **Documentation updated** for any changes
+- [ ] **Code formatted** according to project standards
+- [ ] **No TODO comments** left in committed code
+- [ ] **Secrets removed** - no API keys or passwords
+- [ ] **Performance impact** considered and documented
+
+**REMEMBER: Quality first, speed second. Build it right the first time!**

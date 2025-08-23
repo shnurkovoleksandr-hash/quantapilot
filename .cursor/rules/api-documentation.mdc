@@ -1,0 +1,423 @@
+---
+description: "API documentation standards for QuantaPilot™ - ensures all APIs are comprehensively documented with examples and maintained in sync with implementation"
+globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.rs", "**/routes/**", "**/api/**", "**/controllers/**", "**/handlers/**", "**/endpoints/**", "**/*api*.js", "**/*api*.ts", "**/*controller*.js", "**/*controller*.ts", "**/*handler*.py", "**/*endpoint*.py", "**/openapi.yaml", "**/swagger.yaml", "**/openapi.json", "**/swagger.json"]
+alwaysApply: false
+---
+
+# API Documentation Standards for QuantaPilot™
+
+## MANDATORY API DOCUMENTATION REQUIREMENTS
+
+### 1. OPENAPI/SWAGGER SPECIFICATION
+
+#### Every API endpoint MUST have complete OpenAPI specification:
+```yaml
+/api/v1/projects:
+  post:
+    summary: Create new project
+    description: |
+      Creates a new autonomous development project from a GitHub repository.
+      The system will analyze the README.md and initialize the project with
+      appropriate AI agents based on the detected requirements.
+    operationId: createProject
+    tags:
+      - Projects
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateProjectRequest'
+          examples:
+            nodejs-react:
+              summary: Node.js + React project
+              value:
+                repository_url: "https://github.com/user/react-app"
+                configuration:
+                  tech_stack: ["Node.js", "React", "PostgreSQL"]
+                  testing_framework: "Jest"
+                  deployment_target: "Docker"
+                budget_limits:
+                  max_tokens: 50000
+                  max_cost_usd: 25.00
+    responses:
+      '201':
+        description: Project created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+            examples:
+              success:
+                value:
+                  project_id: "proj-123e4567-e89b-12d3-a456-426614174000"
+                  status: "initializing"
+                  created_at: "2024-01-20T10:00:00Z"
+                  estimated_completion: "2024-01-20T14:00:00Z"
+                  estimated_cost: 15.50
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '429':
+        $ref: '#/components/responses/RateLimited'
+      '500':
+        $ref: '#/components/responses/InternalError'
+```
+
+### 2. INLINE API ENDPOINT DOCUMENTATION
+
+#### Every route handler MUST include comprehensive documentation:
+
+```javascript
+/**
+ * POST /api/v1/projects - Create new autonomous development project
+ * 
+ * Creates a new project by analyzing a GitHub repository and orchestrating
+ * AI agents to build a complete software solution.
+ * 
+ * @route POST /api/v1/projects
+ * @group Projects - Project management operations
+ * @security JWT
+ * @param {CreateProjectRequest.model} body.body.required - Project configuration
+ * @returns {Project.model} 201 - Project created successfully
+ * @returns {Error.model} 400 - Invalid request parameters
+ * @returns {Error.model} 401 - Authentication required
+ * @returns {Error.model} 429 - Rate limit exceeded
+ * @returns {Error.model} 500 - Internal server error
+ * 
+ * @example {json} Request example:
+ * {
+ *   "repository_url": "https://github.com/user/repo",
+ *   "configuration": {
+ *     "tech_stack": ["Node.js", "React", "PostgreSQL"],
+ *     "testing_framework": "Jest",
+ *     "deployment_target": "Docker"
+ *   },
+ *   "budget_limits": {
+ *     "max_tokens": 50000,
+ *     "max_cost_usd": 25.00
+ *   }
+ * }
+ * 
+ * @example {json} Success response:
+ * {
+ *   "project_id": "proj-123e4567-e89b-12d3-a456-426614174000",
+ *   "status": "initializing",
+ *   "created_at": "2024-01-20T10:00:00Z",
+ *   "estimated_completion": "2024-01-20T14:00:00Z",
+ *   "estimated_cost": 15.50,
+ *   "workflow_url": "/api/v1/projects/proj-123.../workflow",
+ *   "dashboard_url": "/dashboard/projects/proj-123..."
+ * }
+ */
+router.post('/projects', authenticate, rateLimit, async (req, res) => {
+  try {
+    // Validate request
+    const validation = validateCreateProjectRequest(req.body);
+    if (!validation.valid) {
+      return res.status(400).json({
+        error: 'INVALID_REQUEST',
+        message: 'Request validation failed',
+        details: validation.errors
+      });
+    }
+
+    // Create project
+    const project = await projectService.create(req.body, req.user.id);
+    
+    res.status(201).json(project);
+  } catch (error) {
+    // Error handling with proper HTTP status codes
+    if (error instanceof ValidationError) {
+      return res.status(400).json({
+        error: 'VALIDATION_ERROR',
+        message: error.message,
+        details: error.details
+      });
+    }
+    
+    logger.error('Project creation failed', { error, userId: req.user.id });
+    res.status(500).json({
+      error: 'INTERNAL_ERROR',
+      message: 'Project creation failed'
+    });
+  }
+});
+```
+
+### 3. REQUEST/RESPONSE SCHEMA DOCUMENTATION
+
+#### Document all data models with validation rules:
+
+```javascript
+/**
+ * CreateProjectRequest schema
+ * @typedef {Object} CreateProjectRequest
+ * @property {string} repository_url - GitHub repository URL (required)
+ * @property {ProjectConfiguration} configuration - Project settings (required)
+ * @property {BudgetLimits} budget_limits - Cost control settings (optional)
+ * 
+ * @example
+ * {
+ *   "repository_url": "https://github.com/user/repo",
+ *   "configuration": {
+ *     "tech_stack": ["Node.js", "React"],
+ *     "testing_framework": "Jest"
+ *   }
+ * }
+ */
+
+/**
+ * ProjectConfiguration schema
+ * @typedef {Object} ProjectConfiguration
+ * @property {string[]} tech_stack - Technology stack preferences (required)
+ * @property {string} testing_framework - Preferred testing framework (optional)
+ * @property {string} deployment_target - Target deployment platform (optional)
+ * @property {string} code_style - Code style preferences (optional, default: "Prettier + ESLint")
+ * 
+ * Validation rules:
+ * - tech_stack: Must be non-empty array of supported technologies
+ * - testing_framework: Must be one of supported frameworks
+ * - deployment_target: Must be valid deployment target
+ */
+
+/**
+ * Project response schema
+ * @typedef {Object} Project
+ * @property {string} project_id - Unique project identifier (UUID v4)
+ * @property {string} status - Current project status
+ * @property {string} created_at - ISO 8601 creation timestamp
+ * @property {string} estimated_completion - ISO 8601 estimated completion
+ * @property {number} estimated_cost - Estimated cost in USD
+ * @property {string} workflow_url - URL to workflow status endpoint
+ * @property {string} dashboard_url - URL to project dashboard
+ * 
+ * Status values:
+ * - "initializing": Project setup in progress
+ * - "planning": PR/Architect creating project plan
+ * - "implementing": Senior Developer generating code
+ * - "testing": QA Engineer creating tests
+ * - "reviewing": Awaiting HITL approval
+ * - "completed": Project successfully delivered
+ * - "failed": Project failed with unrecoverable error
+ */
+```
+
+### 4. ERROR RESPONSE DOCUMENTATION
+
+#### Document all error responses with examples:
+
+```javascript
+/**
+ * Error response schemas and examples
+ */
+
+/**
+ * Standard error response
+ * @typedef {Object} ErrorResponse
+ * @property {string} error - Error code identifier
+ * @property {string} message - Human-readable error message
+ * @property {Object} details - Additional error details (optional)
+ * @property {string} correlation_id - Request correlation ID for debugging
+ */
+
+/**
+ * Common error responses:
+ * 
+ * 400 Bad Request:
+ * {
+ *   "error": "INVALID_REQUEST",
+ *   "message": "Repository URL is required",
+ *   "details": {
+ *     "field": "repository_url",
+ *     "code": "MISSING_REQUIRED_FIELD"
+ *   },
+ *   "correlation_id": "req-123e4567-e89b-12d3"
+ * }
+ * 
+ * 401 Unauthorized:
+ * {
+ *   "error": "UNAUTHORIZED",
+ *   "message": "Valid authentication token required",
+ *   "correlation_id": "req-123e4567-e89b-12d3"
+ * }
+ * 
+ * 429 Rate Limited:
+ * {
+ *   "error": "RATE_LIMITED",
+ *   "message": "Too many requests. Try again in 60 seconds.",
+ *   "details": {
+ *     "retry_after": 60,
+ *     "limit": 1000,
+ *     "window": 3600
+ *   },
+ *   "correlation_id": "req-123e4567-e89b-12d3"
+ * }
+ * 
+ * 500 Internal Server Error:
+ * {
+ *   "error": "INTERNAL_ERROR",
+ *   "message": "An unexpected error occurred",
+ *   "correlation_id": "req-123e4567-e89b-12d3"
+ * }
+ */
+```
+
+### 5. AUTHENTICATION AND AUTHORIZATION
+
+#### Document security requirements:
+
+```javascript
+/**
+ * Authentication Documentation
+ * 
+ * All API endpoints require authentication via JWT Bearer tokens.
+ * 
+ * @security JWT
+ * @securityDefinitions JWT
+ * @type apiKey
+ * @in header
+ * @name Authorization
+ * @description JWT Bearer token. Format: "Bearer {token}"
+ * 
+ * To authenticate:
+ * 1. Obtain JWT token from /api/v1/auth/login endpoint
+ * 2. Include in Authorization header: "Bearer {your-jwt-token}"
+ * 3. Token expires in 24 hours, refresh using /api/v1/auth/refresh
+ * 
+ * Example:
+ * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ */
+
+/**
+ * Rate Limiting Documentation
+ * 
+ * API endpoints are rate limited to prevent abuse:
+ * 
+ * General API: 1000 requests per hour per user
+ * Project Creation: 10 projects per hour per user
+ * Webhook Endpoints: 100 requests per minute per source
+ * 
+ * Rate limit headers in response:
+ * - X-RateLimit-Limit: Maximum requests allowed
+ * - X-RateLimit-Remaining: Requests remaining in window
+ * - X-RateLimit-Reset: Unix timestamp when limit resets
+ * 
+ * When rate limited (429 response):
+ * - Retry-After header indicates seconds to wait
+ * - Exponential backoff recommended for retries
+ */
+```
+
+### 6. WEBHOOK DOCUMENTATION
+
+#### Document webhook payloads and security:
+
+```javascript
+/**
+ * Webhook Documentation
+ * 
+ * QuantaPilot™ sends webhooks for project status updates and decision requests.
+ * All webhooks include HMAC-SHA256 signature for verification.
+ * 
+ * @webhook project.status_changed
+ * @description Sent when project status changes
+ * @headers X-QuantaPilot-Signature: HMAC-SHA256 signature
+ * @headers X-QuantaPilot-Event: Event type identifier
+ * 
+ * @example {json} Project Status Change:
+ * {
+ *   "event": "project.status_changed",
+ *   "timestamp": "2024-01-20T15:30:00Z",
+ *   "data": {
+ *     "project_id": "proj-123e4567-e89b-12d3-a456-426614174000",
+ *     "previous_status": "implementing",
+ *     "current_status": "testing",
+ *     "stage": "qa_validation",
+ *     "progress": {
+ *       "completed_stages": ["planning", "implementing"],
+ *       "current_stage": "testing",
+ *       "remaining_stages": ["reviewing"]
+ *     },
+ *     "metadata": {
+ *       "tokens_used": 35000,
+ *       "cost_usd": 17.50,
+ *       "duration_minutes": 180
+ *     }
+ *   }
+ * }
+ * 
+ * Webhook signature verification (Node.js):
+ * const crypto = require('crypto');
+ * const signature = req.headers['x-quantapilot-signature'];
+ * const payload = JSON.stringify(req.body);
+ * const expectedSignature = 'sha256=' + 
+ *   crypto.createHmac('sha256', webhookSecret)
+ *         .update(payload)
+ *         .digest('hex');
+ * 
+ * if (signature === expectedSignature) {
+ *   // Webhook is authentic
+ * }
+ */
+```
+
+### 7. API VERSIONING DOCUMENTATION
+
+```javascript
+/**
+ * API Versioning Strategy
+ * 
+ * QuantaPilot™ uses URL path versioning: /api/v{version}/
+ * 
+ * Current version: v1
+ * Supported versions: v1
+ * Deprecated versions: none
+ * 
+ * Version lifecycle:
+ * - New versions introduced for breaking changes
+ * - Previous versions supported for 12 months minimum
+ * - Deprecation announced 6 months before sunset
+ * - Migration guides provided for version transitions
+ * 
+ * Breaking changes include:
+ * - Removing fields from responses
+ * - Changing field types or formats
+ * - Changing HTTP status codes
+ * - Removing endpoints
+ * - Changing authentication methods
+ * 
+ * Non-breaking changes:
+ * - Adding new fields to responses
+ * - Adding new optional request parameters
+ * - Adding new endpoints
+ * - Improving error messages
+ */
+```
+
+## API DOCUMENTATION MAINTENANCE
+
+### When to Update API Documentation:
+1. **New endpoints** - Complete OpenAPI spec and inline docs
+2. **Parameter changes** - Update request/response schemas
+3. **Status code changes** - Update response documentation
+4. **Error handling changes** - Update error response docs
+5. **Security changes** - Update authentication docs
+
+### Validation Requirements:
+- OpenAPI spec validates against implementation
+- All examples are tested and working
+- Error responses match actual error handling
+- Rate limiting documentation matches implementation
+- Webhook signatures are properly documented
+
+### Documentation Sync:
+- API documentation updates with every API change
+- OpenAPI spec auto-generated from code annotations where possible
+- Response examples captured from actual API responses
+- Error examples based on real error scenarios
+
+## REMEMBER: Accurate API documentation is essential for AI agents to integrate with QuantaPilot™ services!

@@ -1,0 +1,148 @@
+---
+description: "Strict documentation compliance rules for QuantaPilot™ development - ensures all code changes are accompanied by comprehensive documentation updates"
+globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.clj", "**/*.sql", "**/*.md", "**/*.mdx", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.xml", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.vue", "**/*.svelte", "**/*.astro", "**/*.tf", "**/*.hcl", "**/*.dockerfile", "**/Dockerfile", "**/docker-compose.yml", "**/package.json", "**/requirements.txt", "**/Gemfile", "**/pom.xml", "**/build.gradle", "**/Cargo.toml", "**/go.mod", "**/composer.json"]
+alwaysApply: false
+---
+
+# Documentation Compliance Rules for QuantaPilot™
+
+## MANDATORY DOCUMENTATION REQUIREMENTS
+
+### 1. BEFORE ANY CODE CHANGES
+- **ALWAYS** read and understand the existing documentation structure in `/docs/`
+- **ALWAYS** check if your changes affect any existing documentation
+- **ALWAYS** plan documentation updates before writing code
+
+### 2. DOCUMENTATION STRUCTURE COMPLIANCE
+Follow the QuantaPilot™ documentation standard:
+```
+docs/
+├── 00_overview.md           # System overview and terminology
+├── 10_architecture.md       # Architecture and technical design
+├── 20_requirements.md       # Functional and non-functional requirements
+├── 30_milestones.md        # Implementation milestones
+├── 40_acceptance.md        # Acceptance criteria
+├── 50_nonfunctional.md     # Performance, security targets
+├── 60_constraints.md       # Technical constraints
+├── 70_runbook.md          # Operational procedures
+├── 80_adrs.md             # Architectural decision records
+├── 90_api.md              # API documentation
+└── 99_glossary.md         # Glossary of terms
+```
+
+### 3. MANDATORY UPDATES FOR EVERY CHANGE
+
+#### When adding new functionality:
+- Update `docs/20_requirements.md` with new functional requirements
+- Update `docs/10_architecture.md` if system architecture is affected
+- Update `docs/90_api.md` for any new APIs or endpoints
+- Update `docs/99_glossary.md` for any new technical terms
+- Update README.md if installation or usage instructions change
+
+#### When modifying existing functionality:
+- Update affected sections in relevant documentation files
+- Ensure all cross-references remain accurate
+- Update version numbers and dates where applicable
+- Update any diagrams or flowcharts that are affected
+
+#### When adding new services or components:
+- Document the new component in `docs/10_architecture.md`
+- Add operational procedures to `docs/70_runbook.md`
+- Update monitoring and health check documentation
+- Add new service to system overview in `docs/00_overview.md`
+
+### 4. DOCUMENTATION QUALITY STANDARDS
+
+#### Writing Standards:
+- Use clear, concise English
+- Include practical examples and code snippets
+- Maintain consistent formatting and structure
+- Use proper markdown syntax and formatting
+- Include appropriate diagrams using Mermaid when needed
+
+#### Technical Requirements:
+- All API endpoints must be documented with request/response examples
+- All configuration options must be documented with default values
+- All environment variables must be documented in .env.example
+- All CLI commands must be documented with usage examples
+
+### 5. VALIDATION REQUIREMENTS
+
+#### Before committing:
+- **VERIFY** all internal links work correctly
+- **VERIFY** all code examples are tested and working
+- **VERIFY** all API documentation matches actual implementation
+- **VERIFY** all new terms are added to glossary
+- **VERIFY** documentation follows the established structure
+
+#### Documentation Completeness Check:
+- New features have complete documentation coverage
+- API changes are reflected in OpenAPI specifications
+- Breaking changes are documented with migration guides
+- Performance impacts are documented if applicable
+
+### 6. SPECIFIC RULES FOR QUANTAPILOT™ COMPONENTS
+
+#### For AI Agent Development:
+- Document all prompt templates and their purposes
+- Document token usage patterns and optimization strategies
+- Document agent interaction protocols and handoff procedures
+- Document context preservation mechanisms
+
+#### For Workflow Development:
+- Document all n8n workflow components and their purposes
+- Document workflow state transitions and error handling
+- Document HITL decision points and approval processes
+- Document workflow performance characteristics
+
+#### For Integration Development:
+- Document all external API integrations and their limitations
+- Document authentication and authorization mechanisms
+- Document rate limiting and error handling strategies
+- Document data transformation and validation rules
+
+### 7. ENFORCEMENT AND AUTOMATION
+
+#### Pre-commit Requirements:
+- Documentation lint checks must pass
+- All markdown files must be properly formatted
+- Links must be validated and working
+- Documentation coverage must meet minimum thresholds
+
+#### CI/CD Integration:
+- Documentation builds must succeed
+- API documentation must match implementation
+- Documentation freshness checks must pass
+- No broken internal or external links allowed
+
+### 8. EMERGENCY PROCEDURES
+
+#### For Critical Fixes:
+- Minimal documentation updates are acceptable initially
+- Full documentation updates MUST follow within 24 hours
+- Create tracking issues for documentation debt
+- Document the emergency change rationale
+
+### 9. COLLABORATION GUIDELINES
+
+#### When Working with Teams:
+- Coordinate documentation changes with other developers
+- Use consistent terminology across all documentation
+- Maintain documentation style and voice consistency
+- Review documentation changes as thoroughly as code changes
+
+### 10. MAINTENANCE REQUIREMENTS
+
+#### Regular Maintenance:
+- Review and update documentation quarterly
+- Validate all external links monthly
+- Update screenshots and diagrams when UI changes
+- Archive outdated documentation appropriately
+
+## VIOLATION CONSEQUENCES
+- Code changes without proper documentation updates will be rejected
+- Incomplete documentation will block release processes
+- Documentation quality issues will be treated as bugs
+- Repeated violations may require additional training
+
+## REMEMBER: Documentation is not optional - it's a core requirement for QuantaPilot™ autonomous operation!

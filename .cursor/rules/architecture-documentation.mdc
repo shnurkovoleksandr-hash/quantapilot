@@ -1,0 +1,531 @@
+---
+description: "Architecture and system design documentation standards for QuantaPilot™ - ensures all architectural decisions and system changes are properly documented"
+globs: ["**/docker-compose.yml", "**/Dockerfile", "**/package.json", "**/requirements.txt", "**/pom.xml", "**/build.gradle", "**/Cargo.toml", "**/go.mod", "**/composer.json", "**/*.tf", "**/*.hcl", "**/infrastructure/**", "**/deploy/**", "**/config/**", "**/migrations/**", "**/*.sql", "**/schema.sql", "**/init.sql", "**/seeds.sql", "**/*migration*", "**/*schema*", "**/k8s/**", "**/kubernetes/**", "**/helm/**", "**/terraform/**"]
+alwaysApply: false
+---
+
+# Architecture Documentation Standards for QuantaPilot™
+
+## MANDATORY ARCHITECTURAL DOCUMENTATION
+
+### 1. SYSTEM ARCHITECTURE UPDATES
+
+#### When adding new services, MUST document in docs/10_architecture.md:
+
+```markdown
+### New Service: [Service Name]
+
+#### Purpose and Responsibilities
+- **Primary Function**: [What this service does]
+- **Key Responsibilities**: 
+  - [Responsibility 1]
+  - [Responsibility 2]
+  - [Responsibility 3]
+
+#### Technical Specifications
+- **Technology Stack**: [Languages, frameworks, databases]
+- **Dependencies**: [Internal and external dependencies]
+- **Resource Requirements**: [CPU, memory, storage]
+- **Scaling Characteristics**: [How it scales]
+
+#### Integration Points
+- **Input Interfaces**: [APIs, message queues, etc.]
+- **Output Interfaces**: [What it connects to]
+- **Data Flow**: [How data moves through the service]
+
+#### Deployment Configuration
+- **Container Image**: [Docker image details]
+- **Environment Variables**: [Required configuration]
+- **Health Checks**: [Health check endpoints]
+- **Monitoring**: [Metrics and logging]
+
+#### Example Configuration:
+```yaml
+service-name:
+  image: quantapilot/service-name:latest
+  environment:
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+  ports:
+    - "3000:3000"
+  depends_on:
+    - postgres
+    - redis
+```
+```
+
+### 2. DATABASE SCHEMA DOCUMENTATION
+
+#### Every database change MUST be documented:
+
+```sql
+-- Migration: 2024-01-20-add-ai-agent-logs.sql
+-- Purpose: Track AI agent interactions and token usage
+-- Dependencies: Requires projects table to exist
+
+-- Create ai_agent_logs table
+CREATE TABLE ai_agent_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    agent_role VARCHAR(50) NOT NULL, -- 'pr_architect', 'senior_developer', 'qa_engineer'
+    interaction_type VARCHAR(50) NOT NULL, -- 'prompt', 'response', 'error'
+    content JSONB NOT NULL,
+    tokens_used INTEGER,
+    cost_usd DECIMAL(10,4),
+    duration_ms INTEGER,
+    created_at TIMESTAMP DEFAULT NOW(),
+    metadata JSONB
+);
+
+-- Add indexes for performance
+CREATE INDEX idx_ai_agent_logs_project_id ON ai_agent_logs(project_id);
+CREATE INDEX idx_ai_agent_logs_agent_role ON ai_agent_logs(agent_role);
+CREATE INDEX idx_ai_agent_logs_created_at ON ai_agent_logs(created_at);
+
+-- Add constraints
+ALTER TABLE ai_agent_logs ADD CONSTRAINT check_agent_role 
+  CHECK (agent_role IN ('pr_architect', 'senior_developer', 'qa_engineer'));
+ALTER TABLE ai_agent_logs ADD CONSTRAINT check_interaction_type 
+  CHECK (interaction_type IN ('prompt', 'response', 'error'));
+ALTER TABLE ai_agent_logs ADD CONSTRAINT check_tokens_positive 
+  CHECK (tokens_used >= 0);
+
+-- Update documentation
+COMMENT ON TABLE ai_agent_logs IS 'Logs all AI agent interactions for tracking and optimization';
+COMMENT ON COLUMN ai_agent_logs.agent_role IS 'Which AI agent performed this interaction';
+COMMENT ON COLUMN ai_agent_logs.content IS 'Prompt/response content and context';
+COMMENT ON COLUMN ai_agent_logs.tokens_used IS 'Number of AI tokens consumed';
+COMMENT ON COLUMN ai_agent_logs.cost_usd IS 'Cost in USD for this interaction';
+```
+
+### 3. DOCKER AND DEPLOYMENT DOCUMENTATION
+
+#### Document container changes and dependencies:
+
+```dockerfile
+# Dockerfile for QuantaPilot™ Cursor Integration Service
+# Purpose: Handles AI agent communication with Cursor API
+# Base image: Node.js 18 Alpine for minimal attack surface
+# Dependencies: Cursor API access, Redis for caching
+
+FROM node:18-alpine
+
+# Install security updates and required packages
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    curl \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Create application directory with proper permissions
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S cursor-service -u 1001 -G nodejs
+
+# Copy package files for dependency installation
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy application source code
+COPY --chown=cursor-service:nodejs . .
+
+# Set proper permissions
+RUN chown -R cursor-service:nodejs /app
+
+# Switch to non-root user
+USER cursor-service
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+# Expose service port
+EXPOSE 3001
+
+# Start the application
+CMD ["npm", "start"]
+
+# Labels for container metadata
+LABEL maintainer="QuantaPilot™ Team <team@quantapilot.com>"
+LABEL version="1.0.0"
+LABEL description="Cursor Integration Service for QuantaPilot™"
+LABEL service="cursor-integration"
+```
+
+### 4. DOCKER COMPOSE CHANGES
+
+#### Document service orchestration updates:
+
+```yaml
+# QuantaPilot™ Docker Compose Configuration
+# Version: 1.0.0
+# Last Updated: 2024-01-20
+# 
+# Services Overview:
+# - postgres: Primary database for state management
+# - redis: Caching and session management
+# - n8n: Workflow orchestration engine
+# - api-gateway: Unified API entry point
+# - cursor-service: AI agent integration
+# - github-service: Repository management
+# - notification-service: Multi-channel notifications
+# - dashboard: Web-based user interface
+
+version: '3.8'
+
+services:
+  # New service addition documentation:
+  new-service:
+    build:
+      context: ./services/new-service
+      dockerfile: Dockerfile
+    container_name: quantapilot_new_service
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      # Environment variables with explanations
+      - NODE_ENV=${NODE_ENV:-development}  # Application environment
+      - DATABASE_URL=${DATABASE_URL}       # PostgreSQL connection string
+      - REDIS_URL=${REDIS_URL}            # Redis connection string
+      - API_KEY=${NEW_SERVICE_API_KEY}     # External API authentication
+    volumes:
+      # Volume mounts with purposes
+      - ./logs/new-service:/app/logs       # Application logs
+      - ./config/new-service:/app/config   # Service configuration
+    depends_on:
+      # Service dependencies with health checks
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - quantapilot_network
+    healthcheck:
+      # Health check configuration
+      test: ["CMD-SHELL", "curl -f http://localhost:3005/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+### 5. INFRASTRUCTURE AS CODE DOCUMENTATION
+
+#### Document infrastructure changes:
+
+```hcl
+# Terraform configuration for QuantaPilot™ cloud deployment
+# Purpose: Provision AWS infrastructure for production deployment
+# Resources: ECS, RDS, ElastiCache, ALB, CloudWatch
+# Last Updated: 2024-01-20
+
+# Provider configuration
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# VPC for QuantaPilot™ services
+resource "aws_vpc" "quantapilot_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "quantapilot-vpc"
+    Project     = "QuantaPilot"
+    Environment = var.environment
+    Purpose     = "Isolated network for QuantaPilot™ services"
+  }
+}
+
+# RDS instance for PostgreSQL
+resource "aws_db_instance" "quantapilot_postgres" {
+  identifier = "quantapilot-postgres-${var.environment}"
+  
+  # Database configuration
+  engine         = "postgres"
+  engine_version = "15.4"
+  instance_class = var.postgres_instance_class
+  
+  # Storage configuration
+  allocated_storage     = var.postgres_storage_gb
+  max_allocated_storage = var.postgres_max_storage_gb
+  storage_type          = "gp2"
+  storage_encrypted     = true
+  
+  # Database credentials
+  db_name  = "quantapilot"
+  username = var.postgres_username
+  password = var.postgres_password
+  
+  # Network configuration
+  db_subnet_group_name   = aws_db_subnet_group.quantapilot_db.name
+  vpc_security_group_ids = [aws_security_group.postgres.id]
+  
+  # Backup and maintenance
+  backup_retention_period = 7
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "sun:04:00-sun:05:00"
+  
+  # Monitoring and logging
+  monitoring_interval = 60
+  monitoring_role_arn = aws_iam_role.rds_monitoring.arn
+  
+  # Security
+  deletion_protection = var.environment == "production"
+  skip_final_snapshot = var.environment != "production"
+  
+  tags = {
+    Name        = "quantapilot-postgres"
+    Project     = "QuantaPilot"
+    Environment = var.environment
+    Purpose     = "Primary database for QuantaPilot™ state management"
+  }
+}
+```
+
+### 6. API GATEWAY AND ROUTING DOCUMENTATION
+
+#### Document API routing changes:
+
+```javascript
+/**
+ * QuantaPilot™ API Gateway Route Configuration
+ * 
+ * This module defines the routing configuration for all QuantaPilot™ services.
+ * Routes are organized by service domain and include:
+ * - Authentication and authorization
+ * - Rate limiting per route
+ * - Request/response transformation
+ * - Circuit breaker configuration
+ * - Monitoring and logging
+ */
+
+const routes = {
+  // Project Management Routes
+  projects: {
+    basePath: '/api/v1/projects',
+    service: 'api-gateway',
+    routes: [
+      {
+        path: '/',
+        method: 'POST',
+        handler: 'projects.create',
+        auth: true,
+        rateLimit: { requests: 10, window: 3600 }, // 10 projects per hour
+        validation: 'CreateProjectSchema',
+        timeout: 30000,
+        circuitBreaker: {
+          threshold: 5,
+          timeout: 60000,
+          resetTimeout: 30000
+        }
+      },
+      {
+        path: '/:projectId',
+        method: 'GET',
+        handler: 'projects.get',
+        auth: true,
+        rateLimit: { requests: 1000, window: 3600 },
+        validation: 'GetProjectSchema',
+        timeout: 5000,
+        cache: { ttl: 60 } // Cache for 1 minute
+      }
+    ]
+  },
+
+  // AI Agent Routes
+  aiAgents: {
+    basePath: '/api/v1/ai',
+    service: 'cursor-service',
+    routes: [
+      {
+        path: '/prompt',
+        method: 'POST',
+        handler: 'ai.prompt',
+        auth: true,
+        rateLimit: { requests: 100, window: 3600 },
+        validation: 'PromptSchema',
+        timeout: 120000, // 2 minutes for AI processing
+        monitoring: {
+          metrics: ['tokens_used', 'cost_usd', 'response_time'],
+          alerts: ['token_budget_exceeded', 'high_response_time']
+        }
+      }
+    ]
+  }
+};
+
+/**
+ * Route Security Configuration
+ * 
+ * Each route can specify:
+ * - Authentication requirements (JWT, API key, etc.)
+ * - Authorization rules (RBAC, permissions)
+ * - Rate limiting per user/IP
+ * - Input validation schemas
+ * - Output transformation rules
+ */
+const securityConfig = {
+  authentication: {
+    jwt: {
+      secret: process.env.JWT_SECRET,
+      expiration: '24h',
+      refreshable: true
+    },
+    apiKey: {
+      header: 'X-API-Key',
+      validation: 'database' // Validate against database
+    }
+  },
+  
+  authorization: {
+    rbac: {
+      roles: ['admin', 'user', 'readonly'],
+      permissions: ['project:create', 'project:read', 'project:update', 'project:delete']
+    }
+  },
+  
+  rateLimiting: {
+    storage: 'redis',
+    keyGenerator: (req) => req.user?.id || req.ip,
+    skipSuccessfulRequests: false,
+    skipFailedRequests: false
+  }
+};
+```
+
+### 7. MONITORING AND OBSERVABILITY DOCUMENTATION
+
+#### Document monitoring setup:
+
+```yaml
+# Prometheus Configuration for QuantaPilot™
+# Purpose: Metrics collection and alerting for all services
+# Targets: All QuantaPilot™ services and infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'quantapilot'
+    environment: 'production'
+
+# Rule files for alerting
+rule_files:
+  - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # QuantaPilot™ Core Services
+  - job_name: 'quantapilot-api-gateway'
+    static_configs:
+      - targets: ['api-gateway:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    
+  - job_name: 'quantapilot-cursor-service'
+    static_configs:
+      - targets: ['cursor-service:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s # Less frequent for AI service
+    scrape_timeout: 15s
+    
+  # Infrastructure Services
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Remote write for long-term storage (optional)
+remote_write:
+  - url: "https://prometheus-remote-write-endpoint/api/v1/write"
+    basic_auth:
+      username: "${REMOTE_WRITE_USERNAME}"
+      password: "${REMOTE_WRITE_PASSWORD}"
+```
+
+## ARCHITECTURAL DECISION RECORD (ADR) REQUIREMENTS
+
+### When to Create New ADRs:
+1. **Major architectural changes** - Service additions, removals, replacements
+2. **Technology stack changes** - Database changes, framework updates
+3. **Infrastructure changes** - Deployment model changes, cloud migrations
+4. **Security changes** - Authentication method changes, encryption updates
+5. **Performance optimizations** - Caching strategies, scaling approaches
+
+### ADR Template for docs/80_adrs.md:
+```markdown
+## ADR-XXX: [Decision Title]
+
+### Status
+[Proposed | Accepted | Deprecated | Superseded by ADR-XXX]
+
+### Context
+[Describe the situation that requires a decision]
+
+### Decision
+[Describe the decision and its rationale]
+
+### Consequences
+**Positive:**
+- [Benefit 1]
+- [Benefit 2]
+
+**Negative:**
+- [Trade-off 1]
+- [Trade-off 2]
+
+### Alternatives Considered
+- [Alternative 1]: [Why rejected]
+- [Alternative 2]: [Why rejected]
+
+### Implementation Details
+- [Technical details]
+- [Migration strategy if applicable]
+- [Rollback plan if applicable]
+
+### Date
+[YYYY-MM-DD]
+```
+
+## ARCHITECTURE DOCUMENTATION MAINTENANCE
+
+### Update Triggers:
+1. **Service changes** - Add, remove, or modify services
+2. **Database changes** - Schema updates, migrations, performance optimizations
+3. **Infrastructure changes** - Deployment updates, scaling changes
+4. **Integration changes** - New external services, API changes
+5. **Security changes** - Authentication, authorization, encryption updates
+
+### Validation Requirements:
+- Architecture diagrams match actual implementation
+- Service dependencies are accurately documented
+- Database schema documentation reflects actual schema
+- Deployment configurations are tested and working
+- Performance characteristics are measured and documented
+
+## REMEMBER: Architecture documentation enables autonomous system understanding and maintenance!

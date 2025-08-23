@@ -1,0 +1,94 @@
+---
+description: "Project documentation template for QuantaPilot™ generated projects - ensures complete documentation structure and maintenance"
+globs: ["**/*.md", "**/*.mdx", "**/docs/**", "**/README.md", "**/package.json", "**/requirements.txt", "**/Cargo.toml", "**/go.mod", "**/pom.xml", "**/build.gradle", "**/composer.json", "**/*.yaml", "**/*.yml", "**/*.json"]
+alwaysApply: false
+---
+
+# {{PROJECT_NAME}} Documentation Rules
+
+## MANDATORY DOCUMENTATION STRUCTURE
+
+### Required Documentation Files
+```
+{{PROJECT_NAME}}/
+├── README.md                  # Project overview, installation, usage
+└── docs/
+    ├── 00_overview.md         # Extended overview and terminology
+    ├── 10_architecture.md     # System context and data flows
+    ├── 20_requirements.md     # Functional and non-functional requirements
+    ├── 30_milestones.md       # Implementation milestones and acceptance criteria
+    ├── 40_acceptance.md       # Documentation and workflow acceptance criteria
+    ├── 50_nonfunctional.md    # Reliability, security and observability targets
+    ├── 60_constraints.md      # Technical and process constraints
+    ├── 70_runbook.md          # Operational runbook and incident handling
+    ├── 80_adrs.md             # Architectural decision records
+    ├── 90_api.md              # External triggers and integration API
+    └── 99_glossary.md         # Glossary of terms and abbreviations
+```
+
+## DOCUMENTATION MAINTENANCE RULES
+
+### 1. README.md Requirements
+- **Project description** and purpose
+- **Installation instructions** with prerequisites
+- **Usage examples** with code snippets
+- **Configuration** options and environment variables
+- **Contributing** guidelines and development setup
+
+### 2. Before ANY Code Changes
+- **ALWAYS** read existing documentation in docs/ folder
+- **PLAN** documentation updates before coding
+- **UPDATE** affected documentation immediately after changes
+
+### 3. API Changes
+- **Document ALL endpoints** in docs/90_api.md with request/response examples
+- **Include error responses** and status codes
+- **Update OpenAPI specs** with every API modification
+- **Validate examples** work with actual implementation
+
+### 4. Architecture Changes
+- **Update docs/10_architecture.md** when adding/removing components
+- **Document service dependencies** and data flows in system context
+- **Update docs/80_adrs.md** with architectural decisions
+- **Add diagrams** for complex system interactions
+
+### 5. Requirements Changes
+- **Update docs/20_requirements.md** for new functional requirements
+- **Document non-functional requirements** in docs/50_nonfunctional.md
+- **Update constraints** in docs/60_constraints.md
+- **Validate requirements** against implementation
+
+## QUALITY STANDARDS
+
+### Documentation Quality
+- **Clear, concise language** - no technical jargon without explanation
+- **Working code examples** - test all examples before committing
+- **Current information** - remove outdated content immediately
+- **Proper formatting** - use consistent markdown structure
+
+### Validation Requirements
+- **No broken links** - validate all internal and external links
+- **Complete coverage** - document all public APIs and features
+- **Accurate examples** - all code examples must work
+- **Up-to-date dependencies** - version numbers match reality
+
+## UPDATE TRIGGERS
+
+### When to Update Documentation
+- **New features** → Update docs/20_requirements.md and docs/00_overview.md
+- **API changes** → Update docs/90_api.md with examples and specs
+- **Architecture changes** → Update docs/10_architecture.md and docs/80_adrs.md
+- **Operational changes** → Update docs/70_runbook.md
+- **Performance changes** → Update docs/50_nonfunctional.md
+- **Constraint changes** → Update docs/60_constraints.md
+- **New terms** → Update docs/99_glossary.md
+
+### Validation Commands
+```bash
+# Check documentation
+npm run docs:lint          # Markdown validation
+npm run docs:check-links   # Link validation
+npm run test:docs          # Documentation tests
+```
+
+**REMEMBER: Documentation is code - treat it with the same rigor!**
