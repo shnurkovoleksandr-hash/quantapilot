@@ -21,5 +21,13 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     '/node_modules/'
-  ]
+  ],
+  // Clear mocks between tests
+  clearMocks: true,
+  // Restore mocks after each test
+  restoreMocks: true,
+  // Prevent Jest from trying to transform node_modules
+  transformIgnorePatterns: [
+    'node_modules/(?!(winston|redis)/)',
+  ],
 };

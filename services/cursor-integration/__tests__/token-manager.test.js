@@ -6,21 +6,7 @@
 const TokenManager = require('../src/lib/token-manager');
 const winston = require('winston');
 
-// Mock Redis
-const mockRedis = {
-  connect: jest.fn(),
-  setEx: jest.fn(),
-  get: jest.fn(),
-  incrByFloat: jest.fn(),
-  expire: jest.fn(),
-  keys: jest.fn(),
-  del: jest.fn(),
-  on: jest.fn()
-};
-
-jest.mock('redis', () => ({
-  createClient: jest.fn(() => mockRedis)
-}));
+// Redis mocking is now handled globally in jest.setup.js
 
 describe('TokenManager', () => {
   let tokenManager;

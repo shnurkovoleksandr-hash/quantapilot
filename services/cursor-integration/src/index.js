@@ -22,7 +22,11 @@ require('dotenv').config();
 const CursorCLI = require('./lib/cursor-cli');
 const PromptTemplateManager = require('./lib/prompt-templates');
 const TokenManager = require('./lib/token-manager');
-const { CircuitBreaker, CIRCUIT_STATES, ERROR_CATEGORIES } = require('./lib/circuit-breaker');
+const {
+  CircuitBreaker,
+  CIRCUIT_STATES,
+  ERROR_CATEGORIES,
+} = require('./lib/circuit-breaker');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -59,13 +63,13 @@ const cursorCLI = new CursorCLI({
   cursorPath: process.env.CURSOR_CLI_PATH || 'cursor',
   workspaceRoot: process.env.WORKSPACE_ROOT || '/tmp/quantapilot-projects',
   timeout: parseInt(process.env.CURSOR_CLI_TIMEOUT) || 300000,
-  logger
+  logger,
 });
 
 // Initialize prompt template manager
 const promptManager = new PromptTemplateManager({
   templatesPath: process.env.TEMPLATES_PATH || './templates',
-  logger
+  logger,
 });
 
 // Initialize token manager
@@ -73,9 +77,9 @@ const tokenManager = new TokenManager({
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD
+    password: process.env.REDIS_PASSWORD,
   },
-  logger
+  logger,
 });
 
 // Original Cursor API client with circuit breaker
@@ -97,7 +101,7 @@ const cursorCircuitBreaker = new CircuitBreaker({
   failureThreshold: 5,
   timeout: 120000,
   resetTimeout: 60000,
-  logger
+  logger,
 });
 
 // ==============================================
@@ -196,7 +200,7 @@ const AGENT_CONFIGS = {
 async function makeAIRequest(prompt, agentRole, options = {}) {
   const correlationId = options.correlationId || uuidv4();
   const startTime = Date.now();
-  
+
   try {
     // Check budget before making request
     if (options.projectId && options.userId) {
@@ -207,18 +211,23 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
         agentRole,
         estimatedTokens
       );
-      
+
       if (!budgetCheck.allowed) {
-        throw new Error(`Budget limit would be exceeded: ${budgetCheck.limits.join(', ')}`);
+        throw new Error(
+          `Budget limit would be exceeded: ${budgetCheck.limits.join(', ')}`
+        );
       }
     }
 
     // Use template if specified
     let finalPrompt = prompt;
     let systemPrompt = AGENT_CONFIGS[agentRole].systemPrompt;
-    
+
     if (options.templateId && options.templateContext) {
-      const renderedTemplate = promptManager.renderTemplate(options.templateId, options.templateContext);
+      const renderedTemplate = promptManager.renderTemplate(
+        options.templateId,
+        options.templateContext
+      );
       finalPrompt = renderedTemplate.userPrompt;
       systemPrompt = renderedTemplate.systemPrompt;
     }
@@ -247,7 +256,7 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
       model: config.model,
       promptLength: finalPrompt.length,
       templateId: options.templateId,
-      projectId: options.projectId
+      projectId: options.projectId,
     });
 
     // Execute request through circuit breaker
@@ -269,7 +278,7 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
         inputTokens: usage.prompt_tokens || 0,
         outputTokens: usage.completion_tokens || 0,
         totalTokens: usage.total_tokens || 0,
-        correlationId
+        correlationId,
       });
     }
 
@@ -278,7 +287,7 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
       agentRole,
       tokensUsed: usage.total_tokens,
       responseLength: response.data.choices?.[0]?.message?.content?.length,
-      duration
+      duration,
     });
 
     return {
@@ -288,19 +297,19 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
         agentRole,
         duration,
         templateId: options.templateId,
-        projectId: options.projectId
-      }
+        projectId: options.projectId,
+      },
     };
   } catch (error) {
     const duration = Date.now() - startTime;
-    
+
     logger.error('Enhanced AI request failed', {
       correlationId,
       agentRole,
       error: error.message,
       status: error.response?.status,
       duration,
-      circuitState: cursorCircuitBreaker.getMetrics().state
+      circuitState: cursorCircuitBreaker.getMetrics().state,
     });
 
     throw error;
@@ -314,14 +323,14 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
 // Enhanced AI Prompt endpoint with template support
 app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
   try {
-    const { 
-      prompt, 
-      agentRole, 
+    const {
+      prompt,
+      agentRole,
       options = {},
       projectId,
       userId,
       templateId,
-      templateContext
+      templateContext,
     } = req.body;
 
     // Validation
@@ -353,14 +362,17 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
       }
 
       if (templateContext) {
-        const validation = promptManager.validateContext(templateId, templateContext);
+        const validation = promptManager.validateContext(
+          templateId,
+          templateContext
+        );
         if (!validation.valid) {
           return res.status(400).json({
             error: 'INVALID_TEMPLATE_CONTEXT',
             message: 'Missing required template variables',
             details: {
               missing: validation.missingVariables,
-              required: validation.requiredVariables
+              required: validation.requiredVariables,
             },
             correlationId: req.id,
           });
@@ -374,7 +386,7 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
       userId,
       correlationId: req.id,
       templateId,
-      templateContext
+      templateContext,
     };
 
     const aiResponse = await makeAIRequest(prompt, agentRole, enhancedOptions);
@@ -386,7 +398,7 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
         usage: aiResponse.usage,
         model: aiResponse.model,
         agentRole,
-        metadata: aiResponse.metadata
+        metadata: aiResponse.metadata,
       },
       correlationId: req.id,
     });
@@ -395,13 +407,15 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
       correlationId: req.id,
       error: error.message,
       stack: error.stack,
-      circuitState: cursorCircuitBreaker.getMetrics().state
+      circuitState: cursorCircuitBreaker
+        ? cursorCircuitBreaker.getMetrics()?.state
+        : 'unknown',
     });
 
     // Determine appropriate error response based on error type
     let statusCode = 500;
     let errorCode = 'AI_REQUEST_FAILED';
-    
+
     if (error.message.includes('Budget limit')) {
       statusCode = 429;
       errorCode = 'BUDGET_EXCEEDED';
@@ -421,7 +435,7 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
 // Enhanced agent status endpoint
 app.get('/api/v1/ai/agents', (req, res) => {
   const circuitMetrics = cursorCircuitBreaker.getMetrics();
-  
+
   res.status(200).json({
     success: true,
     data: {
@@ -435,8 +449,8 @@ app.get('/api/v1/ai/agents', (req, res) => {
       serviceStatus: {
         circuitState: circuitMetrics.state,
         healthy: circuitMetrics.state === CIRCUIT_STATES.CLOSED,
-        metrics: circuitMetrics.metrics
-      }
+        metrics: circuitMetrics.metrics,
+      },
     },
     correlationId: req.id,
   });
@@ -451,7 +465,7 @@ app.get('/api/v1/ai/templates', (req, res) => {
   try {
     const { role, category } = req.query;
     let templates;
-    
+
     if (role) {
       templates = promptManager.getTemplatesByRole(role);
     } else if (category) {
@@ -459,7 +473,7 @@ app.get('/api/v1/ai/templates', (req, res) => {
     } else {
       templates = promptManager.getAllTemplates();
     }
-    
+
     res.status(200).json({
       success: true,
       data: { templates },
@@ -470,7 +484,7 @@ app.get('/api/v1/ai/templates', (req, res) => {
       correlationId: req.id,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'TEMPLATE_ERROR',
       message: 'Failed to retrieve templates',
@@ -483,7 +497,7 @@ app.get('/api/v1/ai/templates/:templateId', (req, res) => {
   try {
     const { templateId } = req.params;
     const template = promptManager.getTemplate(templateId);
-    
+
     if (!template) {
       return res.status(404).json({
         error: 'TEMPLATE_NOT_FOUND',
@@ -491,7 +505,7 @@ app.get('/api/v1/ai/templates/:templateId', (req, res) => {
         correlationId: req.id,
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: { template: { id: templateId, ...template } },
@@ -503,7 +517,7 @@ app.get('/api/v1/ai/templates/:templateId', (req, res) => {
       templateId: req.params.templateId,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'TEMPLATE_ERROR',
       message: 'Failed to retrieve template',
@@ -517,9 +531,11 @@ app.get('/api/v1/ai/usage/:scope/:identifier', async (req, res) => {
   try {
     const { scope, identifier } = req.params;
     const { timeRange = 'daily' } = req.query;
-    
-    const analytics = await tokenManager.getUsageAnalytics(scope, identifier, { timeRange });
-    
+
+    const analytics = await tokenManager.getUsageAnalytics(scope, identifier, {
+      timeRange,
+    });
+
     res.status(200).json({
       success: true,
       data: { analytics },
@@ -532,7 +548,7 @@ app.get('/api/v1/ai/usage/:scope/:identifier', async (req, res) => {
       identifier: req.params.identifier,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'ANALYTICS_ERROR',
       message: 'Failed to retrieve usage analytics',
@@ -545,7 +561,7 @@ app.get('/api/v1/ai/budget/:projectId', async (req, res) => {
   try {
     const { projectId } = req.params;
     const budgetStatus = await tokenManager.getProjectBudgetStatus(projectId);
-    
+
     res.status(200).json({
       success: true,
       data: { budgetStatus },
@@ -557,7 +573,7 @@ app.get('/api/v1/ai/budget/:projectId', async (req, res) => {
       projectId: req.params.projectId,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'BUDGET_ERROR',
       message: 'Failed to retrieve budget status',
@@ -570,7 +586,7 @@ app.get('/api/v1/ai/budget/:projectId', async (req, res) => {
 app.post('/api/v1/cursor/project', async (req, res) => {
   try {
     const { projectId, repositoryUrl } = req.body;
-    
+
     if (!projectId) {
       return res.status(400).json({
         error: 'INVALID_REQUEST',
@@ -578,15 +594,18 @@ app.post('/api/v1/cursor/project', async (req, res) => {
         correlationId: req.id,
       });
     }
-    
-    const projectPath = await cursorCLI.createProjectWorkspace(projectId, repositoryUrl);
-    
+
+    const projectPath = await cursorCLI.createProjectWorkspace(
+      projectId,
+      repositoryUrl
+    );
+
     res.status(201).json({
       success: true,
-      data: { 
+      data: {
         projectId,
         projectPath,
-        repositoryUrl 
+        repositoryUrl,
       },
       correlationId: req.id,
     });
@@ -595,7 +614,7 @@ app.post('/api/v1/cursor/project', async (req, res) => {
       correlationId: req.id,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'PROJECT_CREATION_ERROR',
       message: 'Failed to create project workspace',
@@ -607,7 +626,7 @@ app.post('/api/v1/cursor/project', async (req, res) => {
 app.post('/api/v1/cursor/generate', async (req, res) => {
   try {
     const { projectId, prompt, options = {} } = req.body;
-    
+
     if (!projectId || !prompt) {
       return res.status(400).json({
         error: 'INVALID_REQUEST',
@@ -615,7 +634,7 @@ app.post('/api/v1/cursor/generate', async (req, res) => {
         correlationId: req.id,
       });
     }
-    
+
     const projectInfo = await cursorCLI.getProjectInfo(projectId);
     if (!projectInfo.exists) {
       return res.status(404).json({
@@ -624,9 +643,13 @@ app.post('/api/v1/cursor/generate', async (req, res) => {
         correlationId: req.id,
       });
     }
-    
-    const result = await cursorCLI.generateCode(projectInfo.projectPath, prompt, options);
-    
+
+    const result = await cursorCLI.generateCode(
+      projectInfo.projectPath,
+      prompt,
+      options
+    );
+
     res.status(200).json({
       success: true,
       data: { result },
@@ -637,7 +660,7 @@ app.post('/api/v1/cursor/generate', async (req, res) => {
       correlationId: req.id,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'CODE_GENERATION_ERROR',
       message: 'Failed to generate code',
@@ -650,7 +673,7 @@ app.get('/api/v1/cursor/project/:projectId', async (req, res) => {
   try {
     const { projectId } = req.params;
     const projectInfo = await cursorCLI.getProjectInfo(projectId);
-    
+
     res.status(200).json({
       success: true,
       data: { projectInfo },
@@ -662,7 +685,7 @@ app.get('/api/v1/cursor/project/:projectId', async (req, res) => {
       projectId: req.params.projectId,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'PROJECT_INFO_ERROR',
       message: 'Failed to retrieve project information',
@@ -676,26 +699,27 @@ app.get('/api/v1/system/health', async (req, res) => {
   try {
     const circuitHealth = cursorCircuitBreaker.getHealthReport();
     const cursorCLIAvailable = await cursorCLI.checkCursorAvailability();
-    
+
     const systemHealth = {
-      overall: circuitHealth.healthy && cursorCLIAvailable ? 'healthy' : 'degraded',
+      overall:
+        circuitHealth.healthy && cursorCLIAvailable ? 'healthy' : 'degraded',
       components: {
         circuitBreaker: circuitHealth,
         cursorCLI: {
           available: cursorCLIAvailable,
-          healthy: cursorCLIAvailable
+          healthy: cursorCLIAvailable,
         },
         promptManager: {
           templatesLoaded: promptManager.getAllTemplates().length,
-          healthy: true
+          healthy: true,
         },
         tokenManager: {
-          healthy: true
-        }
+          healthy: true,
+        },
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
+
     res.status(200).json({
       success: true,
       data: { systemHealth },
@@ -706,7 +730,7 @@ app.get('/api/v1/system/health', async (req, res) => {
       correlationId: req.id,
       error: error.message,
     });
-    
+
     res.status(500).json({
       error: 'HEALTH_CHECK_ERROR',
       message: 'Failed to retrieve system health',

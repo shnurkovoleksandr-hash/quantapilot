@@ -8,15 +8,7 @@ const fs = require('fs').promises;
 const PromptTemplateManager = require('../src/lib/prompt-templates');
 const winston = require('winston');
 
-// Mock fs
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  promises: {
-    mkdir: jest.fn(),
-    writeFile: jest.fn(),
-    readFile: jest.fn(),
-  },
-}));
+// FS mocking is now handled globally in jest.setup.js
 
 describe('PromptTemplateManager', () => {
   let promptManager;
@@ -24,33 +16,31 @@ describe('PromptTemplateManager', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     mockLogger = winston.createLogger({
       level: 'error',
-      transports: [new winston.transports.Console({ silent: true })]
+      transports: [new winston.transports.Console({ silent: true })],
     });
 
-    fs.mkdir.mockResolvedValue();
-    fs.writeFile.mockResolvedValue();
-
-    // Mock the loadTemplates method to prevent constructor from doing real work
-    jest.spyOn(PromptTemplateManager.prototype, 'loadTemplates').mockResolvedValue();
+    // FS mocking is handled globally
 
     promptManager = new PromptTemplateManager({
       templatesPath: '/tmp/test-templates',
-      logger: mockLogger
+      logger: mockLogger,
     });
 
-    // Wait for initialization to complete
-    await promptManager.loadTemplates();
+    // Force sync loading of templates for tests
+    promptManager.loadDefaultTemplatesSync();
   });
 
   describe('constructor', () => {
     it('should initialize with default configuration', async () => {
       const manager = new PromptTemplateManager();
       await manager.loadTemplates();
-      
-      expect(manager.templatesPath).toBe(path.join(__dirname, '../templates'));
+
+      expect(manager.templatesPath).toBe(
+        path.join(__dirname, '../src/templates')
+      );
     });
 
     it('should initialize with custom configuration', async () => {
@@ -63,12 +53,16 @@ describe('PromptTemplateManager', () => {
     it('should load default templates', () => {
       const templates = promptManager.getAllTemplates();
       expect(templates.length).toBeGreaterThan(0);
-      
+
       // Check for specific role templates
-      const architectTemplates = templates.filter(t => t.role === 'pr_architect');
-      const developerTemplates = templates.filter(t => t.role === 'senior_developer');
+      const architectTemplates = templates.filter(
+        t => t.role === 'pr_architect'
+      );
+      const developerTemplates = templates.filter(
+        t => t.role === 'senior_developer'
+      );
       const qaTemplates = templates.filter(t => t.role === 'qa_engineer');
-      
+
       expect(architectTemplates.length).toBeGreaterThan(0);
       expect(developerTemplates.length).toBeGreaterThan(0);
       expect(qaTemplates.length).toBeGreaterThan(0);
@@ -76,7 +70,7 @@ describe('PromptTemplateManager', () => {
 
     it('should get template by ID', () => {
       const template = promptManager.getTemplate('pr_architect_analyze');
-      
+
       expect(template).toBeDefined();
       expect(template.role).toBe('pr_architect');
       expect(template.category).toBe('analysis');
@@ -90,8 +84,9 @@ describe('PromptTemplateManager', () => {
     });
 
     it('should get templates by role', () => {
-      const architectTemplates = promptManager.getTemplatesByRole('pr_architect');
-      
+      const architectTemplates =
+        promptManager.getTemplatesByRole('pr_architect');
+
       expect(architectTemplates.length).toBeGreaterThan(0);
       architectTemplates.forEach(template => {
         expect(template.role).toBe('pr_architect');
@@ -99,8 +94,9 @@ describe('PromptTemplateManager', () => {
     });
 
     it('should get templates by category', () => {
-      const analysisTemplates = promptManager.getTemplatesByCategory('analysis');
-      
+      const analysisTemplates =
+        promptManager.getTemplatesByCategory('analysis');
+
       expect(analysisTemplates.length).toBeGreaterThan(0);
       analysisTemplates.forEach(template => {
         expect(template.category).toBe('analysis');
@@ -114,10 +110,13 @@ describe('PromptTemplateManager', () => {
         repositoryUrl: 'https://github.com/test/repo',
         projectContext: 'Test project context',
         requirements: 'Build a web application',
-        tokenBudget: 50000
+        tokenBudget: 50000,
       };
 
-      const rendered = promptManager.renderTemplate('pr_architect_analyze', context);
+      const rendered = promptManager.renderTemplate(
+        'pr_architect_analyze',
+        context
+      );
 
       expect(rendered.templateId).toBe('pr_architect_analyze');
       expect(rendered.role).toBe('pr_architect');
@@ -135,11 +134,14 @@ describe('PromptTemplateManager', () => {
 
     it('should preserve placeholders for missing context variables', () => {
       const context = {
-        repositoryUrl: 'https://github.com/test/repo'
+        repositoryUrl: 'https://github.com/test/repo',
         // Missing other required variables
       };
 
-      const rendered = promptManager.renderTemplate('pr_architect_analyze', context);
+      const rendered = promptManager.renderTemplate(
+        'pr_architect_analyze',
+        context
+      );
 
       expect(rendered.userPrompt).toContain('https://github.com/test/repo');
       expect(rendered.userPrompt).toContain('{{projectContext}}'); // Should remain as placeholder
@@ -167,9 +169,9 @@ describe('PromptTemplateManager', () => {
 
     it('should handle nested object values', () => {
       const template = 'Count: {{metrics.count}}, Total: {{metrics.total}}';
-      const context = { 
+      const context = {
         'metrics.count': 5,
-        'metrics.total': 100
+        'metrics.total': 100,
       };
 
       const result = promptManager.interpolateTemplate(template, context);
@@ -204,7 +206,8 @@ describe('PromptTemplateManager', () => {
     });
 
     it('should find good truncation points', () => {
-      const promptWithSentences = 'First sentence. Second sentence. Third sentence. Fourth sentence.';
+      const promptWithSentences =
+        'First sentence. Second sentence. Third sentence. Fourth sentence.';
       const optimized = promptManager.optimizePrompt(promptWithSentences, 10); // Very low limit
 
       expect(optimized).toContain('.');
@@ -221,7 +224,7 @@ describe('PromptTemplateManager', () => {
         systemPrompt: 'You are a custom agent.',
         userTemplate: 'Execute task: {{task}}',
         maxTokens: 2000,
-        temperature: 0.5
+        temperature: 0.5,
       };
 
       promptManager.addTemplate('custom_template', customTemplate);
@@ -233,7 +236,7 @@ describe('PromptTemplateManager', () => {
     it('should validate required fields for custom templates', () => {
       const incompleteTemplate = {
         role: 'custom_agent',
-        title: 'Custom Template'
+        title: 'Custom Template',
         // Missing required fields
       };
 
@@ -248,7 +251,7 @@ describe('PromptTemplateManager', () => {
         category: 'custom',
         title: 'Minimal Template',
         systemPrompt: 'You are a custom agent.',
-        userTemplate: 'Execute task: {{task}}'
+        userTemplate: 'Execute task: {{task}}',
         // No maxTokens, temperature, or version
       };
 
@@ -270,10 +273,13 @@ describe('PromptTemplateManager', () => {
         requirements: 'Build application',
         constraints: 'Time constraints',
         tokenBudget: 50000,
-        timeConstraints: '1 week'
+        timeConstraints: '1 week',
       };
 
-      const validation = promptManager.validateContext('pr_architect_analyze', context);
+      const validation = promptManager.validateContext(
+        'pr_architect_analyze',
+        context
+      );
 
       expect(validation.valid).toBe(true);
       expect(validation.missingVariables).toHaveLength(0);
@@ -281,11 +287,14 @@ describe('PromptTemplateManager', () => {
 
     it('should identify missing variables', () => {
       const incompleteContext = {
-        repositoryUrl: 'https://github.com/test/repo'
+        repositoryUrl: 'https://github.com/test/repo',
         // Missing other variables
       };
 
-      const validation = promptManager.validateContext('pr_architect_analyze', incompleteContext);
+      const validation = promptManager.validateContext(
+        'pr_architect_analyze',
+        incompleteContext
+      );
 
       expect(validation.valid).toBe(false);
       expect(validation.missingVariables.length).toBeGreaterThan(0);
@@ -307,7 +316,7 @@ describe('PromptTemplateManager', () => {
         category: 'test',
         title: 'Test',
         systemPrompt: 'System {{invalid}}',
-        userTemplate: 'User {{invalid}}'
+        userTemplate: 'User {{invalid}}',
       };
 
       promptManager.addTemplate('problematic', problematicTemplate);
@@ -322,14 +331,18 @@ describe('PromptTemplateManager', () => {
     it('should handle file system errors during initialization', async () => {
       // Create a new manager specifically for this test without mocking loadTemplates
       const mockManager = {
-        ensureTemplatesDirectory: jest.fn().mockRejectedValue(new Error('Permission denied')),
-        loadTemplates: jest.fn().mockImplementation(async function() {
+        ensureTemplatesDirectory: jest
+          .fn()
+          .mockRejectedValue(new Error('Permission denied')),
+        loadTemplates: jest.fn().mockImplementation(async function () {
           await this.ensureTemplatesDirectory();
         }),
-        logger: mockLogger
+        logger: mockLogger,
       };
 
-      await expect(mockManager.loadTemplates()).rejects.toThrow('Permission denied');
+      await expect(mockManager.loadTemplates()).rejects.toThrow(
+        'Permission denied'
+      );
     });
   });
 });

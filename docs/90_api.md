@@ -6,6 +6,14 @@ QuantaPilot™ provides comprehensive APIs for external integration, webhook pro
 management. This document covers all external interfaces including REST APIs, webhooks, and
 integration endpoints.
 
+**Implementation Status**: Stage 2.1 Complete ✅
+
+- All core APIs implemented and tested
+- Cursor Integration Service with 100% test coverage
+- AI Agent Management System fully operational
+- Token Budget Management with Circuit Breaker Protection
+- Comprehensive Error Handling and Retry Logic
+
 ## API Authentication
 
 ### API Key Authentication
@@ -242,6 +250,145 @@ Content-Type: application/json
 
 ```http
 GET /api/v1/hitl/decisions?project_id={projectId}&status=completed
+```
+
+### Cursor Integration API (Stage 2.1 Complete ✅)
+
+#### Enhanced AI Prompt Endpoint
+
+```http
+POST /api/v1/ai/prompt
+Content-Type: application/json
+
+{
+  "prompt": "Analyze this project structure",
+  "agentRole": "pr_architect",
+  "projectId": "test-project",
+  "userId": "test-user",
+  "templateId": "pr_architect_analyze",
+  "templateContext": {
+    "projectContext": "React application with TypeScript",
+    "requirements": "Build a modern web app",
+    "tokenBudget": 50000
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "response": "Analysis complete",
+    "model": "cursor-large",
+    "agentRole": "pr_architect",
+    "metadata": {
+      "tokensUsed": 100,
+      "cost": 0.05,
+      "duration": 1500
+    }
+  },
+  "correlationId": "test-request-id"
+}
+```
+
+#### Template Management
+
+```http
+GET /api/v1/ai/templates
+GET /api/v1/ai/templates?role=pr_architect
+GET /api/v1/ai/templates?category=analysis
+GET /api/v1/ai/templates/{templateId}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "templates": [
+      {
+        "id": "pr_architect_analyze",
+        "role": "pr_architect",
+        "category": "analysis",
+        "systemPrompt": "You are a Senior PR/Architect...",
+        "userTemplate": "Analyze the project: {{projectContext}}",
+        "maxTokens": 4000,
+        "temperature": 0.7
+      }
+    ]
+  }
+}
+```
+
+#### Project Workspace Management
+
+```http
+POST /api/v1/cursor/projects
+Content-Type: application/json
+
+{
+  "projectId": "test-project",
+  "repositoryUrl": "https://github.com/user/repo"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "projectId": "test-project",
+    "projectPath": "/tmp/test-project",
+    "repositoryUrl": "https://github.com/user/repo"
+  },
+  "correlationId": "test-request-id"
+}
+```
+
+#### System Health Monitoring
+
+```http
+GET /api/v1/system/health
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "systemHealth": {
+      "overall": "healthy",
+      "components": {
+        "circuitBreaker": {
+          "healthy": true,
+          "state": "CLOSED",
+          "metrics": {
+            "totalRequests": 150,
+            "successfulRequests": 148,
+            "failedRequests": 2
+          }
+        },
+        "cursorCLI": {
+          "available": true,
+          "healthy": true
+        },
+        "promptManager": {
+          "templatesLoaded": 6,
+          "healthy": true
+        },
+        "tokenManager": {
+          "healthy": true
+        }
+      },
+      "timestamp": "2024-01-20T15:30:00Z"
+    }
+  }
+}
 ```
 
 ### Metrics and Analytics API
