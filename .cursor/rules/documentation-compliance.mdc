@@ -1,9 +1,6 @@
 ---
-description: "Strict documentation compliance rules for QuantaPilot™ development - ensures all code changes are accompanied by comprehensive documentation updates"
-globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.clj", "**/*.sql", "**/*.md", "**/*.mdx", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.xml", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.vue", "**/*.svelte", "**/*.astro", "**/*.tf", "**/*.hcl", "**/*.dockerfile", "**/Dockerfile", "**/docker-compose.yml", "**/package.json", "**/requirements.txt", "**/Gemfile", "**/pom.xml", "**/build.gradle", "**/Cargo.toml", "**/go.mod", "**/composer.json"]
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Documentation Compliance Rules for QuantaPilot™
 
 ## STRICT REQUIREMENT ADHERENCE

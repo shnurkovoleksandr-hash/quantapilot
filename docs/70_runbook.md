@@ -4,15 +4,25 @@
 
 This runbook provides comprehensive operational procedures for QuantaPilot™, covering deployment, monitoring, troubleshooting, and maintenance tasks.
 
-### Quick Reference
+**System Status**: Core Infrastructure Complete (Stages 1.1-1.2) ✅  
+**Services**: 5 core microservices + 4 infrastructure services  
+**Deployment**: Docker Compose based, single-machine ready  
+**Monitoring**: Prometheus + Grafana with custom dashboards  
 
-| Component | Status Endpoint | Log Location | Restart Command |
-|-----------|-----------------|--------------|-----------------|
-| n8n | `http://localhost:5678/healthz` | `/var/log/n8n/` | `docker-compose restart n8n` |
-| API Gateway | `http://localhost:3000/health` | `/var/log/api/` | `docker-compose restart api-gateway` |
-| PostgreSQL | `SELECT 1` | `/var/log/postgresql/` | `docker-compose restart postgres` |
-| Redis | `redis-cli ping` | `/var/log/redis/` | `docker-compose restart redis` |
-| Cursor Service | `http://localhost:3001/health` | `/var/log/cursor/` | `docker-compose restart cursor-service` |
+### Quick Reference - All Services
+
+| Component | Port | Status Endpoint | Log Location | Restart Command |
+|-----------|------|-----------------|--------------|-----------------|
+| **API Gateway** | 3000 | `http://localhost:3000/health` | `./logs/api-gateway/` | `docker-compose restart api-gateway` |
+| **Cursor Service** | 3001 | `http://localhost:3001/health` | `./logs/cursor-service/` | `docker-compose restart cursor-service` |
+| **GitHub Service** | 3002 | `http://localhost:3002/health` | `./logs/github-service/` | `docker-compose restart github-service` |
+| **Notification Service** | 3003 | `http://localhost:3003/health` | `./logs/notification-service/` | `docker-compose restart notification-service` |
+| **Web Dashboard** | 3004 | `http://localhost:3004/health` | `./logs/dashboard/` | `docker-compose restart dashboard` |
+| **n8n Workflows** | 5678 | `http://localhost:5678/healthz` | Docker logs | `docker-compose restart n8n` |
+| **PostgreSQL** | 5432 | `pg_isready -h localhost` | Docker logs | `docker-compose restart postgres` |
+| **Redis** | 6379 | `redis-cli ping` | Docker logs | `docker-compose restart redis` |
+| **Prometheus** | 9090 | `http://localhost:9090/-/healthy` | Docker logs | `docker-compose restart prometheus` |
+| **Grafana** | 3005 | `http://localhost:3005/api/health` | Docker logs | `docker-compose restart grafana` |
 
 ### Emergency Contacts
 
@@ -34,19 +44,35 @@ This runbook provides comprehensive operational procedures for QuantaPilot™, c
 - [ ] All required environment variables set
 - [ ] Network connectivity to external APIs verified
 
-#### Deployment Steps
+#### Deployment Steps (Updated for Stages 1.1-1.2)
 
 ```bash
-# 1. Clone repository
+# 1. Clone repository and switch to infrastructure branch
 git clone https://github.com/your-org/quantapilot.git
 cd quantapilot
+git checkout stage-1-2-core-infrastructure
 
-# 2. Configure environment
+# 2. Run automated setup
+./scripts/setup.sh
+# This will:
+# - Create necessary directories
+# - Copy .env.example to .env
+# - Optionally generate secure secrets
+# - Build and start all services
+
+# 3. Manual configuration (if needed)
 cp .env.example .env
-# Edit .env with production values
+# Edit .env with your API keys:
+# - CURSOR_API_KEY
+# - GITHUB_TOKEN
+# - TELEGRAM_BOT_TOKEN (optional)
+# - SMTP configuration (optional)
 
-# 3. Validate configuration
-./scripts/validate-config.sh
+# 4. Generate secure secrets for production
+./scripts/generate-secrets.sh
+
+# 5. Validate security configuration
+./scripts/validate-security.sh
 
 # 4. Initialize database
 docker-compose run --rm postgres-init

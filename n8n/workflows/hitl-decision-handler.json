@@ -1,0 +1,340 @@
+{
+  "name": "QuantaPilot™ - HITL Decision Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hitl-decision",
+        "options": {}
+      },
+      "id": "hitl-webhook",
+      "name": "HITL Decision Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [260, 300],
+      "webhookId": "hitl-decision"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process HITL decision request\nconst decisionData = $input.first().json;\n\n// Validate required fields\nif (!decisionData.projectId || !decisionData.decisionType) {\n  throw new Error('Missing required fields: projectId and decisionType');\n}\n\n// Prepare decision context\nconst context = {\n  projectId: decisionData.projectId,\n  decisionType: decisionData.decisionType,\n  decisionPoint: decisionData.decisionPoint || 'workflow_decision',\n  contextData: decisionData.contextData || {},\n  options: decisionData.options || ['approve', 'reject', 'modify'],\n  timeout: decisionData.timeout || 86400, // 24 hours default\n  correlationId: decisionData.correlationId || $execution.id,\n  requestedAt: new Date().toISOString(),\n  status: 'pending'\n};\n\n// Log decision request\nconsole.log(`[${context.correlationId}] HITL decision requested for project ${context.projectId}: ${context.decisionType}`);\n\nreturn [{\n  json: context\n}];"
+      },
+      "id": "process-decision-request",
+      "name": "Process Decision Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "hitl_decisions",
+        "columns": "project_id, decision_type, decision_point, context_data, options, status, timeout_at, created_at",
+        "additionalFields": {
+          "mode": "raw",
+          "values": [
+            "={{$json.projectId}}",
+            "={{$json.decisionType}}",
+            "={{$json.decisionPoint}}",
+            "={{JSON.stringify($json.contextData)}}",
+            "={{JSON.stringify($json.options)}}",
+            "={{$json.status}}",
+            "={{new Date(Date.now() + $json.timeout * 1000).toISOString()}}",
+            "={{$json.requestedAt}}"
+          ]
+        }
+      },
+      "id": "save-decision-request",
+      "name": "Save Decision Request",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [700, 300],
+      "credentials": {
+        "postgres": {
+          "id": "quantapilot-postgres",
+          "name": "QuantaPilot™ PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://notification-service:3003/api/v1/notifications/send",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "type": "hitl_decision_required",
+            "recipients": [
+              {
+                "type": "telegram",
+                "chatId": "={{$json.contextData.telegramChatId}}"
+              },
+              {
+                "type": "email",
+                "email": "={{$json.contextData.email}}"
+              }
+            ],
+            "data": {
+              "projectId": "={{$json.projectId}}",
+              "decisionType": "={{$json.decisionType}}",
+              "decisionPoint": "={{$json.decisionPoint}}",
+              "context": "={{JSON.stringify($json.contextData)}}",
+              "options": "={{JSON.stringify($json.options)}}",
+              "timeout": "={{$json.timeout}}",
+              "dashboardUrl": "http://localhost:3004/projects/{{$json.projectId}}/decisions"
+            }
+          }
+        }
+      },
+      "id": "notify-decision-required",
+      "name": "Notify Decision Required",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Schedule timeout check for decision\nconst decisionData = $input.first().json;\n\n// Calculate timeout timestamp\nconst timeoutAt = new Date(Date.now() + decisionData.timeout * 1000);\n\n// Prepare timeout schedule\nconst scheduleData = {\n  projectId: decisionData.projectId,\n  decisionType: decisionData.decisionType,\n  correlationId: decisionData.correlationId,\n  timeoutAt: timeoutAt.toISOString(),\n  checkAfter: decisionData.timeout // seconds\n};\n\nconsole.log(`[${decisionData.correlationId}] Scheduled timeout check for decision at ${timeoutAt.toISOString()}`);\n\nreturn [{\n  json: scheduleData\n}];"
+      },
+      "id": "schedule-timeout",
+      "name": "Schedule Timeout Check",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1140, 300]
+    },
+    {
+      "parameters": {
+        "amount": "={{$json.checkAfter}}",
+        "unit": "seconds"
+      },
+      "id": "wait-for-timeout",
+      "name": "Wait for Timeout",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1360, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM hitl_decisions WHERE project_id = $1 AND decision_type = $2 AND status = 'pending'",
+        "additionalFields": {
+          "mode": "raw",
+          "values": [
+            "={{$json.projectId}}",
+            "={{$json.decisionType}}"
+          ]
+        }
+      },
+      "id": "check-decision-status",
+      "name": "Check Decision Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1580, 300],
+      "credentials": {
+        "postgres": {
+          "id": "quantapilot-postgres",
+          "name": "QuantaPilot™ PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.length}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "is-still-pending",
+      "name": "Is Still Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE hitl_decisions SET status = 'timeout', updated_at = NOW() WHERE project_id = $1 AND decision_type = $2 AND status = 'pending'",
+        "additionalFields": {
+          "mode": "raw",
+          "values": [
+            "={{$json.projectId}}",
+            "={{$json.decisionType}}"
+          ]
+        }
+      },
+      "id": "mark-as-timeout",
+      "name": "Mark as Timeout",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2020, 200],
+      "credentials": {
+        "postgres": {
+          "id": "quantapilot-postgres",
+          "name": "QuantaPilot™ PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://notification-service:3003/api/v1/notifications/send",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "type": "hitl_decision_timeout",
+            "recipients": [
+              {
+                "type": "telegram",
+                "chatId": "={{$json.contextData.telegramChatId}}"
+              },
+              {
+                "type": "email",
+                "email": "={{$json.contextData.email}}"
+              }
+            ],
+            "data": {
+              "projectId": "={{$json.projectId}}",
+              "decisionType": "={{$json.decisionType}}",
+              "message": "Decision timeout reached. Project workflow paused.",
+              "dashboardUrl": "http://localhost:3004/projects/{{$json.projectId}}/decisions"
+            }
+          }
+        }
+      },
+      "id": "notify-timeout",
+      "name": "Notify Timeout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2240, 200]
+    }
+  ],
+  "connections": {
+    "hitl-webhook": {
+      "main": [
+        [
+          {
+            "node": "process-decision-request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process-decision-request": {
+      "main": [
+        [
+          {
+            "node": "save-decision-request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save-decision-request": {
+      "main": [
+        [
+          {
+            "node": "notify-decision-required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify-decision-required": {
+      "main": [
+        [
+          {
+            "node": "schedule-timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "schedule-timeout": {
+      "main": [
+        [
+          {
+            "node": "wait-for-timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait-for-timeout": {
+      "main": [
+        [
+          {
+            "node": "check-decision-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check-decision-status": {
+      "main": [
+        [
+          {
+            "node": "is-still-pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-still-pending": {
+      "main": [
+        [
+          {
+            "node": "mark-as-timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mark-as-timeout": {
+      "main": [
+        [
+          {
+            "node": "notify-timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "UTC",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "hitl-decision-handler",
+  "tags": [
+    {
+      "createdAt": "2024-01-20T10:00:00.000Z",
+      "updatedAt": "2024-01-20T10:00:00.000Z",
+      "id": "quantapilot",
+      "name": "QuantaPilot"
+    }
+  ]
+}
