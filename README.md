@@ -12,7 +12,7 @@ QuantaPilot™ is an autonomous project factory that creates complete software p
 using advanced AI orchestration. Similar to how a digital agency operates, QuantaPilot™ transforms
 a simple README.md description into a fully functional, tested, and documented project.
 
-**🎉 Current Status**: Core Infrastructure Complete (Stages 1.1-1.2) ✅
+**🎉 Current Status**: Enhanced AI Integration Complete (Stage 2.1) ✅
 
 ### Key Features
 
@@ -20,7 +20,10 @@ a simple README.md description into a fully functional, tested, and documented p
 - **👥 Multi-Role AI System**: PR/Architect, Senior Developer, and QA Engineer roles
 - **🔄 Human-in-the-Loop (HITL)**: Critical decision points require human approval
 - **📊 Workflow Orchestration**: Powered by n8n for complex automation
-- **🎯 Cursor Integration**: Leverages Cursor CLI for actual code generation
+- **🎯 Enhanced Cursor Integration**: Direct CLI integration with project workspace management
+- **📝 Intelligent Prompt Management**: Role-based templates with dynamic context injection
+- **💰 Token Budget Enforcement**: Real-time usage tracking with multi-level cost controls
+- **🛡️ Circuit Breaker Protection**: Intelligent error handling with automatic recovery
 - **🐳 Self-Hosted**: Runs entirely on your infrastructure via Docker
 - **📈 Scalable Architecture**: Add new workflows and stages as needed
 - **🔐 Security-First**: Comprehensive secrets management and validation
