@@ -1,9 +1,9 @@
 /**
  * QuantaPilot™ Cursor Integration Service
- * 
+ *
  * Handles AI agent communication with Cursor API for autonomous development.
  * Manages PR/Architect, Senior Developer, and QA Engineer agent interactions.
- * 
+ *
  * @author QuantaPilot™ Team
  * @version 1.0.0
  */
@@ -33,12 +33,15 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'cursor-integration' },
   transports: [
-    new winston.transports.File({ filename: '/app/logs/error.log', level: 'error' }),
+    new winston.transports.File({
+      filename: '/app/logs/error.log',
+      level: 'error',
+    }),
     new winston.transports.File({ filename: '/app/logs/combined.log' }),
     new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
+      format: winston.format.simple(),
+    }),
+  ],
 });
 
 // ==============================================
@@ -48,10 +51,10 @@ const cursorClient = axios.create({
   baseURL: process.env.CURSOR_API_URL || 'https://api.cursor.sh/v1',
   timeout: parseInt(process.env.CURSOR_TIMEOUT) || 120000,
   headers: {
-    'Authorization': `Bearer ${process.env.CURSOR_API_KEY}`,
+    Authorization: `Bearer ${process.env.CURSOR_API_KEY}`,
     'Content-Type': 'application/json',
-    'User-Agent': 'QuantaPilot-Integration/1.0.0'
-  }
+    'User-Agent': 'QuantaPilot-Integration/1.0.0',
+  },
 });
 
 // ==============================================
@@ -62,10 +65,12 @@ const cursorClient = axios.create({
 app.use(helmet());
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
@@ -75,15 +80,15 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use((req, res, next) => {
   req.id = req.headers['x-correlation-id'] || uuidv4();
   req.startTime = Date.now();
-  
+
   logger.info('Request started', {
     correlationId: req.id,
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
-    ip: req.ip
+    ip: req.ip,
   });
-  
+
   next();
 });
 
@@ -94,8 +99,8 @@ const aiLimiter = rateLimit({
   message: {
     error: 'AI_RATE_LIMITED',
     message: 'Too many AI requests, please try again later.',
-    retryAfter: 60
-  }
+    retryAfter: 60,
+  },
 });
 
 // ==============================================
@@ -105,7 +110,7 @@ const aiLimiter = rateLimit({
 const AGENT_ROLES = {
   ARCHITECT: 'pr_architect',
   DEVELOPER: 'senior_developer',
-  QA: 'qa_engineer'
+  QA: 'qa_engineer',
 };
 
 const AGENT_CONFIGS = {
@@ -113,20 +118,20 @@ const AGENT_CONFIGS = {
     model: process.env.CURSOR_MODEL || 'cursor-large',
     maxTokens: 4000,
     temperature: 0.7,
-    systemPrompt: `You are a Senior PR/Architect responsible for analyzing project requirements and creating comprehensive architecture designs. Focus on scalability, maintainability, and best practices.`
+    systemPrompt: `You are a Senior PR/Architect responsible for analyzing project requirements and creating comprehensive architecture designs. Focus on scalability, maintainability, and best practices.`,
   },
   [AGENT_ROLES.DEVELOPER]: {
     model: process.env.CURSOR_MODEL || 'cursor-large',
     maxTokens: 8000,
     temperature: 0.3,
-    systemPrompt: `You are a Senior Developer responsible for generating production-ready code. Focus on clean, efficient, well-documented code that follows industry best practices.`
+    systemPrompt: `You are a Senior Developer responsible for generating production-ready code. Focus on clean, efficient, well-documented code that follows industry best practices.`,
   },
   [AGENT_ROLES.QA]: {
     model: process.env.CURSOR_MODEL || 'cursor-large',
     maxTokens: 4000,
     temperature: 0.5,
-    systemPrompt: `You are a QA Engineer responsible for creating comprehensive test plans and ensuring code quality. Focus on edge cases, security, and thorough testing strategies.`
-  }
+    systemPrompt: `You are a QA Engineer responsible for creating comprehensive test plans and ensuring code quality. Focus on edge cases, security, and thorough testing strategies.`,
+  },
 };
 
 // ==============================================
@@ -138,11 +143,11 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
     retries: 3,
     factor: 2,
     minTimeout: 1000,
-    maxTimeout: 10000
+    maxTimeout: 10000,
   });
 
   return new Promise((resolve, reject) => {
-    operation.attempt(async (currentAttempt) => {
+    operation.attempt(async currentAttempt => {
       try {
         const config = AGENT_CONFIGS[agentRole];
         const requestData = {
@@ -150,32 +155,35 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
           messages: [
             {
               role: 'system',
-              content: config.systemPrompt
+              content: config.systemPrompt,
             },
             {
               role: 'user',
-              content: prompt
-            }
+              content: prompt,
+            },
           ],
           max_tokens: options.maxTokens || config.maxTokens,
           temperature: options.temperature || config.temperature,
-          ...options
+          ...options,
         };
 
         logger.info('Making AI request', {
           agentRole,
           attempt: currentAttempt,
           model: config.model,
-          promptLength: prompt.length
+          promptLength: prompt.length,
         });
 
-        const response = await cursorClient.post('/chat/completions', requestData);
-        
+        const response = await cursorClient.post(
+          '/chat/completions',
+          requestData
+        );
+
         logger.info('AI request successful', {
           agentRole,
           attempt: currentAttempt,
           tokensUsed: response.data.usage?.total_tokens,
-          responseLength: response.data.choices?.[0]?.message?.content?.length
+          responseLength: response.data.choices?.[0]?.message?.content?.length,
         });
 
         resolve(response.data);
@@ -184,7 +192,7 @@ async function makeAIRequest(prompt, agentRole, options = {}) {
           agentRole,
           attempt: currentAttempt,
           error: error.message,
-          status: error.response?.status
+          status: error.response?.status,
         });
 
         if (operation.retry(error)) {
@@ -210,7 +218,7 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
       return res.status(400).json({
         error: 'INVALID_REQUEST',
         message: 'Prompt and agentRole are required',
-        correlationId: req.id
+        correlationId: req.id,
       });
     }
 
@@ -218,7 +226,7 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
       return res.status(400).json({
         error: 'INVALID_AGENT_ROLE',
         message: `Invalid agent role. Must be one of: ${Object.values(AGENT_ROLES).join(', ')}`,
-        correlationId: req.id
+        correlationId: req.id,
       });
     }
 
@@ -230,22 +238,21 @@ app.post('/api/v1/ai/prompt', aiLimiter, async (req, res) => {
         response: aiResponse.choices[0].message.content,
         usage: aiResponse.usage,
         model: aiResponse.model,
-        agentRole
+        agentRole,
       },
-      correlationId: req.id
+      correlationId: req.id,
     });
-
   } catch (error) {
     logger.error('AI prompt error', {
       correlationId: req.id,
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
 
     res.status(500).json({
       error: 'AI_REQUEST_FAILED',
       message: 'Failed to process AI request',
-      correlationId: req.id
+      correlationId: req.id,
     });
   }
 });
@@ -260,10 +267,10 @@ app.get('/api/v1/ai/agents', (req, res) => {
         role,
         model: config.model,
         maxTokens: config.maxTokens,
-        temperature: config.temperature
-      }))
+        temperature: config.temperature,
+      })),
     },
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
@@ -277,7 +284,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'cursor-integration',
     version: '1.0.0',
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -302,13 +309,13 @@ app.get('/health/detailed', async (req, res) => {
     memory: {
       rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
       heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`
+      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
     },
     dependencies: {
-      cursorApi: cursorApiStatus
+      cursorApi: cursorApiStatus,
     },
     environment: process.env.NODE_ENV,
-    nodeVersion: process.version
+    nodeVersion: process.version,
   });
 });
 
@@ -321,22 +328,22 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'NOT_FOUND',
     message: 'The requested endpoint was not found',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Unhandled error', {
     correlationId: req.id,
     error: err.message,
-    stack: err.stack
+    stack: err.stack,
   });
 
   res.status(500).json({
     error: 'INTERNAL_ERROR',
     message: 'An unexpected error occurred',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
@@ -345,12 +352,15 @@ app.use((err, req, res, next) => {
 // ==============================================
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`QuantaPilot™ Cursor Integration Service started on port ${PORT}`, {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-    nodeVersion: process.version,
-    cursorApiUrl: process.env.CURSOR_API_URL
-  });
+  logger.info(
+    `QuantaPilot™ Cursor Integration Service started on port ${PORT}`,
+    {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      nodeVersion: process.version,
+      cursorApiUrl: process.env.CURSOR_API_URL,
+    }
+  );
 });
 
 // Graceful shutdown

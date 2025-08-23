@@ -18,7 +18,7 @@ alerting:
 
 # Load rules once and periodically evaluate them
 rule_files:
-  - "alerts/*.yml"
+  - 'alerts/*.yml'
 
 # Scrape configurations
 scrape_configs:
@@ -44,7 +44,7 @@ scrape_configs:
     static_configs:
       - targets: ['cursor-service:3001']
     metrics_path: '/metrics'
-    scrape_interval: 30s  # Less frequent for AI service
+    scrape_interval: 30s # Less frequent for AI service
     scrape_timeout: 15s
     honor_labels: true
 

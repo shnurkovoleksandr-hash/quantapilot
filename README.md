@@ -8,7 +8,9 @@
 
 ## 🚀 Overview
 
-QuantaPilot™ is an autonomous project factory that creates complete software projects "turnkey" using advanced AI orchestration. Similar to how a digital agency operates, QuantaPilot™ transforms a simple README.md description into a fully functional, tested, and documented project.
+QuantaPilot™ is an autonomous project factory that creates complete software projects "turnkey"
+using advanced AI orchestration. Similar to how a digital agency operates, QuantaPilot™ transforms
+a simple README.md description into a fully functional, tested, and documented project.
 
 **🎉 Current Status**: Core Infrastructure Complete (Stages 1.1-1.2) ✅
 
@@ -53,6 +55,7 @@ QuantaPilot™ operates as a standalone application with three primary AI roles:
 ## 🔧 Technology Stack
 
 ### Core Infrastructure
+
 - **Orchestration**: n8n (self-hosted)
 - **AI Engine**: Cursor API integration
 - **Containerization**: Docker & Docker Compose
@@ -61,6 +64,7 @@ QuantaPilot™ operates as a standalone application with three primary AI roles:
 - **API Gateway**: Express.js with routing and authentication
 
 ### Microservices Architecture
+
 - **API Gateway** (Port 3000): Central routing and authentication
 - **Cursor Integration** (Port 3001): AI agent communication
 - **GitHub Integration** (Port 3002): Repository management
@@ -68,6 +72,7 @@ QuantaPilot™ operates as a standalone application with three primary AI roles:
 - **Web Dashboard** (Port 3004): React-based management interface
 
 ### Monitoring & Operations
+
 - **Metrics**: Prometheus (Port 9090)
 - **Dashboards**: Grafana (Port 3005)
 - **Logging**: Structured logging with correlation IDs
@@ -107,11 +112,12 @@ QuantaPilot™ operates as a standalone application with three primary AI roles:
 3. **Configure your environment**
 
    Edit `.env` file with your API keys:
+
    ```bash
    # Required
    CURSOR_API_KEY=your_cursor_api_key
    GITHUB_TOKEN=your_github_token
-   
+
    # Optional
    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
    SMTP_HOST=your_smtp_host
@@ -121,13 +127,13 @@ QuantaPilot™ operates as a standalone application with three primary AI roles:
 
 4. **Access the services**
 
-   | Service | URL | Default Credentials |
-   |---------|-----|-------------------|
-   | 🌐 Dashboard | http://localhost:3004 | - |
+   | Service          | URL                   | Default Credentials  |
+   | ---------------- | --------------------- | -------------------- |
+   | 🌐 Dashboard     | http://localhost:3004 | -                    |
    | 🔄 n8n Workflows | http://localhost:5678 | admin / changeme123! |
-   | 📊 Grafana | http://localhost:3005 | admin / admin123 |
-   | 📈 Prometheus | http://localhost:9090 | - |
-   | 🔧 API Gateway | http://localhost:3000 | - |
+   | 📊 Grafana       | http://localhost:3005 | admin / admin123     |
+   | 📈 Prometheus    | http://localhost:9090 | -                    |
+   | 🔧 API Gateway   | http://localhost:3000 | -                    |
 
 ### Alternative Setup
 
@@ -152,12 +158,14 @@ docker-compose up -d
 ### ✅ Completed Stages
 
 #### Stage 1.1: Project Foundation ✅
+
 - [x] Project structure and documentation
 - [x] Development guidelines and standards
 - [x] Git repository initialization
 - [x] Basic documentation framework
 
 #### Stage 1.2: Core Infrastructure ✅
+
 - [x] Docker containerization for all services
 - [x] PostgreSQL database design and setup
 - [x] n8n workflow orchestration platform
@@ -169,6 +177,7 @@ docker-compose up -d
 ### 🚧 In Development
 
 #### Stage 1.3: Basic AI Agent Implementation (Next)
+
 - [ ] Core AI agent classes and interfaces
 - [ ] Prompt engineering and templates
 - [ ] Cursor API integration
@@ -178,12 +187,14 @@ docker-compose up -d
 ### 📋 Upcoming Stages
 
 #### Stage 1.4: HITL Integration System
+
 - [ ] Decision point framework
 - [ ] Human approval workflows
 - [ ] Notification systems
 - [ ] Dashboard interfaces
 
 #### Stage 1.5: Advanced AI Features
+
 - [ ] Context management system
 - [ ] Advanced prompt optimization
 - [ ] Multi-step reasoning
@@ -194,13 +205,11 @@ docker-compose up -d
 ### Creating a New Project
 
 1. **Create GitHub Repository**
-
    - Initialize a new repository
    - Add a detailed `README.md` with project description
    - Optionally add `quantapilot.config.json` for custom settings
 
 2. **Trigger QuantaPilot™**
-
    - Send repository URL to the factory via webhook
    - Or use Telegram bot command: `/create <repo_url>`
 
@@ -250,7 +259,8 @@ QuantaPilot™ requests human approval at critical junctions:
 
 ### Environment Variables
 
-The system uses comprehensive environment configuration. See `.env.example` for all available options:
+The system uses comprehensive environment configuration. See `.env.example` for all available
+options:
 
 ```env
 # Core Services

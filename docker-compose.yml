@@ -12,16 +12,16 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-quantapilot}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quantapilot_password}
       POSTGRES_DB: ${POSTGRES_DB:-quantapilot}
-      POSTGRES_MULTIPLE_DATABASES: "quantapilot,n8n"
+      POSTGRES_MULTIPLE_DATABASES: 'quantapilot,n8n'
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/create-multiple-databases.sh:/docker-entrypoint-initdb.d/create-multiple-databases.sh
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quantapilot}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-quantapilot}']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -31,13 +31,13 @@ services:
     container_name: quantapilot_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,7 +51,7 @@ services:
     container_name: quantapilot_n8n
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - '5678:5678'
     environment:
       - DB_TYPE=sqlite
       - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
@@ -75,7 +75,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "wget --spider --quiet http://localhost:5678/healthz || exit 1"]
+      test: ['CMD-SHELL', 'wget --spider --quiet http://localhost:5678/healthz || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -90,7 +90,7 @@ services:
     container_name: quantapilot_api_gateway
     restart: unless-stopped
     ports:
-      - "${API_PORT:-3000}:3000"
+      - '${API_PORT:-3000}:3000'
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - DATABASE_URL=${DATABASE_URL}
@@ -109,7 +109,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -124,7 +124,7 @@ services:
     container_name: quantapilot_cursor_service
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - CURSOR_API_KEY=${CURSOR_API_KEY}
@@ -145,7 +145,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3001/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -160,7 +160,7 @@ services:
     container_name: quantapilot_github_service
     restart: unless-stopped
     ports:
-      - "3002:3002"
+      - '3002:3002'
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
@@ -179,7 +179,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3002/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3002/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -194,7 +194,7 @@ services:
     container_name: quantapilot_notification_service
     restart: unless-stopped
     ports:
-      - "3003:3003"
+      - '3003:3003'
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
@@ -218,7 +218,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3003/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3003/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -233,7 +233,7 @@ services:
     container_name: quantapilot_dashboard
     restart: unless-stopped
     ports:
-      - "3004:3000"
+      - '3004:3000'
     environment:
       - REACT_APP_API_URL=http://localhost:3000
       - REACT_APP_ENVIRONMENT=${NODE_ENV:-development}
@@ -244,7 +244,7 @@ services:
     networks:
       - quantapilot_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -257,7 +257,7 @@ services:
     container_name: quantapilot_prometheus
     restart: unless-stopped
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - '${PROMETHEUS_PORT:-9090}:9090'
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -278,7 +278,7 @@ services:
     container_name: quantapilot_grafana
     restart: unless-stopped
     ports:
-      - "${GRAFANA_PORT:-3005}:3000"
+      - '${GRAFANA_PORT:-3005}:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-change_in_production}
       - GF_USERS_ALLOW_SIGN_UP=false

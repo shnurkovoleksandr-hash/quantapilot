@@ -17,6 +17,6 @@ datasources:
       httpMethod: POST
       exemplarTraceIdDestinations:
         - name: trace_id
-          datasourceUid: jaeger-uid  # If Jaeger is added later
+          datasourceUid: jaeger-uid # If Jaeger is added later
     secureJsonData: {}
     version: 1

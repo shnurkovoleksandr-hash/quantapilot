@@ -1,10 +1,12 @@
 # Cursor Rules Templates
 
-This directory contains base template files for generating project-specific `.cursor/rules/` for all QuantaPilot™ generated projects.
+This directory contains base template files for generating project-specific `.cursor/rules/` for all
+QuantaPilot™ generated projects.
 
 ## Available Templates
 
 ### Base Templates
+
 - `project-documentation.mdc` - Documentation structure and maintenance rules
 - `general-rules.mdc` - Code quality, testing, and development standards
 
@@ -13,7 +15,7 @@ This directory contains base template files for generating project-specific `.cu
 Each template includes:
 
 - **Documentation requirements** - Ensures comprehensive project documentation
-- **Code quality standards** - Best practices for clean, maintainable code  
+- **Code quality standards** - Best practices for clean, maintainable code
 - **Testing requirements** - Quality assurance and test coverage standards
 - **Security practices** - Security guidelines and validation rules
 - **Performance guidelines** - Optimization and monitoring standards

@@ -1,9 +1,9 @@
 /**
  * QuantaPilot™ Dashboard - Material-UI Theme Configuration
- * 
+ *
  * Defines the visual theme for the QuantaPilot™ dashboard.
  * Includes colors, typography, and component styling.
- * 
+ *
  * @author QuantaPilot™ Team
  * @version 1.0.0
  */

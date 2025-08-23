@@ -1,131 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>QuantaPilot™ - Project Created</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #1976d2;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1976d2;
-            margin-bottom: 10px;
-        }
-        .title {
-            font-size: 20px;
-            color: #333333;
-            margin: 0;
-        }
-        .content {
-            margin-bottom: 30px;
-        }
-        .project-info {
-            background-color: #f8f9fa;
-            border-left: 4px solid #1976d2;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .project-info h3 {
-            margin-top: 0;
-            color: #1976d2;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            background-color: #4caf50;
-            color: white;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #1976d2;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .button:hover {
-            background-color: #1565c0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            font-size: 14px;
-            color: #666666;
-        }
-        .icon {
-            font-size: 48px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.6;
+        color: #333333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #1976d2;
+      }
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1976d2;
+        margin-bottom: 10px;
+      }
+      .title {
+        font-size: 20px;
+        color: #333333;
+        margin: 0;
+      }
+      .content {
+        margin-bottom: 30px;
+      }
+      .project-info {
+        background-color: #f8f9fa;
+        border-left: 4px solid #1976d2;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .project-info h3 {
+        margin-top: 0;
+        color: #1976d2;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        background-color: #4caf50;
+        color: white;
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #1976d2;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+        font-size: 14px;
+        color: #666666;
+      }
+      .icon {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">QuantaPilot™</div>
-            <h1 class="title">🚀 New Project Created</h1>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>QuantaPilot™</div>
+        <h1 class='title'>🚀 New Project Created</h1>
+      </div>
+
+      <div class='content'>
+        <div class='icon'>🎉</div>
+
+        <p>Great news! Your new autonomous development project has been
+          successfully created and is now being processed by our AI agents.</p>
+
+        <div class='project-info'>
+          <h3>Project Details</h3>
+          <p><strong>Project Name:</strong> {{projectName}}</p>
+          <p><strong>Repository:</strong>
+            <a
+              href='{{repositoryUrl}}'
+              target='_blank'
+            >{{repositoryUrl}}</a></p>
+          <p><strong>Status:</strong>
+            <span class='status-badge'>{{status}}</span></p>
+          <p><strong>Created:</strong> {{formatDate createdAt}}</p>
         </div>
 
-        <div class="content">
-            <div class="icon">🎉</div>
-            
-            <p>Great news! Your new autonomous development project has been successfully created and is now being processed by our AI agents.</p>
+        <h3>What happens next?</h3>
+        <ol>
+          <li><strong>Repository Analysis</strong>
+            - Our AI agents will analyze your repository structure and
+            requirements</li>
+          <li><strong>Architecture Design</strong>
+            - The PR/Architect will create a comprehensive project plan</li>
+          <li><strong>Code Implementation</strong>
+            - The Senior Developer will generate production-ready code</li>
+          <li><strong>Quality Assurance</strong>
+            - The QA Engineer will create comprehensive tests</li>
+          <li><strong>Human Review</strong>
+            - You'll be notified to review and approve the final result</li>
+        </ol>
 
-            <div class="project-info">
-                <h3>Project Details</h3>
-                <p><strong>Project Name:</strong> {{projectName}}</p>
-                <p><strong>Repository:</strong> <a href="{{repositoryUrl}}" target="_blank">{{repositoryUrl}}</a></p>
-                <p><strong>Status:</strong> <span class="status-badge">{{status}}</span></p>
-                <p><strong>Created:</strong> {{formatDate createdAt}}</p>
-            </div>
+        <p>You can monitor the progress in real-time through your dashboard:</p>
 
-            <h3>What happens next?</h3>
-            <ol>
-                <li><strong>Repository Analysis</strong> - Our AI agents will analyze your repository structure and requirements</li>
-                <li><strong>Architecture Design</strong> - The PR/Architect will create a comprehensive project plan</li>
-                <li><strong>Code Implementation</strong> - The Senior Developer will generate production-ready code</li>
-                <li><strong>Quality Assurance</strong> - The QA Engineer will create comprehensive tests</li>
-                <li><strong>Human Review</strong> - You'll be notified to review and approve the final result</li>
-            </ol>
+        <a href='{{dashboardUrl}}' class='button'>View Project Dashboard</a>
+      </div>
 
-            <p>You can monitor the progress in real-time through your dashboard:</p>
-            
-            <a href="{{dashboardUrl}}" class="button">View Project Dashboard</a>
-        </div>
-
-        <div class="footer">
-            <p>This is an automated message from QuantaPilot™ Autonomous Project Factory</p>
-            <p>You're receiving this because you created a new project</p>
-        </div>
+      <div class='footer'>
+        <p>This is an automated message from QuantaPilot™ Autonomous Project
+          Factory</p>
+        <p>You're receiving this because you created a new project</p>
+      </div>
     </div>
-</body>
+  </body>
 </html>

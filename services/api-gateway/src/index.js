@@ -1,9 +1,9 @@
 /**
  * QuantaPilot™ API Gateway
- * 
+ *
  * Central entry point for all QuantaPilot™ API requests.
  * Handles authentication, rate limiting, request routing, and monitoring.
- * 
+ *
  * @author QuantaPilot™ Team
  * @version 1.0.0
  */
@@ -32,12 +32,15 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'api-gateway' },
   transports: [
-    new winston.transports.File({ filename: '/app/logs/error.log', level: 'error' }),
+    new winston.transports.File({
+      filename: '/app/logs/error.log',
+      level: 'error',
+    }),
     new winston.transports.File({ filename: '/app/logs/combined.log' }),
     new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
+      format: winston.format.simple(),
+    }),
+  ],
 });
 
 // ==============================================
@@ -45,23 +48,27 @@ const logger = winston.createLogger({
 // ==============================================
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-}));
+  })
+);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3001'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3001'],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -71,15 +78,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   req.id = uuidv4();
   req.startTime = Date.now();
-  
+
   logger.info('Request started', {
     correlationId: req.id,
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
-    ip: req.ip
+    ip: req.ip,
   });
-  
+
   // Log response
   res.on('finish', () => {
     const duration = Date.now() - req.startTime;
@@ -88,10 +95,10 @@ app.use((req, res, next) => {
       method: req.method,
       url: req.url,
       status: res.statusCode,
-      duration
+      duration,
     });
   });
-  
+
   next();
 });
 
@@ -102,7 +109,7 @@ const limiter = rateLimit({
   message: {
     error: 'RATE_LIMITED',
     message: 'Too many requests from this IP, please try again later.',
-    retryAfter: 15 * 60
+    retryAfter: 15 * 60,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -128,36 +135,39 @@ const serviceRoutes = {
     target: 'http://notification-service:3003',
     changeOrigin: true,
     timeout: 10000,
-  }
+  },
 };
 
 // Create proxy middleware for each service
 Object.entries(serviceRoutes).forEach(([path, config]) => {
-  app.use(path, createProxyMiddleware({
-    target: config.target,
-    changeOrigin: config.changeOrigin,
-    timeout: config.timeout,
-    proxyTimeout: config.timeout,
-    onError: (err, req, res) => {
-      logger.error('Proxy error', {
-        correlationId: req.id,
-        path,
-        target: config.target,
-        error: err.message
-      });
-      
-      res.status(502).json({
-        error: 'SERVICE_UNAVAILABLE',
-        message: 'The requested service is temporarily unavailable',
-        correlationId: req.id
-      });
-    },
-    onProxyReq: (proxyReq, req) => {
-      // Add correlation ID to forwarded requests
-      proxyReq.setHeader('X-Correlation-ID', req.id);
-      proxyReq.setHeader('X-Forwarded-For', req.ip);
-    }
-  }));
+  app.use(
+    path,
+    createProxyMiddleware({
+      target: config.target,
+      changeOrigin: config.changeOrigin,
+      timeout: config.timeout,
+      proxyTimeout: config.timeout,
+      onError: (err, req, res) => {
+        logger.error('Proxy error', {
+          correlationId: req.id,
+          path,
+          target: config.target,
+          error: err.message,
+        });
+
+        res.status(502).json({
+          error: 'SERVICE_UNAVAILABLE',
+          message: 'The requested service is temporarily unavailable',
+          correlationId: req.id,
+        });
+      },
+      onProxyReq: (proxyReq, req) => {
+        // Add correlation ID to forwarded requests
+        proxyReq.setHeader('X-Correlation-ID', req.id);
+        proxyReq.setHeader('X-Forwarded-For', req.ip);
+      },
+    })
+  );
 });
 
 // ==============================================
@@ -170,13 +180,13 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'api-gateway',
     version: '1.0.0',
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
 app.get('/health/detailed', (req, res) => {
   const memoryUsage = process.memoryUsage();
-  
+
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -186,10 +196,10 @@ app.get('/health/detailed', (req, res) => {
     memory: {
       rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
       heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`
+      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
     },
     environment: process.env.NODE_ENV,
-    nodeVersion: process.version
+    nodeVersion: process.version,
   });
 });
 
@@ -202,28 +212,28 @@ app.use('*', (req, res) => {
   logger.warn('Route not found', {
     correlationId: req.id,
     method: req.method,
-    url: req.url
+    url: req.url,
   });
-  
+
   res.status(404).json({
     error: 'NOT_FOUND',
     message: 'The requested endpoint was not found',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Unhandled error', {
     correlationId: req.id,
     error: err.message,
-    stack: err.stack
+    stack: err.stack,
   });
-  
+
   res.status(500).json({
     error: 'INTERNAL_ERROR',
     message: 'An unexpected error occurred',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
@@ -235,7 +245,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`QuantaPilot™ API Gateway started on port ${PORT}`, {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
-    nodeVersion: process.version
+    nodeVersion: process.version,
   });
 });
 

@@ -1,6 +1,7 @@
 # Contributing to QuantaPilot™
 
-First off, thank you for considering contributing to QuantaPilot™! It's people like you that make QuantaPilot™ such a great tool for autonomous software development.
+First off, thank you for considering contributing to QuantaPilot™! It's people like you that make
+QuantaPilot™ such a great tool for autonomous software development.
 
 ## Table of Contents
 
@@ -15,11 +16,15 @@ First off, thank you for considering contributing to QuantaPilot™! It's people
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to [conduct@quantapilot.com](mailto:conduct@quantapilot.com).
+This project and everyone participating in it is governed by our Code of Conduct. By participating,
+you are expected to uphold this code. Please report unacceptable behavior to
+[conduct@quantapilot.com](mailto:conduct@quantapilot.com).
 
 ### Our Pledge
 
-We are committed to making participation in this project a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
+We are committed to making participation in this project a harassment-free experience for everyone,
+regardless of age, body size, disability, ethnicity, gender identity and expression, level of
+experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ## Getting Started
 
@@ -34,12 +39,14 @@ We are committed to making participation in this project a harassment-free exper
 ### Development Setup
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/your-username/quantapilot.git
    cd quantapilot
    ```
 
 2. **Environment Setup**
+
    ```bash
    ./scripts/setup.sh
    cp .env.example .env
@@ -47,6 +54,7 @@ We are committed to making participation in this project a harassment-free exper
    ```
 
 3. **Start Development Environment**
+
    ```bash
    npm run dev
    ```
@@ -59,6 +67,7 @@ We are committed to making participation in this project a harassment-free exper
 ### Development Environment
 
 The development environment includes:
+
 - Hot reload for all services
 - Debug logging enabled
 - Mock external APIs (optional)
@@ -69,9 +78,11 @@ The development environment includes:
 
 ### Reporting Bugs
 
-Before creating bug reports, please check the issue list as you might find that you don't need to create one. When you are creating a bug report, please include as many details as possible:
+Before creating bug reports, please check the issue list as you might find that you don't need to
+create one. When you are creating a bug report, please include as many details as possible:
 
 **Use the Bug Report Template:**
+
 - **Summary**: Clear and descriptive title
 - **Environment**: OS, Docker version, Node.js version
 - **Steps to Reproduce**: Numbered list of exact steps
@@ -82,7 +93,8 @@ Before creating bug reports, please check the issue list as you might find that 
 
 ### Suggesting Enhancements
 
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
+Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion,
+please include:
 
 - **Clear title and description**
 - **Step-by-step description** of the suggested enhancement
@@ -93,6 +105,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 ### Pull Requests
 
 1. **Create Feature Branch**
+
    ```bash
    git checkout -b feature/amazing-feature
    ```
@@ -103,6 +116,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
    - Update documentation as needed
 
 3. **Test Changes**
+
    ```bash
    npm run test
    npm run lint
@@ -110,9 +124,11 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
    ```
 
 4. **Commit Changes**
+
    ```bash
    git commit -m "feat: add amazing feature"
    ```
+
    Follow [Conventional Commits](https://conventionalcommits.org/) format.
 
 5. **Push and Create PR**
@@ -145,6 +161,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -154,6 +171,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/):
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```
 feat(cursor): add token usage optimization
 fix(github): resolve webhook signature validation
@@ -180,6 +198,7 @@ We use automated tools to maintain consistent code style:
 - **Husky**: Git hooks for quality checks
 
 **Configuration files:**
+
 - `.eslintrc.js`: ESLint configuration
 - `.prettierrc`: Prettier configuration
 - `package.json`: lint-staged configuration
@@ -249,16 +268,17 @@ npm run test:coverage
 4. **Test Edge Cases**: Include edge cases and error conditions
 
 **Example:**
+
 ```javascript
 describe('Project Creation', () => {
   it('should create project when valid repository URL provided', async () => {
     // Arrange
     const validRepoUrl = 'https://github.com/user/repo';
     const mockGithubService = jest.mock('./github-service');
-    
+
     // Act
     const result = await projectService.create(validRepoUrl);
-    
+
     // Assert
     expect(result).toHaveProperty('project_id');
     expect(result.status).toBe('initializing');

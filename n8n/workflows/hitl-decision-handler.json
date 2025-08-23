@@ -121,10 +121,7 @@
         "query": "SELECT * FROM hitl_decisions WHERE project_id = $1 AND decision_type = $2 AND status = 'pending'",
         "additionalFields": {
           "mode": "raw",
-          "values": [
-            "={{$json.projectId}}",
-            "={{$json.decisionType}}"
-          ]
+          "values": ["={{$json.projectId}}", "={{$json.decisionType}}"]
         }
       },
       "id": "check-decision-status",
@@ -163,10 +160,7 @@
         "query": "UPDATE hitl_decisions SET status = 'timeout', updated_at = NOW() WHERE project_id = $1 AND decision_type = $2 AND status = 'pending'",
         "additionalFields": {
           "mode": "raw",
-          "values": [
-            "={{$json.projectId}}",
-            "={{$json.decisionType}}"
-          ]
+          "values": ["={{$json.projectId}}", "={{$json.decisionType}}"]
         }
       },
       "id": "mark-as-timeout",

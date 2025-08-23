@@ -1,9 +1,9 @@
 /**
  * QuantaPilot™ Notification Service
- * 
+ *
  * Handles multi-channel notifications including Telegram, email, and webhooks.
  * Manages HITL decision notifications and project status updates.
- * 
+ *
  * @author QuantaPilot™ Team
  * @version 1.0.0
  */
@@ -36,12 +36,15 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'notifications' },
   transports: [
-    new winston.transports.File({ filename: '/app/logs/error.log', level: 'error' }),
+    new winston.transports.File({
+      filename: '/app/logs/error.log',
+      level: 'error',
+    }),
     new winston.transports.File({ filename: '/app/logs/combined.log' }),
     new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
+      format: winston.format.simple(),
+    }),
+  ],
 });
 
 // ==============================================
@@ -51,7 +54,9 @@ const logger = winston.createLogger({
 // Telegram Bot
 let telegramBot = null;
 if (process.env.TELEGRAM_BOT_TOKEN) {
-  telegramBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+  telegramBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
+    polling: false,
+  });
   logger.info('Telegram bot initialized');
 } else {
   logger.warn('Telegram bot token not provided');
@@ -66,8 +71,8 @@ if (process.env.SMTP_HOST) {
     secure: process.env.SMTP_PORT === '465',
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
+      pass: process.env.SMTP_PASSWORD,
+    },
   });
   logger.info('Email transporter initialized');
 } else {
@@ -82,10 +87,12 @@ if (process.env.SMTP_HOST) {
 app.use(helmet());
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -95,15 +102,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   req.id = req.headers['x-correlation-id'] || uuidv4();
   req.startTime = Date.now();
-  
+
   logger.info('Request started', {
     correlationId: req.id,
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
-    ip: req.ip
+    ip: req.ip,
   });
-  
+
   next();
 });
 
@@ -113,8 +120,8 @@ const limiter = rateLimit({
   max: 1000,
   message: {
     error: 'RATE_LIMITED',
-    message: 'Too many requests, please try again later.'
-  }
+    message: 'Too many requests, please try again later.',
+  },
 });
 
 app.use(limiter);
@@ -130,7 +137,7 @@ const NOTIFICATION_TYPES = {
   HITL_DECISION_REQUIRED: 'hitl_decision_required',
   HITL_DECISION_APPROVED: 'hitl_decision_approved',
   STAGE_COMPLETED: 'stage_completed',
-  ERROR_OCCURRED: 'error_occurred'
+  ERROR_OCCURRED: 'error_occurred',
 };
 
 const templateCache = new Map();
@@ -144,13 +151,13 @@ async function loadTemplate(templateName) {
     const templatePath = path.join('/app/templates', `${templateName}.hbs`);
     const templateContent = await fs.readFile(templatePath, 'utf8');
     const template = handlebars.compile(templateContent);
-    
+
     templateCache.set(templateName, template);
     return template;
   } catch (error) {
     logger.error('Template loading failed', {
       templateName,
-      error: error.message
+      error: error.message,
     });
     return null;
   }
@@ -169,20 +176,20 @@ async function sendTelegramNotification(chatId, message, options = {}) {
     const result = await telegramBot.sendMessage(chatId, message, {
       parse_mode: 'Markdown',
       disable_web_page_preview: true,
-      ...options
+      ...options,
     });
 
     logger.info('Telegram notification sent', {
       chatId,
       messageId: result.message_id,
-      messageLength: message.length
+      messageLength: message.length,
     });
 
     return result;
   } catch (error) {
     logger.error('Telegram notification failed', {
       chatId,
-      error: error.message
+      error: error.message,
     });
     throw error;
   }
@@ -205,7 +212,7 @@ async function sendEmailNotification(to, subject, templateName, templateData) {
       from: process.env.EMAIL_FROM || 'noreply@quantapilot.com',
       to,
       subject,
-      html: htmlContent
+      html: htmlContent,
     };
 
     const result = await emailTransporter.sendMail(mailOptions);
@@ -214,7 +221,7 @@ async function sendEmailNotification(to, subject, templateName, templateData) {
       to,
       subject,
       messageId: result.messageId,
-      templateName
+      templateName,
     });
 
     return result;
@@ -223,7 +230,7 @@ async function sendEmailNotification(to, subject, templateName, templateData) {
       to,
       subject,
       templateName,
-      error: error.message
+      error: error.message,
     });
     throw error;
   }
@@ -238,7 +245,10 @@ async function sendNotification(type, recipients, data) {
         case 'telegram':
           if (recipient.chatId) {
             const message = formatTelegramMessage(type, data);
-            const result = await sendTelegramNotification(recipient.chatId, message);
+            const result = await sendTelegramNotification(
+              recipient.chatId,
+              message
+            );
             results.push({ type: 'telegram', status: 'success', result });
           }
           break;
@@ -247,7 +257,12 @@ async function sendNotification(type, recipients, data) {
           if (recipient.email) {
             const subject = formatEmailSubject(type, data);
             const templateName = getEmailTemplate(type);
-            const result = await sendEmailNotification(recipient.email, subject, templateName, data);
+            const result = await sendEmailNotification(
+              recipient.email,
+              subject,
+              templateName,
+              data
+            );
             results.push({ type: 'email', status: 'success', result });
           }
           break;
@@ -258,12 +273,12 @@ async function sendNotification(type, recipients, data) {
     } catch (error) {
       logger.error('Notification sending failed', {
         recipientType: recipient.type,
-        error: error.message
+        error: error.message,
       });
       results.push({
         type: recipient.type,
         status: 'error',
-        error: error.message
+        error: error.message,
       });
     }
   }
@@ -274,33 +289,41 @@ async function sendNotification(type, recipients, data) {
 function formatTelegramMessage(type, data) {
   switch (type) {
     case NOTIFICATION_TYPES.PROJECT_CREATED:
-      return `🚀 *Project Created*\n\n` +
-             `Project: ${data.projectName}\n` +
-             `Repository: ${data.repositoryUrl}\n` +
-             `Status: ${data.status}\n` +
-             `Created: ${new Date(data.createdAt).toLocaleString()}`;
+      return (
+        `🚀 *Project Created*\n\n` +
+        `Project: ${data.projectName}\n` +
+        `Repository: ${data.repositoryUrl}\n` +
+        `Status: ${data.status}\n` +
+        `Created: ${new Date(data.createdAt).toLocaleString()}`
+      );
 
     case NOTIFICATION_TYPES.HITL_DECISION_REQUIRED:
-      return `⚠️ *Human Decision Required*\n\n` +
-             `Project: ${data.projectName}\n` +
-             `Stage: ${data.stage}\n` +
-             `Decision: ${data.decisionType}\n` +
-             `Context: ${data.context}\n\n` +
-             `Please review and approve in the dashboard.`;
+      return (
+        `⚠️ *Human Decision Required*\n\n` +
+        `Project: ${data.projectName}\n` +
+        `Stage: ${data.stage}\n` +
+        `Decision: ${data.decisionType}\n` +
+        `Context: ${data.context}\n\n` +
+        `Please review and approve in the dashboard.`
+      );
 
     case NOTIFICATION_TYPES.PROJECT_COMPLETED:
-      return `✅ *Project Completed*\n\n` +
-             `Project: ${data.projectName}\n` +
-             `Duration: ${data.duration}\n` +
-             `Stages Completed: ${data.stagesCompleted}\n` +
-             `Repository: ${data.repositoryUrl}`;
+      return (
+        `✅ *Project Completed*\n\n` +
+        `Project: ${data.projectName}\n` +
+        `Duration: ${data.duration}\n` +
+        `Stages Completed: ${data.stagesCompleted}\n` +
+        `Repository: ${data.repositoryUrl}`
+      );
 
     case NOTIFICATION_TYPES.PROJECT_FAILED:
-      return `❌ *Project Failed*\n\n` +
-             `Project: ${data.projectName}\n` +
-             `Stage: ${data.stage}\n` +
-             `Error: ${data.error}\n` +
-             `Please check the logs for details.`;
+      return (
+        `❌ *Project Failed*\n\n` +
+        `Project: ${data.projectName}\n` +
+        `Stage: ${data.stage}\n` +
+        `Error: ${data.error}\n` +
+        `Please check the logs for details.`
+      );
 
     default:
       return `📢 *QuantaPilot™ Notification*\n\n${JSON.stringify(data, null, 2)}`;
@@ -350,7 +373,7 @@ app.post('/api/v1/notifications/send', async (req, res) => {
       return res.status(400).json({
         error: 'INVALID_REQUEST',
         message: 'Type and recipients array are required',
-        correlationId: req.id
+        correlationId: req.id,
       });
     }
 
@@ -358,7 +381,7 @@ app.post('/api/v1/notifications/send', async (req, res) => {
       return res.status(400).json({
         error: 'INVALID_NOTIFICATION_TYPE',
         message: `Invalid notification type. Must be one of: ${Object.values(NOTIFICATION_TYPES).join(', ')}`,
-        correlationId: req.id
+        correlationId: req.id,
       });
     }
 
@@ -375,23 +398,22 @@ app.post('/api/v1/notifications/send', async (req, res) => {
         results: {
           success: successCount,
           errors: errorCount,
-          details: results
-        }
+          details: results,
+        },
       },
-      correlationId: req.id
+      correlationId: req.id,
     });
-
   } catch (error) {
     logger.error('Notification sending error', {
       correlationId: req.id,
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
 
     res.status(500).json({
       error: 'NOTIFICATION_SEND_FAILED',
       message: 'Failed to send notification',
-      correlationId: req.id
+      correlationId: req.id,
     });
   }
 });
@@ -404,10 +426,10 @@ app.get('/api/v1/notifications/types', (req, res) => {
       types: Object.values(NOTIFICATION_TYPES),
       providers: {
         telegram: !!telegramBot,
-        email: !!emailTransporter
-      }
+        email: !!emailTransporter,
+      },
     },
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
@@ -420,7 +442,7 @@ app.post('/api/v1/notifications/test', async (req, res) => {
       return res.status(400).json({
         error: 'INVALID_REQUEST',
         message: 'Type and recipient are required',
-        correlationId: req.id
+        correlationId: req.id,
       });
     }
 
@@ -428,7 +450,7 @@ app.post('/api/v1/notifications/test', async (req, res) => {
       projectName: 'Test Project',
       repositoryUrl: 'https://github.com/test/repo',
       status: 'testing',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     const results = await sendNotification(type, [recipient], testData);
@@ -437,21 +459,20 @@ app.post('/api/v1/notifications/test', async (req, res) => {
       success: true,
       data: {
         message: 'Test notification sent',
-        results
+        results,
       },
-      correlationId: req.id
+      correlationId: req.id,
     });
-
   } catch (error) {
     logger.error('Test notification error', {
       correlationId: req.id,
-      error: error.message
+      error: error.message,
     });
 
     res.status(500).json({
       error: 'TEST_NOTIFICATION_FAILED',
       message: 'Failed to send test notification',
-      correlationId: req.id
+      correlationId: req.id,
     });
   }
 });
@@ -466,13 +487,13 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'notifications',
     version: '1.0.0',
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
 app.get('/health/detailed', async (req, res) => {
   const memoryUsage = process.memoryUsage();
-  
+
   // Test email connectivity
   let emailStatus = 'not_configured';
   if (emailTransporter) {
@@ -494,14 +515,14 @@ app.get('/health/detailed', async (req, res) => {
     memory: {
       rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
       heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`
+      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
     },
     providers: {
       telegram: telegramBot ? 'configured' : 'not_configured',
-      email: emailStatus
+      email: emailStatus,
     },
     environment: process.env.NODE_ENV,
-    nodeVersion: process.version
+    nodeVersion: process.version,
   });
 });
 
@@ -514,22 +535,22 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'NOT_FOUND',
     message: 'The requested endpoint was not found',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Unhandled error', {
     correlationId: req.id,
     error: err.message,
-    stack: err.stack
+    stack: err.stack,
   });
 
   res.status(500).json({
     error: 'INTERNAL_ERROR',
     message: 'An unexpected error occurred',
-    correlationId: req.id
+    correlationId: req.id,
   });
 });
 
@@ -544,8 +565,8 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     nodeVersion: process.version,
     providers: {
       telegram: !!telegramBot,
-      email: !!emailTransporter
-    }
+      email: !!emailTransporter,
+    },
   });
 });
 

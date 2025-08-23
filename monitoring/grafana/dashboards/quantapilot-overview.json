@@ -147,9 +147,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -442,10 +440,7 @@
   "refresh": "10s",
   "schemaVersion": 36,
   "style": "dark",
-  "tags": [
-    "quantapilot",
-    "overview"
-  ],
+  "tags": ["quantapilot", "overview"],
   "templating": {
     "list": []
   },
