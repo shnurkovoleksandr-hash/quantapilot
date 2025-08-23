@@ -637,6 +637,352 @@ Invoke-RestMethod -Uri "https://your-quantapilot.com/api/v1/projects" `
                   -Body $body
 ```
 
+## 🆕 Testing and Quality Assurance APIs
+
+### Testing Service API
+
+#### Execute Comprehensive Tests
+
+```http
+POST /api/v1/testing/execute
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "project_id": "uuid-string",
+  "stage_id": "uuid-string",
+  "test_types": ["unit", "integration", "e2e", "security"],
+  "frameworks": ["jest", "pytest"],
+  "quality_gates": {
+    "min_coverage": 85,
+    "max_vulnerabilities": 0,
+    "min_quality_score": 90
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "execution_id": "test-exec-uuid",
+  "status": "running",
+  "started_at": "2024-01-20T10:00:00Z",
+  "estimated_completion": "2024-01-20T10:05:00Z",
+  "tests_scheduled": {
+    "unit": 150,
+    "integration": 45,
+    "e2e": 20,
+    "security": 5
+  }
+}
+```
+
+#### Get Test Results
+
+```http
+GET /api/v1/testing/results/{executionId}
+```
+
+**Response:**
+
+```json
+{
+  "execution_id": "test-exec-uuid",
+  "status": "completed",
+  "started_at": "2024-01-20T10:00:00Z",
+  "completed_at": "2024-01-20T10:04:30Z",
+  "duration_ms": 270000,
+  "summary": {
+    "total_tests": 220,
+    "passed": 218,
+    "failed": 2,
+    "skipped": 0,
+    "coverage_percentage": 87.5
+  },
+  "quality_gates": {
+    "coverage_gate": "passed",
+    "security_gate": "passed",
+    "quality_gate": "passed",
+    "overall_status": "passed"
+  },
+  "detailed_results": {
+    "unit_tests": {
+      "framework": "jest",
+      "passed": 148,
+      "failed": 2,
+      "coverage": 89.2
+    },
+    "integration_tests": {
+      "framework": "jest",
+      "passed": 45,
+      "failed": 0,
+      "coverage": 82.1
+    },
+    "security_scan": {
+      "tool": "snyk",
+      "vulnerabilities": 0,
+      "severity": "none"
+    }
+  }
+}
+```
+
+#### Get Quality Gates Status
+
+```http
+GET /api/v1/testing/quality-gates/{projectId}
+```
+
+**Response:**
+
+```json
+{
+  "project_id": "uuid-string",
+  "current_stage": "stage-2-1",
+  "quality_gates": [
+    {
+      "gate_type": "code_coverage",
+      "criteria": { "min_percentage": 85 },
+      "current_value": 87.5,
+      "status": "passed",
+      "evaluated_at": "2024-01-20T10:04:30Z"
+    },
+    {
+      "gate_type": "security_scan",
+      "criteria": { "max_critical": 0, "max_high": 2 },
+      "current_value": { "critical": 0, "high": 0 },
+      "status": "passed",
+      "evaluated_at": "2024-01-20T10:04:30Z"
+    }
+  ]
+}
+```
+
+### Test Configuration API
+
+#### Update Test Configuration
+
+```http
+PUT /api/v1/testing/configuration/{projectId}
+Content-Type: application/json
+
+{
+  "default_frameworks": {
+    "javascript": "jest",
+    "python": "pytest",
+    "java": "junit"
+  },
+  "quality_thresholds": {
+    "code_coverage": 85,
+    "security_score": 90,
+    "performance_score": 80
+  },
+  "timeout_settings": {
+    "unit_test_timeout": 300,
+    "integration_test_timeout": 600,
+    "e2e_test_timeout": 1800
+  }
+}
+```
+
+## 🆕 Git Workflow Management APIs
+
+### Git Operations API
+
+#### Create Stage Branch
+
+```http
+POST /api/v1/git/branches
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "project_id": "uuid-string",
+  "stage_id": "uuid-string",
+  "stage_name": "cursor-integration",
+  "stage_number": "2.1",
+  "base_branch": "main"
+}
+```
+
+**Response:**
+
+```json
+{
+  "operation_id": "git-op-uuid",
+  "branch_name": "feature/stage-2-1-cursor-integration",
+  "created_at": "2024-01-20T10:00:00Z",
+  "status": "created",
+  "git_url": "https://github.com/user/repo/tree/feature/stage-2-1-cursor-integration"
+}
+```
+
+#### Create Pull Request
+
+```http
+POST /api/v1/git/pull-requests
+Content-Type: application/json
+
+{
+  "project_id": "uuid-string",
+  "stage_id": "uuid-string",
+  "branch_name": "feature/stage-2-1-cursor-integration",
+  "target_branch": "main",
+  "title": "Stage 2.1: Cursor Integration Complete",
+  "description": "Automated PR for stage completion",
+  "include_test_results": true,
+  "include_quality_report": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "operation_id": "git-op-uuid",
+  "pr_number": 42,
+  "pr_url": "https://github.com/user/repo/pull/42",
+  "status": "created",
+  "checks_required": ["ci/github-actions", "quality/sonarqube", "security/snyk"],
+  "auto_merge": true,
+  "created_at": "2024-01-20T10:05:00Z"
+}
+```
+
+#### Get PR Status
+
+```http
+GET /api/v1/git/pull-requests/{prNumber}/status
+```
+
+**Response:**
+
+```json
+{
+  "pr_number": 42,
+  "status": "pending_checks",
+  "checks": [
+    {
+      "name": "ci/github-actions",
+      "status": "in_progress",
+      "started_at": "2024-01-20T10:05:30Z",
+      "details_url": "https://github.com/user/repo/actions/runs/123"
+    },
+    {
+      "name": "quality/sonarqube",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2024-01-20T10:07:00Z"
+    }
+  ],
+  "mergeable": false,
+  "merge_when_ready": true
+}
+```
+
+#### Merge Pull Request
+
+```http
+POST /api/v1/git/pull-requests/{prNumber}/merge
+Content-Type: application/json
+
+{
+  "merge_method": "squash",
+  "commit_title": "feat: complete stage 2.1 - cursor integration",
+  "commit_message": "- Implement Cursor CLI wrapper\n- Add AI role management\n- Configure token limits",
+  "delete_branch": true
+}
+```
+
+### GitHub CI/CD Integration API
+
+#### Monitor Workflow Status
+
+```http
+GET /api/v1/git/workflows/{projectId}/status
+```
+
+**Response:**
+
+```json
+{
+  "project_id": "uuid-string",
+  "current_workflow": {
+    "workflow_id": "ci.yml",
+    "run_id": 123456789,
+    "status": "in_progress",
+    "started_at": "2024-01-20T10:05:30Z",
+    "jobs": [
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build",
+        "status": "in_progress",
+        "conclusion": null
+      }
+    ]
+  },
+  "history": [
+    {
+      "run_id": 123456788,
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2024-01-20T09:30:00Z"
+    }
+  ]
+}
+```
+
+#### Trigger Manual Workflow
+
+```http
+POST /api/v1/git/workflows/trigger
+Content-Type: application/json
+
+{
+  "project_id": "uuid-string",
+  "workflow": "deploy.yml",
+  "ref": "main",
+  "inputs": {
+    "environment": "staging",
+    "version": "v1.2.3"
+  }
+}
+```
+
+### Git Configuration API
+
+#### Update Git Settings
+
+```http
+PUT /api/v1/git/configuration
+Content-Type: application/json
+
+{
+  "branch_protection": {
+    "require_pr": true,
+    "require_reviews": 1,
+    "require_status_checks": true,
+    "required_checks": ["ci", "quality-gate"]
+  },
+  "auto_merge": {
+    "enabled": true,
+    "require_all_checks": true,
+    "merge_method": "squash"
+  },
+  "commit_settings": {
+    "conventional_commits": true,
+    "sign_commits": false,
+    "author_name": "QuantaPilot Bot",
+    "author_email": "bot@quantapilot.com"
+  }
+}
+```
+
 ## API Versioning
 
 ### Version Strategy

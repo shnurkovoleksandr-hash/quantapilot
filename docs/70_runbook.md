@@ -6,24 +6,28 @@ This runbook provides comprehensive operational procedures for QuantaPilot™, c
 monitoring, troubleshooting, and maintenance tasks.
 
 **System Status**: Core Infrastructure Complete (Stages 1.1-1.2) ✅  
-**Services**: 5 core microservices + 4 infrastructure services  
+**Services**: 7 core microservices + 4 infrastructure services (🆕 Enhanced with Testing & Git
+Workflow)  
 **Deployment**: Docker Compose based, single-machine ready  
-**Monitoring**: Prometheus + Grafana with custom dashboards
+**Monitoring**: Prometheus + Grafana with custom dashboards  
+**🆕 Quality Assurance**: Automated testing and Git workflow services integrated
 
 ### Quick Reference - All Services
 
-| Component                | Port | Status Endpoint                    | Log Location                   | Restart Command                               |
-| ------------------------ | ---- | ---------------------------------- | ------------------------------ | --------------------------------------------- |
-| **API Gateway**          | 3000 | `http://localhost:3000/health`     | `./logs/api-gateway/`          | `docker-compose restart api-gateway`          |
-| **Cursor Service**       | 3001 | `http://localhost:3001/health`     | `./logs/cursor-service/`       | `docker-compose restart cursor-service`       |
-| **GitHub Service**       | 3002 | `http://localhost:3002/health`     | `./logs/github-service/`       | `docker-compose restart github-service`       |
-| **Notification Service** | 3003 | `http://localhost:3003/health`     | `./logs/notification-service/` | `docker-compose restart notification-service` |
-| **Web Dashboard**        | 3004 | `http://localhost:3004/health`     | `./logs/dashboard/`            | `docker-compose restart dashboard`            |
-| **n8n Workflows**        | 5678 | `http://localhost:5678/healthz`    | Docker logs                    | `docker-compose restart n8n`                  |
-| **PostgreSQL**           | 5432 | `pg_isready -h localhost`          | Docker logs                    | `docker-compose restart postgres`             |
-| **Redis**                | 6379 | `redis-cli ping`                   | Docker logs                    | `docker-compose restart redis`                |
-| **Prometheus**           | 9090 | `http://localhost:9090/-/healthy`  | Docker logs                    | `docker-compose restart prometheus`           |
-| **Grafana**              | 3005 | `http://localhost:3005/api/health` | Docker logs                    | `docker-compose restart grafana`              |
+| Component                   | Port | Status Endpoint                    | Log Location                   | Restart Command                               |
+| --------------------------- | ---- | ---------------------------------- | ------------------------------ | --------------------------------------------- |
+| **API Gateway**             | 3000 | `http://localhost:3000/health`     | `./logs/api-gateway/`          | `docker-compose restart api-gateway`          |
+| **Cursor Service**          | 3001 | `http://localhost:3001/health`     | `./logs/cursor-service/`       | `docker-compose restart cursor-service`       |
+| **GitHub Service**          | 3002 | `http://localhost:3002/health`     | `./logs/github-service/`       | `docker-compose restart github-service`       |
+| **Notification Service**    | 3003 | `http://localhost:3003/health`     | `./logs/notification-service/` | `docker-compose restart notification-service` |
+| **Web Dashboard**           | 3004 | `http://localhost:3004/health`     | `./logs/dashboard/`            | `docker-compose restart dashboard`            |
+| **🆕 Testing Service**      | 3006 | `http://localhost:3006/health`     | `./logs/testing-service/`      | `docker-compose restart testing-service`      |
+| **🆕 Git Workflow Service** | 3007 | `http://localhost:3007/health`     | `./logs/git-workflow-service/` | `docker-compose restart git-workflow-service` |
+| **n8n Workflows**           | 5678 | `http://localhost:5678/healthz`    | Docker logs                    | `docker-compose restart n8n`                  |
+| **PostgreSQL**              | 5432 | `pg_isready -h localhost`          | Docker logs                    | `docker-compose restart postgres`             |
+| **Redis**                   | 6379 | `redis-cli ping`                   | Docker logs                    | `docker-compose restart redis`                |
+| **Prometheus**              | 9090 | `http://localhost:9090/-/healthy`  | Docker logs                    | `docker-compose restart prometheus`           |
+| **Grafana**                 | 3005 | `http://localhost:3005/api/health` | Docker logs                    | `docker-compose restart grafana`              |
 
 ### Emergency Contacts
 
@@ -94,6 +98,12 @@ docker-compose ps
 
 # Verify service health
 curl -f http://localhost:3000/health
+curl -f http://localhost:3001/health
+curl -f http://localhost:3002/health
+curl -f http://localhost:3003/health
+curl -f http://localhost:3004/health
+curl -f http://localhost:3006/health  # Testing Service
+curl -f http://localhost:3007/health  # Git Workflow Service
 curl -f http://localhost:5678/healthz
 
 # Check database connectivity
@@ -102,8 +112,15 @@ docker-compose exec postgres psql -U quantapilot -c "SELECT 1"
 # Verify n8n workflows
 ./scripts/verify-workflows.sh
 
+# 🆕 Verify new testing and Git workflow services
+./scripts/verify-testing-service.sh
+./scripts/verify-git-workflow-service.sh
+
 # Run integration tests
 npm run test:integration
+
+# 🆕 Run comprehensive system tests
+npm run test:comprehensive
 ```
 
 ### Update Procedures
@@ -406,6 +423,137 @@ docker-compose restart n8n
 ./scripts/clear-stuck-executions.sh
 ```
 
+#### Issue: Testing Service Failures 🆕 NEW TROUBLESHOOTING
+
+**Symptoms:**
+
+- Test executions fail or timeout
+- Quality gates not functioning properly
+- Test coverage reports missing
+- Service health checks failing
+
+**Diagnosis:**
+
+```bash
+# Check Testing service logs
+docker-compose logs --tail=100 testing-service
+
+# Check test execution status
+curl http://localhost:3006/status/tests
+
+# Verify test framework availability
+docker-compose exec testing-service npm list
+
+# Check test result storage
+docker-compose exec postgres psql -U quantapilot -c "
+  SELECT * FROM test_executions
+  WHERE created_at > NOW() - INTERVAL '1 hour'
+  ORDER BY created_at DESC;"
+```
+
+**Resolution:**
+
+```bash
+# Restart Testing service
+docker-compose restart testing-service
+
+# Clear failed test cache
+curl -X DELETE http://localhost:3006/cache/failed-tests
+
+# Rebuild test environment
+docker-compose up -d --force-recreate testing-service
+
+# Verify test frameworks
+./scripts/verify-test-frameworks.sh
+```
+
+#### Issue: Git Workflow Service Problems 🆕 NEW TROUBLESHOOTING
+
+**Symptoms:**
+
+- Pull requests not being created
+- GitHub Actions not triggering
+- Branch creation failures
+- Merge conflicts not being resolved
+
+**Diagnosis:**
+
+```bash
+# Check Git Workflow service logs
+docker-compose logs --tail=100 git-workflow-service
+
+# Check GitHub API connectivity
+curl -H "Authorization: Bearer $GITHUB_TOKEN" \
+     https://api.github.com/rate_limit
+
+# Verify Git operations in database
+docker-compose exec postgres psql -U quantapilot -c "
+  SELECT * FROM git_operations
+  WHERE created_at > NOW() - INTERVAL '1 hour'
+  ORDER BY created_at DESC;"
+
+# Check GitHub Actions status
+curl -H "Authorization: Bearer $GITHUB_TOKEN" \
+     https://api.github.com/repos/owner/repo/actions/runs
+```
+
+**Resolution:**
+
+```bash
+# Restart Git Workflow service
+docker-compose restart git-workflow-service
+
+# Clear stuck Git operations
+curl -X POST http://localhost:3007/operations/cleanup
+
+# Reset GitHub webhook configuration
+./scripts/reset-github-webhooks.sh
+
+# Verify GitHub token permissions
+./scripts/verify-github-permissions.sh
+```
+
+#### Issue: Quality Gates Blocking Stage Progression 🆕 NEW TROUBLESHOOTING
+
+**Symptoms:**
+
+- Stages stuck at quality gate validation
+- Quality metrics not updating
+- False positive quality failures
+- HITL escalation not triggering
+
+**Diagnosis:**
+
+```bash
+# Check quality gate status
+curl http://localhost:3006/quality-gates/status
+
+# Review quality metrics
+docker-compose exec postgres psql -U quantapilot -c "
+  SELECT * FROM quality_gates
+  WHERE status = 'failed'
+  ORDER BY evaluated_at DESC
+  LIMIT 10;"
+
+# Check quality tool integrations
+curl http://localhost:3006/integrations/status
+```
+
+**Resolution:**
+
+```bash
+# Reset quality gate thresholds
+curl -X POST http://localhost:3006/quality-gates/reset-thresholds
+
+# Trigger manual quality evaluation
+curl -X POST http://localhost:3006/quality-gates/evaluate-manual
+
+# Override quality gate (emergency)
+curl -X POST http://localhost:3006/quality-gates/override \
+     -H "Content-Type: application/json" \
+     -d '{"reason": "Emergency override", "approver": "admin"}'
+```
+
 ### Performance Issues
 
 #### High Memory Usage
@@ -525,6 +673,17 @@ docker system prune -f
 
 # Backup critical data
 ./scripts/backup-critical-data.sh
+
+# 🆕 Testing service maintenance
+curl -X POST http://localhost:3006/maintenance/cleanup-test-artifacts
+curl -X POST http://localhost:3006/maintenance/update-test-frameworks
+
+# 🆕 Git workflow maintenance
+curl -X POST http://localhost:3007/maintenance/cleanup-branches
+curl -X POST http://localhost:3007/maintenance/update-github-webhooks
+
+# 🆕 Quality gates maintenance
+curl -X POST http://localhost:3006/quality-gates/maintenance/refresh-criteria
 ```
 
 ### Weekly Maintenance
@@ -600,6 +759,22 @@ cp .env $BACKUP_DIR/
 
 # n8n workflows backup
 docker-compose exec n8n n8n export:workflow --all --output=$BACKUP_DIR/workflows.json
+
+# 🆕 Testing service data backup
+curl http://localhost:3006/backup/test-configurations > $BACKUP_DIR/test-configs.json
+curl http://localhost:3006/backup/quality-criteria > $BACKUP_DIR/quality-criteria.json
+
+# 🆕 Git workflow service data backup
+curl http://localhost:3007/backup/git-configurations > $BACKUP_DIR/git-configs.json
+curl http://localhost:3007/backup/webhook-configurations > $BACKUP_DIR/webhook-configs.json
+
+# 🆕 Enhanced database backup (including new tables)
+docker-compose exec postgres pg_dump -U quantapilot quantapilot \
+    --table=test_executions \
+    --table=quality_gates \
+    --table=git_operations \
+    --table=github_checks \
+    > $BACKUP_DIR/enhanced-database.sql
 
 # Compress backup
 tar -czf $BACKUP_DIR.tar.gz $BACKUP_DIR
