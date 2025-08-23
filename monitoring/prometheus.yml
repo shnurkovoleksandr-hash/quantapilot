@@ -1,0 +1,123 @@
+# QuantaPilot™ Prometheus Configuration
+# Monitors all QuantaPilot™ services and infrastructure components
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'quantapilot'
+    environment: 'development'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # Uncomment when alertmanager is configured
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - 'alerts/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: '/metrics'
+
+  # QuantaPilot™ Core Services
+  - job_name: 'quantapilot-api-gateway'
+    static_configs:
+      - targets: ['api-gateway:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  - job_name: 'quantapilot-cursor-service'
+    static_configs:
+      - targets: ['cursor-service:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s # Less frequent for AI service
+    scrape_timeout: 15s
+    honor_labels: true
+
+  - job_name: 'quantapilot-github-service'
+    static_configs:
+      - targets: ['github-service:3002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    honor_labels: true
+
+  - job_name: 'quantapilot-notification-service'
+    static_configs:
+      - targets: ['notification-service:3003']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    honor_labels: true
+
+  - job_name: 'quantapilot-dashboard'
+    static_configs:
+      - targets: ['dashboard:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    honor_labels: true
+
+  # Infrastructure Services
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'n8n'
+    static_configs:
+      - targets: ['n8n:5678']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Node Exporter (if available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # PostgreSQL Exporter (if available)
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Redis Exporter (if available)
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# Storage configuration
+storage:
+  tsdb:
+    path: /prometheus
+    retention.time: 15d
+    retention.size: 10GB

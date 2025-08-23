@@ -1,7 +1,5 @@
 ---
-description: "General development rules template for QuantaPilot™ generated projects - ensures code quality, testing, and best practices"
-globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.sql", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.vue", "**/*.svelte", "**/Dockerfile", "**/docker-compose.yml", "**/*.tf", "**/*.hcl"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 # {{PROJECT_NAME}} Development Rules

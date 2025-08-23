@@ -1,9 +1,6 @@
 ---
-description: "API documentation standards for QuantaPilot™ - ensures all APIs are comprehensively documented with examples and maintained in sync with implementation"
-globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.rs", "**/routes/**", "**/api/**", "**/controllers/**", "**/handlers/**", "**/endpoints/**", "**/*api*.js", "**/*api*.ts", "**/*controller*.js", "**/*controller*.ts", "**/*handler*.py", "**/*endpoint*.py", "**/openapi.yaml", "**/swagger.yaml", "**/openapi.json", "**/swagger.json"]
-alwaysApply: false
+alwaysApply: true
 ---
-
 # API Documentation Standards for QuantaPilot™
 
 ## MANDATORY API DOCUMENTATION REQUIREMENTS

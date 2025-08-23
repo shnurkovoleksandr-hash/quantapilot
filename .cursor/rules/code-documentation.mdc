@@ -1,9 +1,6 @@
 ---
-description: "Code documentation standards for QuantaPilot™ - ensures all code is self-documenting and maintains high readability for AI agents and human developers"
-globs: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.py", "**/*.java", "**/*.cs", "**/*.go", "**/*.rb", "**/*.php", "**/*.cpp", "**/*.c", "**/*.h", "**/*.rs", "**/*.kt", "**/*.swift", "**/*.dart", "**/*.scala", "**/*.clj", "**/*.vue", "**/*.svelte", "**/*.astro"]
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Code Documentation Standards for QuantaPilot™
 
 ## MANDATORY INLINE DOCUMENTATION

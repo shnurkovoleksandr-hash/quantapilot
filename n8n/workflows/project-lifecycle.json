@@ -1,0 +1,458 @@
+{
+  "name": "QuantaPilot™ - Project Lifecycle Management",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "project-lifecycle",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Project Lifecycle Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [260, 300],
+      "webhookId": "project-lifecycle"
+    },
+    {
+      "parameters": {
+        "functionCode": "// QuantaPilot™ Project Lifecycle Orchestrator\n// Manages the flow from project creation to completion\n\nconst projectData = $input.first().json;\nconst stage = projectData.stage || 'initializing';\n\n// Define project stages and their transitions\nconst STAGES = {\n  'initializing': {\n    next: 'planning',\n    agent: 'system',\n    timeout: 300 // 5 minutes\n  },\n  'planning': {\n    next: 'implementing',\n    agent: 'pr_architect',\n    timeout: 1800 // 30 minutes\n  },\n  'implementing': {\n    next: 'testing',\n    agent: 'senior_developer',\n    timeout: 3600 // 60 minutes\n  },\n  'testing': {\n    next: 'reviewing',\n    agent: 'qa_engineer',\n    timeout: 1800 // 30 minutes\n  },\n  'reviewing': {\n    next: 'completed',\n    agent: 'human',\n    timeout: 86400 // 24 hours\n  }\n};\n\nconst currentStage = STAGES[stage];\nif (!currentStage) {\n  throw new Error(`Invalid stage: ${stage}`);\n}\n\n// Prepare workflow context\nconst workflowContext = {\n  projectId: projectData.projectId,\n  currentStage: stage,\n  nextStage: currentStage.next,\n  agent: currentStage.agent,\n  timeout: currentStage.timeout,\n  timestamp: new Date().toISOString(),\n  repositoryUrl: projectData.repositoryUrl,\n  configuration: projectData.configuration || {},\n  correlationId: projectData.correlationId || $execution.id\n};\n\n// Log stage transition\nconsole.log(`[${workflowContext.correlationId}] Stage transition: ${stage} -> ${currentStage.next}`);\n\nreturn [{\n  json: workflowContext\n}];"
+      },
+      "id": "stage-orchestrator",
+      "name": "Stage Orchestrator",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.currentStage}}",
+              "value2": "initializing"
+            }
+          ]
+        }
+      },
+      "id": "is-initializing",
+      "name": "Is Initializing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.currentStage}}",
+              "value2": "planning"
+            }
+          ]
+        }
+      },
+      "id": "is-planning",
+      "name": "Is Planning?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.currentStage}}",
+              "value2": "implementing"
+            }
+          ]
+        }
+      },
+      "id": "is-implementing",
+      "name": "Is Implementing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.currentStage}}",
+              "value2": "testing"
+            }
+          ]
+        }
+      },
+      "id": "is-testing",
+      "name": "Is Testing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.currentStage}}",
+              "value2": "reviewing"
+            }
+          ]
+        }
+      },
+      "id": "is-reviewing",
+      "name": "Is Reviewing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 600]
+    },
+    {
+      "parameters": {
+        "url": "http://github-service:3002/api/v1/github/repositories/analyze",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "repositoryUrl": "={{$json.repositoryUrl}}"
+          }
+        }
+      },
+      "id": "analyze-repository",
+      "name": "Analyze Repository",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://cursor-service:3001/api/v1/ai/prompt",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "prompt": "Analyze the following repository and create a comprehensive project plan:\\n\\nRepository: {{$json.repositoryUrl}}\\nAnalysis: {{$json.analysis}}\\n\\nPlease provide:\\n1. Architecture design\\n2. Technology stack recommendations\\n3. Implementation milestones\\n4. Testing strategy",
+            "agentRole": "pr_architect",
+            "options": {
+              "maxTokens": 4000
+            }
+          }
+        }
+      },
+      "id": "create-project-plan",
+      "name": "Create Project Plan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://cursor-service:3001/api/v1/ai/prompt",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "prompt": "Based on the project plan, generate production-ready code:\\n\\nProject Plan: {{$json.plan}}\\nRepository: {{$json.repositoryUrl}}\\n\\nGenerate complete implementation with:\\n1. Clean, maintainable code\\n2. Proper error handling\\n3. Security best practices\\n4. Performance optimizations",
+            "agentRole": "senior_developer",
+            "options": {
+              "maxTokens": 8000
+            }
+          }
+        }
+      },
+      "id": "generate-code",
+      "name": "Generate Code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://cursor-service:3001/api/v1/ai/prompt",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "prompt": "Create comprehensive tests for the generated code:\\n\\nCode: {{$json.code}}\\nProject: {{$json.repositoryUrl}}\\n\\nGenerate:\\n1. Unit tests\\n2. Integration tests\\n3. End-to-end tests\\n4. Performance tests\\n5. Security tests",
+            "agentRole": "qa_engineer",
+            "options": {
+              "maxTokens": 4000
+            }
+          }
+        }
+      },
+      "id": "create-tests",
+      "name": "Create Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 500]
+    },
+    {
+      "parameters": {
+        "url": "http://notification-service:3003/api/v1/notifications/send",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Correlation-ID": "={{$json.correlationId}}"
+          },
+          "body": {
+            "type": "hitl_decision_required",
+            "recipients": [
+              {
+                "type": "telegram",
+                "chatId": "{{$json.configuration.telegramChatId}}"
+              },
+              {
+                "type": "email",
+                "email": "{{$json.configuration.email}}"
+              }
+            ],
+            "data": {
+              "projectName": "{{$json.projectId}}",
+              "stage": "reviewing",
+              "decisionType": "project_approval",
+              "context": "Project implementation completed, awaiting human review",
+              "repositoryUrl": "{{$json.repositoryUrl}}"
+            }
+          }
+        }
+      },
+      "id": "request-human-review",
+      "name": "Request Human Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 600]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Update project status in database\nconst projectData = $input.first().json;\n\n// Prepare database update\nconst updateData = {\n  projectId: projectData.projectId,\n  status: projectData.nextStage,\n  updatedAt: new Date().toISOString(),\n  metadata: {\n    stage: projectData.nextStage,\n    correlationId: projectData.correlationId,\n    timestamp: projectData.timestamp\n  }\n};\n\n// Log status update\nconsole.log(`[${projectData.correlationId}] Updating project ${projectData.projectId} to status: ${projectData.nextStage}`);\n\nreturn [{\n  json: updateData\n}];"
+      },
+      "id": "update-project-status",
+      "name": "Update Project Status",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1140, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE projects SET status = $1, updated_at = $2, metadata = $3 WHERE id = $4",
+        "additionalFields": {
+          "mode": "raw",
+          "rawQuery": true,
+          "values": [
+            "={{$json.status}}",
+            "={{$json.updatedAt}}",
+            "={{JSON.stringify($json.metadata)}}",
+            "={{$json.projectId}}"
+          ]
+        }
+      },
+      "id": "database-update",
+      "name": "Database Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1360, 300],
+      "credentials": {
+        "postgres": {
+          "id": "quantapilot-postgres",
+          "name": "QuantaPilot™ PostgreSQL"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook-trigger": {
+      "main": [
+        [
+          {
+            "node": "stage-orchestrator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stage-orchestrator": {
+      "main": [
+        [
+          {
+            "node": "is-initializing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "is-planning",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "is-implementing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "is-testing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "is-reviewing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-initializing": {
+      "main": [
+        [
+          {
+            "node": "analyze-repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-planning": {
+      "main": [
+        [
+          {
+            "node": "create-project-plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-implementing": {
+      "main": [
+        [
+          {
+            "node": "generate-code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-testing": {
+      "main": [
+        [
+          {
+            "node": "create-tests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is-reviewing": {
+      "main": [
+        [
+          {
+            "node": "request-human-review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "analyze-repository": {
+      "main": [
+        [
+          {
+            "node": "update-project-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create-project-plan": {
+      "main": [
+        [
+          {
+            "node": "update-project-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate-code": {
+      "main": [
+        [
+          {
+            "node": "update-project-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create-tests": {
+      "main": [
+        [
+          {
+            "node": "update-project-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "request-human-review": {
+      "main": [
+        [
+          {
+            "node": "update-project-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update-project-status": {
+      "main": [
+        [
+          {
+            "node": "database-update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "UTC",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "project-lifecycle",
+  "tags": [
+    {
+      "createdAt": "2024-01-20T10:00:00.000Z",
+      "updatedAt": "2024-01-20T10:00:00.000Z",
+      "id": "quantapilot",
+      "name": "QuantaPilot"
+    }
+  ]
+}

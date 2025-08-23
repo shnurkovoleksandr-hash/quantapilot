@@ -1,7 +1,5 @@
 ---
-description: "Project documentation template for QuantaPilot™ generated projects - ensures complete documentation structure and maintenance"
-globs: ["**/*.md", "**/*.mdx", "**/docs/**", "**/README.md", "**/package.json", "**/requirements.txt", "**/Cargo.toml", "**/go.mod", "**/pom.xml", "**/build.gradle", "**/composer.json", "**/*.yaml", "**/*.yml", "**/*.json"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 # {{PROJECT_NAME}} Documentation Rules

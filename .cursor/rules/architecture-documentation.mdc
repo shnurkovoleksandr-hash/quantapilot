@@ -1,9 +1,6 @@
 ---
-description: "Architecture and system design documentation standards for QuantaPilot™ - ensures all architectural decisions and system changes are properly documented"
-globs: ["**/docker-compose.yml", "**/Dockerfile", "**/package.json", "**/requirements.txt", "**/pom.xml", "**/build.gradle", "**/Cargo.toml", "**/go.mod", "**/composer.json", "**/*.tf", "**/*.hcl", "**/infrastructure/**", "**/deploy/**", "**/config/**", "**/migrations/**", "**/*.sql", "**/schema.sql", "**/init.sql", "**/seeds.sql", "**/*migration*", "**/*schema*", "**/k8s/**", "**/kubernetes/**", "**/helm/**", "**/terraform/**"]
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Architecture Documentation Standards for QuantaPilot™
 
 ## MANDATORY ARCHITECTURAL DOCUMENTATION

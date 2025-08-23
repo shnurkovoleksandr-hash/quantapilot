@@ -2,11 +2,14 @@
 
 ## Overview
 
-QuantaPilot™ provides comprehensive APIs for external integration, webhook processing, and system management. This document covers all external interfaces including REST APIs, webhooks, and integration endpoints.
+QuantaPilot™ provides comprehensive APIs for external integration, webhook processing, and system
+management. This document covers all external interfaces including REST APIs, webhooks, and
+integration endpoints.
 
 ## API Authentication
 
 ### API Key Authentication
+
 All API endpoints require authentication via API keys.
 
 ```http
@@ -14,6 +17,7 @@ Authorization: Bearer <api_key>
 ```
 
 ### API Key Management
+
 ```http
 POST /api/v1/auth/keys
 GET /api/v1/auth/keys
@@ -25,6 +29,7 @@ DELETE /api/v1/auth/keys/{keyId}
 ### Project Management API
 
 #### Create Project
+
 ```http
 POST /api/v1/projects
 Content-Type: application/json
@@ -44,22 +49,25 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "project_id": "uuid-string",
   "status": "initializing",
   "created_at": "2024-01-20T10:00:00Z",
   "estimated_completion": "2024-01-20T14:00:00Z",
-  "estimated_cost": 15.50
+  "estimated_cost": 15.5
 }
 ```
 
 #### Get Project Status
+
 ```http
 GET /api/v1/projects/{projectId}
 ```
 
 **Response:**
+
 ```json
 {
   "project_id": "uuid-string",
@@ -72,7 +80,7 @@ GET /api/v1/projects/{projectId}
   },
   "resource_usage": {
     "tokens_used": 15000,
-    "cost_usd": 7.50,
+    "cost_usd": 7.5,
     "time_elapsed": "02:30:00"
   },
   "artifacts": {
@@ -84,11 +92,13 @@ GET /api/v1/projects/{projectId}
 ```
 
 #### List Projects
+
 ```http
 GET /api/v1/projects?status=active&limit=20&offset=0
 ```
 
 **Response:**
+
 ```json
 {
   "projects": [
@@ -110,6 +120,7 @@ GET /api/v1/projects?status=active&limit=20&offset=0
 ```
 
 #### Update Project
+
 ```http
 PATCH /api/v1/projects/{projectId}
 Content-Type: application/json
@@ -125,6 +136,7 @@ Content-Type: application/json
 ```
 
 #### Delete Project
+
 ```http
 DELETE /api/v1/projects/{projectId}
 ```
@@ -132,11 +144,13 @@ DELETE /api/v1/projects/{projectId}
 ### Workflow Management API
 
 #### Get Workflow Status
+
 ```http
 GET /api/v1/projects/{projectId}/workflow
 ```
 
 **Response:**
+
 ```json
 {
   "workflow_id": "workflow-uuid",
@@ -157,6 +171,7 @@ GET /api/v1/projects/{projectId}/workflow
 ```
 
 #### Trigger Workflow Action
+
 ```http
 POST /api/v1/projects/{projectId}/workflow/actions
 Content-Type: application/json
@@ -171,6 +186,7 @@ Content-Type: application/json
 ```
 
 #### Pause/Resume Workflow
+
 ```http
 POST /api/v1/projects/{projectId}/workflow/pause
 POST /api/v1/projects/{projectId}/workflow/resume
@@ -179,11 +195,13 @@ POST /api/v1/projects/{projectId}/workflow/resume
 ### Human-in-the-Loop API
 
 #### Get Pending Decisions
+
 ```http
 GET /api/v1/hitl/decisions?status=pending
 ```
 
 **Response:**
+
 ```json
 {
   "decisions": [
@@ -206,6 +224,7 @@ GET /api/v1/hitl/decisions?status=pending
 ```
 
 #### Submit Decision
+
 ```http
 POST /api/v1/hitl/decisions/{decisionId}
 Content-Type: application/json
@@ -220,6 +239,7 @@ Content-Type: application/json
 ```
 
 #### Get Decision History
+
 ```http
 GET /api/v1/hitl/decisions?project_id={projectId}&status=completed
 ```
@@ -227,11 +247,13 @@ GET /api/v1/hitl/decisions?project_id={projectId}&status=completed
 ### Metrics and Analytics API
 
 #### Get System Metrics
+
 ```http
 GET /api/v1/metrics/system
 ```
 
 **Response:**
+
 ```json
 {
   "system_health": {
@@ -254,11 +276,13 @@ GET /api/v1/metrics/system
 ```
 
 #### Get Project Metrics
+
 ```http
 GET /api/v1/metrics/projects?period=7d
 ```
 
 **Response:**
+
 ```json
 {
   "summary": {
@@ -270,7 +294,7 @@ GET /api/v1/metrics/projects?period=7d
   },
   "performance": {
     "average_completion_time": "3h 45m",
-    "average_cost": 12.50,
+    "average_cost": 12.5,
     "average_tokens_used": 35000
   },
   "quality_metrics": {
@@ -282,18 +306,20 @@ GET /api/v1/metrics/projects?period=7d
 ```
 
 #### Get Cost Analytics
+
 ```http
 GET /api/v1/metrics/costs?period=30d&group_by=day
 ```
 
 **Response:**
+
 ```json
 {
   "cost_breakdown": {
     "ai_tokens": 450.25,
-    "infrastructure": 89.50,
+    "infrastructure": 89.5,
     "external_apis": 12.75,
-    "total": 552.50
+    "total": 552.5
   },
   "daily_costs": [
     {
@@ -304,7 +330,7 @@ GET /api/v1/metrics/costs?period=30d&group_by=day
     }
   ],
   "projections": {
-    "monthly_estimate": 650.00,
+    "monthly_estimate": 650.0,
     "cost_per_project": 13.12
   }
 }
@@ -315,6 +341,7 @@ GET /api/v1/metrics/costs?period=30d&group_by=day
 ### GitHub Integration Webhooks
 
 #### Repository Events
+
 QuantaPilot™ processes the following GitHub webhook events:
 
 ```http
@@ -341,32 +368,30 @@ X-Hub-Signature-256: sha256=...
 ```
 
 **Supported Events:**
+
 - `push` - Triggers project initialization if README.md is added
 - `issues` - Processes issue creation and updates
 - `pull_request` - Handles PR creation and reviews
 - `repository` - Responds to repository settings changes
 
 #### Webhook Verification
+
 All GitHub webhooks are verified using HMAC-SHA256:
 
 ```javascript
 const crypto = require('crypto');
 
 function verifySignature(payload, signature, secret) {
-  const expectedSignature = 'sha256=' + 
-    crypto.createHmac('sha256', secret)
-          .update(payload)
-          .digest('hex');
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+  const expectedSignature =
+    'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
 }
 ```
 
 ### External System Webhooks
 
 #### Project Status Updates
+
 External systems can receive real-time project updates:
 
 ```http
@@ -392,6 +417,7 @@ X-QuantaPilot-Signature: sha256=...
 ```
 
 #### Decision Required Webhooks
+
 ```http
 POST /your-endpoint
 Content-Type: application/json
@@ -414,6 +440,7 @@ Content-Type: application/json
 ### Telegram Bot Integration
 
 #### Bot Commands
+
 The Telegram bot supports the following commands:
 
 ```
@@ -427,6 +454,7 @@ The Telegram bot supports the following commands:
 ```
 
 #### Interactive Callbacks
+
 ```javascript
 // Callback data format for inline keyboards
 {
@@ -439,13 +467,16 @@ The Telegram bot supports the following commands:
 ### Email Integration
 
 #### Email Templates
+
 QuantaPilot™ sends formatted emails for:
+
 - **Project Started**: Confirmation and tracking information
 - **Decision Required**: HITL approval requests with context
 - **Project Completed**: Summary and deliverables
 - **Error Notifications**: System errors requiring attention
 
 #### Email API
+
 ```http
 POST /api/v1/notifications/email
 Content-Type: application/json
@@ -465,6 +496,7 @@ Content-Type: application/json
 ## Error Handling
 
 ### Error Response Format
+
 All API errors follow a consistent format:
 
 ```json
@@ -483,20 +515,22 @@ All API errors follow a consistent format:
 ```
 
 ### HTTP Status Codes
-| Code | Meaning | Usage |
-|------|---------|-------|
-| `200` | OK | Successful request |
-| `201` | Created | Resource created successfully |
-| `400` | Bad Request | Invalid request parameters |
-| `401` | Unauthorized | Authentication required or failed |
-| `403` | Forbidden | Insufficient permissions |
-| `404` | Not Found | Resource not found |
-| `409` | Conflict | Resource already exists or conflict |
-| `429` | Too Many Requests | Rate limit exceeded |
-| `500` | Internal Server Error | Server error |
-| `503` | Service Unavailable | Service temporarily unavailable |
+
+| Code  | Meaning               | Usage                               |
+| ----- | --------------------- | ----------------------------------- |
+| `200` | OK                    | Successful request                  |
+| `201` | Created               | Resource created successfully       |
+| `400` | Bad Request           | Invalid request parameters          |
+| `401` | Unauthorized          | Authentication required or failed   |
+| `403` | Forbidden             | Insufficient permissions            |
+| `404` | Not Found             | Resource not found                  |
+| `409` | Conflict              | Resource already exists or conflict |
+| `429` | Too Many Requests     | Rate limit exceeded                 |
+| `500` | Internal Server Error | Server error                        |
+| `503` | Service Unavailable   | Service temporarily unavailable     |
 
 ### Rate Limiting
+
 API endpoints are rate limited to prevent abuse:
 
 ```http
@@ -506,6 +540,7 @@ X-RateLimit-Reset: 1642680000
 ```
 
 **Rate Limits:**
+
 - **General API**: 1000 requests per hour per API key
 - **Project Creation**: 10 projects per hour per user
 - **Webhook Endpoints**: 100 requests per minute per source
@@ -514,20 +549,21 @@ X-RateLimit-Reset: 1642680000
 ## SDK and Libraries
 
 ### Node.js SDK
+
 ```javascript
 const QuantaPilot = require('@quantapilot/sdk');
 
 const client = new QuantaPilot({
   apiKey: 'your-api-key',
-  baseUrl: 'https://your-quantapilot.com/api/v1'
+  baseUrl: 'https://your-quantapilot.com/api/v1',
 });
 
 // Create project
 const project = await client.projects.create({
   repository_url: 'https://github.com/user/repo',
   configuration: {
-    tech_stack: ['Node.js', 'React']
-  }
+    tech_stack: ['Node.js', 'React'],
+  },
 });
 
 // Monitor progress
@@ -536,6 +572,7 @@ console.log(`Project status: ${status.status}`);
 ```
 
 ### Python SDK
+
 ```python
 from quantapilot import Client
 
@@ -560,6 +597,7 @@ print(f"Project status: {status['status']}")
 ### REST Client Examples
 
 #### cURL
+
 ```bash
 # Create project
 curl -X POST https://your-quantapilot.com/api/v1/projects \
@@ -578,6 +616,7 @@ curl -X GET https://your-quantapilot.com/api/v1/projects/project-uuid \
 ```
 
 #### PowerShell
+
 ```powershell
 # Create project
 $headers = @{
@@ -601,12 +640,14 @@ Invoke-RestMethod -Uri "https://your-quantapilot.com/api/v1/projects" `
 ## API Versioning
 
 ### Version Strategy
+
 - **Current Version**: v1
 - **Versioning Scheme**: URL path versioning (`/api/v1/`)
 - **Backward Compatibility**: Maintained for 1 year after version release
 - **Deprecation Notice**: 6 months advance notice for breaking changes
 
 ### Version Migration
+
 ```http
 # Check available versions
 GET /api/versions
@@ -626,6 +667,7 @@ GET /api/versions
 ## OpenAPI Specification
 
 The complete OpenAPI 3.0 specification is available at:
+
 ```
 GET /api/v1/openapi.json
 GET /api/v1/docs (Swagger UI)

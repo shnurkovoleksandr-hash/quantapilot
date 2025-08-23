@@ -2,31 +2,43 @@
 
 ## System Overview
 
-This runbook provides comprehensive operational procedures for QuantaPilot™, covering deployment, monitoring, troubleshooting, and maintenance tasks.
+This runbook provides comprehensive operational procedures for QuantaPilot™, covering deployment,
+monitoring, troubleshooting, and maintenance tasks.
 
-### Quick Reference
+**System Status**: Core Infrastructure Complete (Stages 1.1-1.2) ✅  
+**Services**: 5 core microservices + 4 infrastructure services  
+**Deployment**: Docker Compose based, single-machine ready  
+**Monitoring**: Prometheus + Grafana with custom dashboards
 
-| Component | Status Endpoint | Log Location | Restart Command |
-|-----------|-----------------|--------------|-----------------|
-| n8n | `http://localhost:5678/healthz` | `/var/log/n8n/` | `docker-compose restart n8n` |
-| API Gateway | `http://localhost:3000/health` | `/var/log/api/` | `docker-compose restart api-gateway` |
-| PostgreSQL | `SELECT 1` | `/var/log/postgresql/` | `docker-compose restart postgres` |
-| Redis | `redis-cli ping` | `/var/log/redis/` | `docker-compose restart redis` |
-| Cursor Service | `http://localhost:3001/health` | `/var/log/cursor/` | `docker-compose restart cursor-service` |
+### Quick Reference - All Services
+
+| Component                | Port | Status Endpoint                    | Log Location                   | Restart Command                               |
+| ------------------------ | ---- | ---------------------------------- | ------------------------------ | --------------------------------------------- |
+| **API Gateway**          | 3000 | `http://localhost:3000/health`     | `./logs/api-gateway/`          | `docker-compose restart api-gateway`          |
+| **Cursor Service**       | 3001 | `http://localhost:3001/health`     | `./logs/cursor-service/`       | `docker-compose restart cursor-service`       |
+| **GitHub Service**       | 3002 | `http://localhost:3002/health`     | `./logs/github-service/`       | `docker-compose restart github-service`       |
+| **Notification Service** | 3003 | `http://localhost:3003/health`     | `./logs/notification-service/` | `docker-compose restart notification-service` |
+| **Web Dashboard**        | 3004 | `http://localhost:3004/health`     | `./logs/dashboard/`            | `docker-compose restart dashboard`            |
+| **n8n Workflows**        | 5678 | `http://localhost:5678/healthz`    | Docker logs                    | `docker-compose restart n8n`                  |
+| **PostgreSQL**           | 5432 | `pg_isready -h localhost`          | Docker logs                    | `docker-compose restart postgres`             |
+| **Redis**                | 6379 | `redis-cli ping`                   | Docker logs                    | `docker-compose restart redis`                |
+| **Prometheus**           | 9090 | `http://localhost:9090/-/healthy`  | Docker logs                    | `docker-compose restart prometheus`           |
+| **Grafana**              | 3005 | `http://localhost:3005/api/health` | Docker logs                    | `docker-compose restart grafana`              |
 
 ### Emergency Contacts
 
-| Role | Primary | Secondary | Escalation |
-|------|---------|-----------|------------|
-| **System Admin** | admin@quantapilot.com | backup-admin@quantapilot.com | CTO |
-| **On-Call Engineer** | oncall@quantapilot.com | +1-555-0123 | Engineering Manager |
-| **Security Team** | security@quantapilot.com | +1-555-0124 | CISO |
+| Role                 | Primary                  | Secondary                    | Escalation          |
+| -------------------- | ------------------------ | ---------------------------- | ------------------- |
+| **System Admin**     | admin@quantapilot.com    | backup-admin@quantapilot.com | CTO                 |
+| **On-Call Engineer** | oncall@quantapilot.com   | +1-555-0123                  | Engineering Manager |
+| **Security Team**    | security@quantapilot.com | +1-555-0124                  | CISO                |
 
 ## Deployment Procedures
 
 ### Initial Deployment
 
 #### Prerequisites Checklist
+
 - [ ] Docker 20.10+ installed
 - [ ] Docker Compose v2 installed
 - [ ] Minimum 8GB RAM available
@@ -34,19 +46,35 @@ This runbook provides comprehensive operational procedures for QuantaPilot™, c
 - [ ] All required environment variables set
 - [ ] Network connectivity to external APIs verified
 
-#### Deployment Steps
+#### Deployment Steps (Updated for Stages 1.1-1.2)
 
 ```bash
-# 1. Clone repository
+# 1. Clone repository and switch to infrastructure branch
 git clone https://github.com/your-org/quantapilot.git
 cd quantapilot
+git checkout stage-1-2-core-infrastructure
 
-# 2. Configure environment
+# 2. Run automated setup
+./scripts/setup.sh
+# This will:
+# - Create necessary directories
+# - Copy .env.example to .env
+# - Optionally generate secure secrets
+# - Build and start all services
+
+# 3. Manual configuration (if needed)
 cp .env.example .env
-# Edit .env with production values
+# Edit .env with your API keys:
+# - CURSOR_API_KEY
+# - GITHUB_TOKEN
+# - TELEGRAM_BOT_TOKEN (optional)
+# - SMTP configuration (optional)
 
-# 3. Validate configuration
-./scripts/validate-config.sh
+# 4. Generate secure secrets for production
+./scripts/generate-secrets.sh
+
+# 5. Validate security configuration
+./scripts/validate-security.sh
 
 # 4. Initialize database
 docker-compose run --rm postgres-init
@@ -81,6 +109,7 @@ npm run test:integration
 ### Update Procedures
 
 #### Pre-Update Checklist
+
 - [ ] Create full system backup
 - [ ] Verify sufficient disk space for new images
 - [ ] Check for breaking changes in release notes
@@ -177,25 +206,25 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
-    
+
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-    
+
   alertmanager:
     image: prom/alertmanager:latest
     ports:
-      - "9093:9093"
+      - '9093:9093'
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
 ```
@@ -203,6 +232,7 @@ services:
 ### Key Metrics to Monitor
 
 #### System Metrics
+
 - **CPU Usage**: > 80% for 5 minutes
 - **Memory Usage**: > 85% for 5 minutes
 - **Disk Usage**: > 90%
@@ -210,6 +240,7 @@ services:
 - **Container Health**: Any container restarts
 
 #### Application Metrics
+
 - **API Response Time**: > 5 seconds (95th percentile)
 - **Error Rate**: > 5% over 5 minutes
 - **Active Projects**: Current count and trends
@@ -217,6 +248,7 @@ services:
 - **Workflow Success Rate**: < 90% over 1 hour
 
 #### Business Metrics
+
 - **Project Completion Rate**: < 85% over 24 hours
 - **User Satisfaction**: < 80% (from feedback)
 - **HITL Response Time**: > 4 hours average
@@ -229,11 +261,13 @@ services:
 #### Issue: API Gateway Not Responding
 
 **Symptoms:**
+
 - Health check fails for API Gateway
 - Users cannot access dashboard
 - 502/503 errors in browser
 
 **Diagnosis:**
+
 ```bash
 # Check container status
 docker-compose ps api-gateway
@@ -246,6 +280,7 @@ docker stats api-gateway
 ```
 
 **Resolution:**
+
 ```bash
 # Restart service
 docker-compose restart api-gateway
@@ -260,30 +295,33 @@ docker-compose up -d --force-recreate api-gateway
 #### Issue: Database Connection Problems
 
 **Symptoms:**
+
 - Application errors mentioning database
 - Slow response times
 - Connection timeout errors
 
 **Diagnosis:**
+
 ```bash
 # Check PostgreSQL status
 docker-compose exec postgres pg_isready
 
 # Check active connections
 docker-compose exec postgres psql -U quantapilot -c "
-  SELECT count(*) as active_connections 
-  FROM pg_stat_activity 
+  SELECT count(*) as active_connections
+  FROM pg_stat_activity
   WHERE state = 'active';"
 
 # Check for long-running queries
 docker-compose exec postgres psql -U quantapilot -c "
-  SELECT query, state, query_start 
-  FROM pg_stat_activity 
-  WHERE state = 'active' 
+  SELECT query, state, query_start
+  FROM pg_stat_activity
+  WHERE state = 'active'
   ORDER BY query_start;"
 ```
 
 **Resolution:**
+
 ```bash
 # Restart PostgreSQL
 docker-compose restart postgres
@@ -293,20 +331,22 @@ df -h
 
 # Analyze slow queries
 docker-compose exec postgres psql -U quantapilot -c "
-  SELECT query, mean_time, calls 
-  FROM pg_stat_statements 
-  ORDER BY mean_time DESC 
+  SELECT query, mean_time, calls
+  FROM pg_stat_statements
+  ORDER BY mean_time DESC
   LIMIT 10;"
 ```
 
 #### Issue: AI Agent Failures
 
 **Symptoms:**
+
 - High AI token usage without results
 - Workflow timeouts
 - Cursor API errors in logs
 
 **Diagnosis:**
+
 ```bash
 # Check Cursor service logs
 docker-compose logs --tail=100 cursor-service
@@ -320,6 +360,7 @@ curl -H "Authorization: Bearer $CURSOR_API_KEY" \
 ```
 
 **Resolution:**
+
 ```bash
 # Restart Cursor service
 docker-compose restart cursor-service
@@ -334,11 +375,13 @@ docker-compose restart cursor-service
 #### Issue: n8n Workflow Failures
 
 **Symptoms:**
+
 - Workflows stuck in "Running" state
 - Execution errors in n8n dashboard
 - Projects not progressing
 
 **Diagnosis:**
+
 ```bash
 # Check n8n logs
 docker-compose logs --tail=100 n8n
@@ -351,6 +394,7 @@ open http://localhost:5678
 ```
 
 **Resolution:**
+
 ```bash
 # Restart n8n
 docker-compose restart n8n
@@ -367,6 +411,7 @@ docker-compose restart n8n
 #### High Memory Usage
 
 **Investigation:**
+
 ```bash
 # Check container memory usage
 docker stats --no-stream
@@ -379,6 +424,7 @@ docker-compose exec api-gateway ps aux --sort=-%mem | head -10
 ```
 
 **Mitigation:**
+
 ```bash
 # Restart memory-heavy services
 docker-compose restart <service-name>
@@ -391,6 +437,7 @@ docker-compose up -d
 #### High CPU Usage
 
 **Investigation:**
+
 ```bash
 # Check CPU usage by container
 docker stats --no-stream
@@ -403,6 +450,7 @@ top -p $(docker inspect --format='{{.State.Pid}}' quantapilot_api_1)
 ```
 
 **Mitigation:**
+
 ```bash
 # Scale horizontally if possible
 docker-compose up -d --scale api-gateway=2
@@ -416,12 +464,14 @@ docker-compose up -d --scale api-gateway=2
 #### Suspected Security Breach
 
 **Immediate Actions:**
+
 1. **Isolate System**: Disconnect from internet if possible
 2. **Preserve Evidence**: Take system snapshots
 3. **Contact Security Team**: Notify security@quantapilot.com
 4. **Document Timeline**: Record all observed events
 
 **Investigation Commands:**
+
 ```bash
 # Check for unusual activity
 ./scripts/security-audit.sh
@@ -431,7 +481,7 @@ docker-compose logs nginx | grep -E "(40[0-9]|50[0-9])"
 
 # Check for unauthorized access
 docker-compose exec postgres psql -U quantapilot -c "
-  SELECT * FROM user_sessions 
+  SELECT * FROM user_sessions
   WHERE created_at > NOW() - INTERVAL '24 hours'
   ORDER BY created_at DESC;"
 ```
@@ -439,6 +489,7 @@ docker-compose exec postgres psql -U quantapilot -c "
 #### API Key Compromise
 
 **Immediate Actions:**
+
 ```bash
 # Rotate compromised keys
 ./scripts/rotate-api-keys.sh
@@ -455,6 +506,7 @@ docker-compose restart
 ### Daily Maintenance
 
 #### Automated Daily Tasks
+
 ```bash
 #!/bin/bash
 # daily-maintenance.sh
@@ -478,6 +530,7 @@ docker system prune -f
 ### Weekly Maintenance
 
 #### Automated Weekly Tasks
+
 ```bash
 #!/bin/bash
 # weekly-maintenance.sh
@@ -501,6 +554,7 @@ docker system prune -f
 ### Monthly Maintenance
 
 #### Security Review
+
 - [ ] Review access logs for anomalies
 - [ ] Update all system passwords
 - [ ] Scan for security vulnerabilities
@@ -508,6 +562,7 @@ docker system prune -f
 - [ ] Test incident response procedures
 
 #### Performance Review
+
 - [ ] Analyze performance trends
 - [ ] Review resource utilization
 - [ ] Optimize slow queries
@@ -515,6 +570,7 @@ docker system prune -f
 - [ ] Test auto-scaling procedures
 
 #### Business Review
+
 - [ ] Analyze user satisfaction metrics
 - [ ] Review project success rates
 - [ ] Update cost analysis
@@ -526,6 +582,7 @@ docker system prune -f
 ### Backup Procedures
 
 #### Daily Backup Script
+
 ```bash
 #!/bin/bash
 # backup-daily.sh
@@ -555,6 +612,7 @@ rm -rf $BACKUP_DIR
 ### Recovery Procedures
 
 #### Database Recovery
+
 ```bash
 #!/bin/bash
 # restore-database.sh
@@ -574,6 +632,7 @@ docker-compose up -d
 ```
 
 #### Full System Recovery
+
 ```bash
 #!/bin/bash
 # restore-system.sh
@@ -609,26 +668,26 @@ docker-compose up -d
 
 ### Support Escalation
 
-| Level | Contact | Response Time | Scope |
-|-------|---------|---------------|--------|
-| **L1** | support@quantapilot.com | 4 hours | General issues, user questions |
-| **L2** | engineering@quantapilot.com | 2 hours | Technical issues, system problems |
-| **L3** | oncall@quantapilot.com | 1 hour | Critical system failures |
-| **Emergency** | +1-555-0123 | 30 minutes | Security incidents, data loss |
+| Level         | Contact                     | Response Time | Scope                             |
+| ------------- | --------------------------- | ------------- | --------------------------------- |
+| **L1**        | support@quantapilot.com     | 4 hours       | General issues, user questions    |
+| **L2**        | engineering@quantapilot.com | 2 hours       | Technical issues, system problems |
+| **L3**        | oncall@quantapilot.com      | 1 hour        | Critical system failures          |
+| **Emergency** | +1-555-0123                 | 30 minutes    | Security incidents, data loss     |
 
 ### Vendor Contacts
 
-| Service | Contact | Support Level | SLA |
-|---------|---------|---------------|-----|
-| **Cursor** | support@cursor.sh | Standard | 24h response |
-| **GitHub** | support@github.com | Standard | 24h response |
-| **Docker** | support@docker.com | Community | Best effort |
+| Service    | Contact            | Support Level | SLA          |
+| ---------- | ------------------ | ------------- | ------------ |
+| **Cursor** | support@cursor.sh  | Standard      | 24h response |
+| **GitHub** | support@github.com | Standard      | 24h response |
+| **Docker** | support@docker.com | Community     | Best effort  |
 
 ### Internal Team
 
-| Role | Name | Email | Phone | Timezone |
-|------|------|-------|-------|----------|
-| **CTO** | [Name] | cto@quantapilot.com | +1-555-0100 | UTC-8 |
-| **Lead Engineer** | [Name] | lead@quantapilot.com | +1-555-0101 | UTC-8 |
-| **DevOps Lead** | [Name] | devops@quantapilot.com | +1-555-0102 | UTC-5 |
-| **Security Lead** | [Name] | security@quantapilot.com | +1-555-0103 | UTC-8 |
+| Role              | Name   | Email                    | Phone       | Timezone |
+| ----------------- | ------ | ------------------------ | ----------- | -------- |
+| **CTO**           | [Name] | cto@quantapilot.com      | +1-555-0100 | UTC-8    |
+| **Lead Engineer** | [Name] | lead@quantapilot.com     | +1-555-0101 | UTC-8    |
+| **DevOps Lead**   | [Name] | devops@quantapilot.com   | +1-555-0102 | UTC-5    |
+| **Security Lead** | [Name] | security@quantapilot.com | +1-555-0103 | UTC-8    |

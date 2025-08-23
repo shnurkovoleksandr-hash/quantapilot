@@ -2,7 +2,8 @@
 
 // Set test environment variables
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL = 'postgresql://test_user:test_password@localhost:5432/test_db';
+process.env.DATABASE_URL =
+  'postgresql://test_user:test_password@localhost:5432/test_db';
 process.env.REDIS_URL = 'redis://localhost:6379';
 
 // Global test timeout
@@ -31,7 +32,7 @@ global.testUtils = {
     updatedAt: new Date().toISOString(),
     ...overrides,
   }),
-  
+
   // Helper to create test user
   createTestUser: (overrides = {}) => ({
     id: 'test-user-id',
@@ -41,10 +42,10 @@ global.testUtils = {
     createdAt: new Date().toISOString(),
     ...overrides,
   }),
-  
+
   // Helper to wait for async operations
-  wait: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-  
+  wait: ms => new Promise(resolve => setTimeout(resolve, ms)),
+
   // Helper to mock API responses
   mockApiResponse: (data, status = 200) => ({
     ok: status >= 200 && status < 300,
