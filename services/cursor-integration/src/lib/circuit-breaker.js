@@ -1,9 +1,9 @@
 /**
  * QuantaPilot™ Circuit Breaker and Error Handling System
- * 
+ *
  * Implements circuit breaker pattern for AI API calls with intelligent error handling,
  * retry logic, and graceful degradation strategies.
- * 
+ *
  * @author QuantaPilot™ Team
  * @version 1.0.0
  */
@@ -15,28 +15,28 @@ const EventEmitter = require('events');
  * Circuit breaker states
  */
 const CIRCUIT_STATES = {
-  CLOSED: 'closed',       // Normal operation
-  OPEN: 'open',          // Circuit is open, rejecting requests
-  HALF_OPEN: 'half_open' // Testing if service has recovered
+  CLOSED: 'closed', // Normal operation
+  OPEN: 'open', // Circuit is open, rejecting requests
+  HALF_OPEN: 'half_open', // Testing if service has recovered
 };
 
 /**
  * Error categories for intelligent handling
  */
 const ERROR_CATEGORIES = {
-  TRANSIENT: 'transient',           // Temporary errors, safe to retry
-  RATE_LIMIT: 'rate_limit',         // Rate limiting errors
-  AUTH_ERROR: 'auth_error',         // Authentication/authorization errors
+  TRANSIENT: 'transient', // Temporary errors, safe to retry
+  RATE_LIMIT: 'rate_limit', // Rate limiting errors
+  AUTH_ERROR: 'auth_error', // Authentication/authorization errors
   QUOTA_EXCEEDED: 'quota_exceeded', // Token/quota exceeded
-  SERVICE_ERROR: 'service_error',   // Service unavailable
+  SERVICE_ERROR: 'service_error', // Service unavailable
   VALIDATION_ERROR: 'validation_error', // Request validation errors
-  PERMANENT: 'permanent',           // Permanent errors, don't retry
-  UNKNOWN: 'unknown'                // Unknown error type
+  PERMANENT: 'permanent', // Permanent errors, don't retry
+  UNKNOWN: 'unknown', // Unknown error type
 };
 
 /**
  * Circuit breaker implementation with intelligent error handling
- * 
+ *
  * Features:
  * - State-based request handling
  * - Configurable failure thresholds
@@ -44,7 +44,7 @@ const ERROR_CATEGORIES = {
  * - Error categorization and handling
  * - Metrics collection and monitoring
  * - Graceful degradation strategies
- * 
+ *
  * @class CircuitBreaker
  * @extends EventEmitter
  */
@@ -69,15 +69,17 @@ class CircuitBreaker extends EventEmitter {
     this.monitoringPeriod = config.monitoringPeriod || 600000; // 10 minutes
     this.halfOpenMaxCalls = config.halfOpenMaxCalls || 3;
 
-    this.logger = config.logger || winston.createLogger({
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      ),
-      defaultMeta: { service: 'circuit-breaker' },
-      transports: [new winston.transports.Console()]
-    });
+    this.logger =
+      config.logger ||
+      winston.createLogger({
+        level: 'info',
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json()
+        ),
+        defaultMeta: { service: 'circuit-breaker' },
+        transports: [new winston.transports.Console()],
+      });
 
     // Circuit state
     this.state = CIRCUIT_STATES.CLOSED;
@@ -94,7 +96,7 @@ class CircuitBreaker extends EventEmitter {
       timeouts: 0,
       circuitOpenings: 0,
       stateChanges: [],
-      errorCounts: {}
+      errorCounts: {},
     };
 
     // Request history for monitoring period
@@ -103,7 +105,7 @@ class CircuitBreaker extends EventEmitter {
     this.logger.info('Circuit breaker initialized', {
       failureThreshold: this.failureThreshold,
       timeout: this.timeout,
-      resetTimeout: this.resetTimeout
+      resetTimeout: this.resetTimeout,
     });
   }
 
@@ -123,7 +125,10 @@ class CircuitBreaker extends EventEmitter {
           this.setState(CIRCUIT_STATES.HALF_OPEN);
         } else {
           this.metrics.rejectedRequests++;
-          throw new CircuitBreakerError('Circuit breaker is OPEN', 'CIRCUIT_OPEN');
+          throw new CircuitBreakerError(
+            'Circuit breaker is OPEN',
+            'CIRCUIT_OPEN'
+          );
         }
       }
 
@@ -131,17 +136,20 @@ class CircuitBreaker extends EventEmitter {
       if (this.state === CIRCUIT_STATES.HALF_OPEN) {
         if (this.halfOpenCallCount >= this.halfOpenMaxCalls) {
           this.metrics.rejectedRequests++;
-          throw new CircuitBreakerError('Half-open circuit at capacity', 'HALF_OPEN_CAPACITY');
+          throw new CircuitBreakerError(
+            'Half-open circuit at capacity',
+            'HALF_OPEN_CAPACITY'
+          );
         }
         this.halfOpenCallCount++;
       }
 
       // Execute request with timeout
       const result = await this.executeWithTimeout(...args);
-      
+
       // Handle successful request
       await this.onSuccess(Date.now() - startTime);
-      
+
       return result;
     } catch (error) {
       // Handle failed request
@@ -156,20 +164,21 @@ class CircuitBreaker extends EventEmitter {
    * @returns {Promise} Request result
    */
   async executeWithTimeout(...args) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         this.metrics.timeouts++;
         reject(new CircuitBreakerError('Request timeout', 'TIMEOUT'));
       }, this.timeout);
 
-      try {
-        const result = await this.requestFunction(...args);
-        clearTimeout(timeoutId);
-        resolve(result);
-      } catch (error) {
-        clearTimeout(timeoutId);
-        reject(error);
-      }
+      this.requestFunction(...args)
+        .then(result => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        })
+        .catch(error => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
     });
   }
 
@@ -179,16 +188,16 @@ class CircuitBreaker extends EventEmitter {
    */
   async onSuccess(duration) {
     this.metrics.successfulRequests++;
-    
+
     this.addToHistory({
       timestamp: Date.now(),
       success: true,
-      duration
+      duration,
     });
 
     if (this.state === CIRCUIT_STATES.HALF_OPEN) {
       this.halfOpenCallCount--;
-      
+
       // Check if we should close the circuit
       if (this.halfOpenCallCount === 0) {
         this.setState(CIRCUIT_STATES.CLOSED);
@@ -209,23 +218,24 @@ class CircuitBreaker extends EventEmitter {
    */
   async onFailure(error, duration) {
     this.metrics.failedRequests++;
-    
+
     const errorCategory = this.categorizeError(error);
-    this.metrics.errorCounts[errorCategory] = (this.metrics.errorCounts[errorCategory] || 0) + 1;
+    this.metrics.errorCounts[errorCategory] =
+      (this.metrics.errorCounts[errorCategory] || 0) + 1;
 
     this.addToHistory({
       timestamp: Date.now(),
       success: false,
       duration,
       error: error.message,
-      category: errorCategory
+      category: errorCategory,
     });
 
     this.logger.error('Request failed through circuit breaker', {
       error: error.message,
       category: errorCategory,
       state: this.state,
-      failureCount: this.failureCount + 1
+      failureCount: this.failureCount + 1,
     });
 
     // Handle based on error category
@@ -244,12 +254,12 @@ class CircuitBreaker extends EventEmitter {
       }
     }
 
-    this.emit('failure', { 
-      error, 
-      category: errorCategory, 
-      duration, 
+    this.emit('failure', {
+      error,
+      category: errorCategory,
+      duration,
       state: this.state,
-      failureCount: this.failureCount
+      failureCount: this.failureCount,
     });
   }
 
@@ -263,8 +273,12 @@ class CircuitBreaker extends EventEmitter {
     const status = error.response?.status;
 
     // Network and connection errors
-    if (message.includes('timeout') || message.includes('econnreset') || 
-        message.includes('enotfound') || message.includes('econnrefused')) {
+    if (
+      message.includes('timeout') ||
+      message.includes('econnreset') ||
+      message.includes('enotfound') ||
+      message.includes('econnrefused')
+    ) {
       return ERROR_CATEGORIES.TRANSIENT;
     }
 
@@ -272,9 +286,11 @@ class CircuitBreaker extends EventEmitter {
     if (status) {
       if (status === 429) return ERROR_CATEGORIES.RATE_LIMIT;
       if (status === 401 || status === 403) return ERROR_CATEGORIES.AUTH_ERROR;
-      if (status === 402 || status === 413) return ERROR_CATEGORIES.QUOTA_EXCEEDED;
+      if (status === 402 || status === 413)
+        return ERROR_CATEGORIES.QUOTA_EXCEEDED;
       if (status >= 500 && status < 600) return ERROR_CATEGORIES.SERVICE_ERROR;
-      if (status >= 400 && status < 500) return ERROR_CATEGORIES.VALIDATION_ERROR;
+      if (status >= 400 && status < 500)
+        return ERROR_CATEGORIES.VALIDATION_ERROR;
     }
 
     // AI-specific error patterns
@@ -282,15 +298,24 @@ class CircuitBreaker extends EventEmitter {
       return ERROR_CATEGORIES.RATE_LIMIT;
     }
 
-    if (message.includes('authentication') || message.includes('unauthorized')) {
+    if (
+      message.includes('authentication') ||
+      message.includes('unauthorized')
+    ) {
       return ERROR_CATEGORIES.AUTH_ERROR;
     }
 
-    if (message.includes('service unavailable') || message.includes('overloaded')) {
+    if (
+      message.includes('service unavailable') ||
+      message.includes('overloaded')
+    ) {
       return ERROR_CATEGORIES.SERVICE_ERROR;
     }
 
-    if (message.includes('invalid request') || message.includes('bad request')) {
+    if (
+      message.includes('invalid request') ||
+      message.includes('bad request')
+    ) {
       return ERROR_CATEGORIES.VALIDATION_ERROR;
     }
 
@@ -306,7 +331,7 @@ class CircuitBreaker extends EventEmitter {
     // Don't count validation errors as circuit failures
     return ![
       ERROR_CATEGORIES.VALIDATION_ERROR,
-      ERROR_CATEGORIES.AUTH_ERROR
+      ERROR_CATEGORIES.AUTH_ERROR,
     ].includes(errorCategory);
   }
 
@@ -330,13 +355,13 @@ class CircuitBreaker extends EventEmitter {
       timestamp: Date.now(),
       from: oldState,
       to: newState,
-      failureCount: this.failureCount
+      failureCount: this.failureCount,
     });
 
     this.logger.info('Circuit breaker state changed', {
       from: oldState,
       to: newState,
-      failureCount: this.failureCount
+      failureCount: this.failureCount,
     });
 
     this.emit('stateChange', { from: oldState, to: newState });
@@ -361,7 +386,7 @@ class CircuitBreaker extends EventEmitter {
    */
   addToHistory(record) {
     this.requestHistory.push(record);
-    
+
     // Keep only records within monitoring period
     const cutoffTime = Date.now() - this.monitoringPeriod;
     this.requestHistory = this.requestHistory.filter(
@@ -379,8 +404,10 @@ class CircuitBreaker extends EventEmitter {
     );
 
     const recentFailures = recentHistory.filter(record => !record.success);
-    const failureRate = recentHistory.length > 0 ? 
-      recentFailures.length / recentHistory.length : 0;
+    const failureRate =
+      recentHistory.length > 0
+        ? recentFailures.length / recentHistory.length
+        : 0;
 
     return {
       state: this.state,
@@ -392,9 +419,12 @@ class CircuitBreaker extends EventEmitter {
         recentRequests: recentHistory.length,
         recentFailures: recentFailures.length,
         failureRate: parseFloat(failureRate.toFixed(3)),
-        averageResponseTime: recentHistory.length > 0 ?
-          recentHistory.reduce((sum, r) => sum + r.duration, 0) / recentHistory.length : 0
-      }
+        averageResponseTime:
+          recentHistory.length > 0
+            ? recentHistory.reduce((sum, r) => sum + r.duration, 0) /
+              recentHistory.length
+            : 0,
+      },
     };
   }
 
@@ -420,8 +450,7 @@ class CircuitBreaker extends EventEmitter {
    * @returns {boolean} Whether circuit is healthy
    */
   isHealthy() {
-    return this.state === CIRCUIT_STATES.CLOSED && 
-           this.getFailureRate() < 0.5; // 50% failure rate threshold
+    return this.state === CIRCUIT_STATES.CLOSED && this.getFailureRate() < 0.5; // 50% failure rate threshold
   }
 
   /**
@@ -448,7 +477,9 @@ class CircuitBreaker extends EventEmitter {
   getHealthReport() {
     const metrics = this.getMetrics();
     const recentErrors = this.requestHistory
-      .filter(record => !record.success && record.timestamp > Date.now() - 300000) // Last 5 minutes
+      .filter(
+        record => !record.success && record.timestamp > Date.now() - 300000
+      ) // Last 5 minutes
       .reduce((acc, record) => {
         acc[record.category] = (acc[record.category] || 0) + 1;
         return acc;
@@ -460,7 +491,7 @@ class CircuitBreaker extends EventEmitter {
       healthy: this.isHealthy(),
       metrics,
       recentErrors,
-      recommendations: this.generateRecommendations(metrics, recentErrors)
+      recommendations: this.generateRecommendations(metrics, recentErrors),
     };
   }
 
@@ -474,11 +505,15 @@ class CircuitBreaker extends EventEmitter {
     const recommendations = [];
 
     if (metrics.failureRate > 0.3) {
-      recommendations.push('High failure rate detected - consider checking service health');
+      recommendations.push(
+        'High failure rate detected - consider checking service health'
+      );
     }
 
     if (recentErrors[ERROR_CATEGORIES.RATE_LIMIT] > 0) {
-      recommendations.push('Rate limiting detected - implement request throttling');
+      recommendations.push(
+        'Rate limiting detected - implement request throttling'
+      );
     }
 
     if (recentErrors[ERROR_CATEGORIES.AUTH_ERROR] > 0) {
@@ -512,5 +547,5 @@ module.exports = {
   CircuitBreaker,
   CircuitBreakerError,
   CIRCUIT_STATES,
-  ERROR_CATEGORIES
+  ERROR_CATEGORIES,
 };

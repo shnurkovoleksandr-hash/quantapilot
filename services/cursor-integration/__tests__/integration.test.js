@@ -159,7 +159,7 @@ describe('Enhanced Cursor Integration Service', () => {
     // AI Prompt endpoint
     app.post('/api/v1/ai/prompt', async (req, res) => {
       try {
-        const { prompt, agentRole, templateId, templateContext } = req.body;
+        const { agentRole, templateId, templateContext } = req.body;
 
         if (templateId) {
           const template = mockPromptManager.getTemplate(templateId);

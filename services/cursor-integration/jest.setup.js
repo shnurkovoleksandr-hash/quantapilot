@@ -17,9 +17,9 @@ jest.mock('fs', () => {
       readdir: jest.fn().mockResolvedValue([]),
       rm: jest.fn().mockResolvedValue(),
       access: jest.fn().mockResolvedValue(),
-    }
+    },
   };
-  
+
   return {
     ...jest.requireActual('fs'),
     promises: mockFs.promises,
@@ -79,9 +79,11 @@ jest.mock('child_process', () => ({
 // Mock util.promisify
 jest.mock('util', () => ({
   ...jest.requireActual('util'),
-  promisify: jest.fn((fn) => {
+  promisify: jest.fn(fn => {
     if (fn.name === 'exec') {
-      return jest.fn().mockResolvedValue({ stdout: 'cursor v1.0.0', stderr: '' });
+      return jest
+        .fn()
+        .mockResolvedValue({ stdout: 'cursor v1.0.0', stderr: '' });
     }
     return jest.fn().mockResolvedValue();
   }),

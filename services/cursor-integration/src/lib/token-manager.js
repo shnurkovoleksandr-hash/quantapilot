@@ -524,7 +524,7 @@ class TokenManager {
    * @param {string} timeRange - Time range for analytics
    * @returns {Promise<Object>} Project analytics
    */
-  async getProjectAnalytics(projectId, timeRange) {
+  async getProjectAnalytics(projectId, _timeRange) {
     const tokensUsed = parseFloat(
       (await this.redis.get(`usage:project:${projectId}:tokens`)) || '0'
     );
@@ -545,7 +545,7 @@ class TokenManager {
    * @param {string} timeRange - Time range for analytics
    * @returns {Promise<Object>} User analytics
    */
-  async getUserAnalytics(userId, timeRange) {
+  async getUserAnalytics(userId, _timeRange) {
     const today = new Date().toISOString().split('T')[0];
     const month = new Date().toISOString().substring(0, 7);
 
@@ -571,7 +571,7 @@ class TokenManager {
    * @param {string} timeRange - Time range for analytics
    * @returns {Promise<Object>} Agent analytics
    */
-  async getAgentAnalytics(agentRole, timeRange) {
+  async getAgentAnalytics(agentRole, _timeRange) {
     const tokensUsed = parseFloat(
       (await this.redis.get(`usage:agent:${agentRole}:tokens`)) || '0'
     );
@@ -587,7 +587,7 @@ class TokenManager {
    * @param {string} timeRange - Time range for analytics
    * @returns {Promise<Object>} Global analytics
    */
-  async getGlobalAnalytics(timeRange) {
+  async getGlobalAnalytics(_timeRange) {
     return {
       totalRequests: 0,
       totalTokens: 0,

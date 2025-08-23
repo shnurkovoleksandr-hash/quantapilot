@@ -14,20 +14,20 @@ describe('TokenManager', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     mockLogger = winston.createLogger({
       level: 'error',
-      transports: [new winston.transports.Console({ silent: true })]
+      transports: [new winston.transports.Console({ silent: true })],
     });
 
-    mockRedis.connect.mockResolvedValue();
+    global.global.mockRedis.connect.mockResolvedValue();
 
     tokenManager = new TokenManager({
       redis: {
         host: 'localhost',
-        port: 6379
+        port: 6379,
       },
-      logger: mockLogger
+      logger: mockLogger,
     });
 
     await tokenManager.initializeRedis({});
@@ -43,16 +43,18 @@ describe('TokenManager', () => {
       const customPricing = {
         'custom-model': {
           input: 0.00001,
-          output: 0.00002
-        }
+          output: 0.00002,
+        },
       };
 
       const manager = new TokenManager({
         pricing: customPricing,
-        logger: mockLogger
+        logger: mockLogger,
       });
 
-      expect(manager.pricing['custom-model']).toEqual(customPricing['custom-model']);
+      expect(manager.pricing['custom-model']).toEqual(
+        customPricing['custom-model']
+      );
     });
   });
 
@@ -85,7 +87,11 @@ describe('TokenManager', () => {
     });
 
     it('should handle undefined tokens', () => {
-      const cost = tokenManager.calculateCost('cursor-large', undefined, undefined);
+      const cost = tokenManager.calculateCost(
+        'cursor-large',
+        undefined,
+        undefined
+      );
 
       expect(cost.total).toBe(0);
       expect(cost.inputTokens).toBe(0);
@@ -102,14 +108,14 @@ describe('TokenManager', () => {
       inputTokens: 1000,
       outputTokens: 500,
       totalTokens: 1500,
-      correlationId: 'test-correlation-id'
+      correlationId: 'test-correlation-id',
     };
 
     it('should track usage successfully', async () => {
-      mockRedis.setEx.mockResolvedValue('OK');
-      mockRedis.incrByFloat.mockResolvedValue();
-      mockRedis.expire.mockResolvedValue();
-      mockRedis.get.mockResolvedValue('0');
+      global.global.mockRedis.setEx.mockResolvedValue('OK');
+      global.global.mockRedis.incrByFloat.mockResolvedValue();
+      global.global.mockRedis.expire.mockResolvedValue();
+      global.global.mockRedis.get.mockResolvedValue('0');
 
       const result = await tokenManager.trackUsage(mockUsage);
 
@@ -117,21 +123,23 @@ describe('TokenManager', () => {
       expect(result.trackingId).toBeDefined();
       expect(result.cost).toBeDefined();
       expect(result.cost.total).toBe(0.06); // Based on cursor-large pricing
-      expect(mockRedis.setEx).toHaveBeenCalled();
-      expect(mockRedis.incrByFloat).toHaveBeenCalled(); // Various counters
+      expect(global.global.mockRedis.setEx).toHaveBeenCalled();
+      expect(global.global.mockRedis.incrByFloat).toHaveBeenCalled(); // Various counters
     });
 
     it('should handle tracking errors', async () => {
-      mockRedis.setEx.mockRejectedValue(new Error('Redis error'));
+      global.global.mockRedis.setEx.mockRejectedValue(new Error('Redis error'));
 
-      await expect(tokenManager.trackUsage(mockUsage)).rejects.toThrow('Redis error');
+      await expect(tokenManager.trackUsage(mockUsage)).rejects.toThrow(
+        'Redis error'
+      );
     });
 
     it('should calculate cost in tracking', async () => {
-      mockRedis.setEx.mockResolvedValue('OK');
-      mockRedis.incrByFloat.mockResolvedValue();
-      mockRedis.expire.mockResolvedValue();
-      mockRedis.get.mockResolvedValue('0');
+      global.mockRedis.setEx.mockResolvedValue('OK');
+      global.mockRedis.incrByFloat.mockResolvedValue();
+      global.mockRedis.expire.mockResolvedValue();
+      global.mockRedis.get.mockResolvedValue('0');
 
       const result = await tokenManager.trackUsage(mockUsage);
 
@@ -143,7 +151,7 @@ describe('TokenManager', () => {
 
   describe('budget status checking', () => {
     it('should get project budget status', async () => {
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('25000') // tokens used
         .mockResolvedValueOnce('15.50'); // cost used
 
@@ -156,7 +164,7 @@ describe('TokenManager', () => {
     });
 
     it('should handle missing usage data', async () => {
-      mockRedis.get.mockResolvedValue(null);
+      global.mockRedis.get.mockResolvedValue(null);
 
       const status = await tokenManager.getProjectBudgetStatus('new-project');
 
@@ -167,10 +175,10 @@ describe('TokenManager', () => {
     });
 
     it('should get user budget status', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const month = new Date().toISOString().substring(0, 7);
+      // const today = new Date().toISOString().split('T')[0]; // Unused
+      // const month = new Date().toISOString().substring(0, 7); // Unused
 
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('15000') // daily tokens
         .mockResolvedValueOnce('75.25'); // monthly cost
 
@@ -183,9 +191,10 @@ describe('TokenManager', () => {
     });
 
     it('should get agent budget status', async () => {
-      mockRedis.get.mockResolvedValue('35000');
+      global.mockRedis.get.mockResolvedValue('35000');
 
-      const status = await tokenManager.getAgentBudgetStatus('senior_developer');
+      const status =
+        await tokenManager.getAgentBudgetStatus('senior_developer');
 
       expect(status.tokensUsed).toBe(35000);
       expect(status.tokensLimit).toBe(50000);
@@ -193,7 +202,7 @@ describe('TokenManager', () => {
     });
 
     it('should use default budget for unknown agent', async () => {
-      mockRedis.get.mockResolvedValue('10000');
+      global.mockRedis.get.mockResolvedValue('10000');
 
       const status = await tokenManager.getAgentBudgetStatus('unknown_agent');
 
@@ -204,11 +213,11 @@ describe('TokenManager', () => {
   describe('budget limit checking', () => {
     it('should allow request within limits', async () => {
       // Mock current usage below limits
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('10000') // project tokens
-        .mockResolvedValueOnce('5.0')   // project cost
-        .mockResolvedValueOnce('5000')  // daily tokens
-        .mockResolvedValueOnce('25.0')  // monthly cost
+        .mockResolvedValueOnce('5.0') // project cost
+        .mockResolvedValueOnce('5000') // daily tokens
+        .mockResolvedValueOnce('25.0') // monthly cost
         .mockResolvedValueOnce('10000'); // agent tokens
 
       const result = await tokenManager.checkRequestBudget(
@@ -224,11 +233,11 @@ describe('TokenManager', () => {
 
     it('should reject request exceeding project token limit', async () => {
       // Mock usage near limits
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('95000') // project tokens
-        .mockResolvedValueOnce('5.0')   // project cost
-        .mockResolvedValueOnce('5000')  // daily tokens
-        .mockResolvedValueOnce('25.0')  // monthly cost
+        .mockResolvedValueOnce('5.0') // project cost
+        .mockResolvedValueOnce('5000') // daily tokens
+        .mockResolvedValueOnce('25.0') // monthly cost
         .mockResolvedValueOnce('10000'); // agent tokens
 
       const result = await tokenManager.checkRequestBudget(
@@ -239,15 +248,17 @@ describe('TokenManager', () => {
       );
 
       expect(result.allowed).toBe(false);
-      expect(result.limits).toContain('Request would exceed project token budget');
+      expect(result.limits).toContain(
+        'Request would exceed project token budget'
+      );
     });
 
     it('should reject request exceeding user daily limit', async () => {
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('10000') // project tokens
-        .mockResolvedValueOnce('5.0')   // project cost
+        .mockResolvedValueOnce('5.0') // project cost
         .mockResolvedValueOnce('45000') // daily tokens
-        .mockResolvedValueOnce('25.0')  // monthly cost
+        .mockResolvedValueOnce('25.0') // monthly cost
         .mockResolvedValueOnce('10000'); // agent tokens
 
       const result = await tokenManager.checkRequestBudget(
@@ -258,15 +269,17 @@ describe('TokenManager', () => {
       );
 
       expect(result.allowed).toBe(false);
-      expect(result.limits).toContain('Request would exceed user daily token limit');
+      expect(result.limits).toContain(
+        'Request would exceed user daily token limit'
+      );
     });
 
     it('should warn about approaching agent limit', async () => {
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('10000') // project tokens
-        .mockResolvedValueOnce('5.0')   // project cost
-        .mockResolvedValueOnce('5000')  // daily tokens
-        .mockResolvedValueOnce('25.0')  // monthly cost
+        .mockResolvedValueOnce('5.0') // project cost
+        .mockResolvedValueOnce('5000') // daily tokens
+        .mockResolvedValueOnce('25.0') // monthly cost
         .mockResolvedValueOnce('48000'); // agent tokens near limit
 
       const result = await tokenManager.checkRequestBudget(
@@ -283,16 +296,16 @@ describe('TokenManager', () => {
 
   describe('budget management', () => {
     it('should set project budget', async () => {
-      mockRedis.setEx.mockResolvedValue('OK');
+      global.mockRedis.setEx.mockResolvedValue('OK');
 
       const customBudget = {
         maxTokens: 200000,
-        maxCostUSD: 100.0
+        maxCostUSD: 100.0,
       };
 
       await tokenManager.setProjectBudget('test-project', customBudget);
 
-      expect(mockRedis.setEx).toHaveBeenCalledWith(
+      expect(global.mockRedis.setEx).toHaveBeenCalledWith(
         'budget:project:test-project',
         86400 * 365,
         JSON.stringify(customBudget)
@@ -302,35 +315,40 @@ describe('TokenManager', () => {
     it('should reset usage counters', async () => {
       const mockKeys = [
         'usage:project:test-project:tokens',
-        'usage:project:test-project:cost'
+        'usage:project:test-project:cost',
       ];
-      mockRedis.keys.mockResolvedValue(mockKeys);
-      mockRedis.del.mockResolvedValue(2);
+      global.mockRedis.keys.mockResolvedValue(mockKeys);
+      global.mockRedis.del.mockResolvedValue(2);
 
       await tokenManager.resetUsageCounters('project', 'test-project');
 
-      expect(mockRedis.keys).toHaveBeenCalledWith('usage:project:test-project:*');
-      expect(mockRedis.del).toHaveBeenCalledWith(mockKeys);
+      expect(global.mockRedis.keys).toHaveBeenCalledWith(
+        'usage:project:test-project:*'
+      );
+      expect(global.mockRedis.del).toHaveBeenCalledWith(mockKeys);
     });
 
     it('should handle no keys to reset', async () => {
-      mockRedis.keys.mockResolvedValue([]);
+      global.mockRedis.keys.mockResolvedValue([]);
 
       await tokenManager.resetUsageCounters('project', 'test-project');
 
-      expect(mockRedis.del).not.toHaveBeenCalled();
+      expect(global.mockRedis.del).not.toHaveBeenCalled();
     });
   });
 
   describe('analytics', () => {
     it('should get project analytics', async () => {
-      mockRedis.get
+      global.mockRedis.get
         .mockResolvedValueOnce('50000') // tokens
-        .mockResolvedValueOnce('25.0')  // cost
+        .mockResolvedValueOnce('25.0') // cost
         .mockResolvedValueOnce('50000') // budget status tokens
         .mockResolvedValueOnce('25.0'); // budget status cost
 
-      const analytics = await tokenManager.getUsageAnalytics('project', 'test-project');
+      const analytics = await tokenManager.getUsageAnalytics(
+        'project',
+        'test-project'
+      );
 
       expect(analytics.scope).toBe('project');
       expect(analytics.identifier).toBe('test-project');
@@ -339,14 +357,17 @@ describe('TokenManager', () => {
     });
 
     it('should handle analytics for different scopes', async () => {
-      const analytics = await tokenManager.getUsageAnalytics('user', 'test-user');
+      const analytics = await tokenManager.getUsageAnalytics(
+        'user',
+        'test-user'
+      );
 
       expect(analytics.scope).toBe('user');
       expect(analytics.identifier).toBe('test-user');
     });
 
     it('should handle analytics errors', async () => {
-      mockRedis.get.mockRejectedValue(new Error('Redis error'));
+      global.mockRedis.get.mockRejectedValue(new Error('Redis error'));
 
       await expect(
         tokenManager.getUsageAnalytics('project', 'test-project')

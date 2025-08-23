@@ -152,7 +152,7 @@ class CursorCLI {
    */
   async cloneRepository(repositoryUrl, targetPath) {
     try {
-      const { stdout, stderr } = await execAsync(
+      const { stdout } = await execAsync(
         `git clone ${repositoryUrl} ${targetPath}`,
         { timeout: this.timeout }
       );

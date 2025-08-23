@@ -10,7 +10,7 @@ const winston = require('winston');
 
 // Mock child_process
 jest.mock('child_process');
-const { spawn, exec } = require('child_process');
+const { spawn } = require('child_process');
 
 // FS mocking is now handled globally in jest.setup.js
 

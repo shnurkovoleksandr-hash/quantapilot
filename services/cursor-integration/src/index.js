@@ -15,7 +15,7 @@ const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
-const retry = require('retry');
+// const retry = require('retry'); // Unused - removed
 require('dotenv').config();
 
 // Import new Stage 2.1 components
@@ -25,7 +25,7 @@ const TokenManager = require('./lib/token-manager');
 const {
   CircuitBreaker,
   CIRCUIT_STATES,
-  ERROR_CATEGORIES,
+  // ERROR_CATEGORIES, // Unused - removed
 } = require('./lib/circuit-breaker');
 
 const app = express();

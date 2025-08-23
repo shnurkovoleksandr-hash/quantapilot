@@ -4,7 +4,7 @@
  */
 
 const path = require('path');
-const fs = require('fs').promises;
+// const fs = require('fs').promises; // Unused - mocking handled globally
 const PromptTemplateManager = require('../src/lib/prompt-templates');
 const winston = require('winston');
 

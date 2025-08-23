@@ -3,7 +3,12 @@
  * @jest-environment node
  */
 
-const { CircuitBreaker, CircuitBreakerError, CIRCUIT_STATES, ERROR_CATEGORIES } = require('../src/lib/circuit-breaker');
+const {
+  CircuitBreaker,
+  CircuitBreakerError,
+  CIRCUIT_STATES,
+  ERROR_CATEGORIES,
+} = require('../src/lib/circuit-breaker');
 const winston = require('winston');
 
 describe('CircuitBreaker', () => {
@@ -14,20 +19,20 @@ describe('CircuitBreaker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    
+
     mockLogger = winston.createLogger({
       level: 'error',
-      transports: [new winston.transports.Console({ silent: true })]
+      transports: [new winston.transports.Console({ silent: true })],
     });
 
     mockRequestFunction = jest.fn();
-    
+
     circuitBreaker = new CircuitBreaker({
       requestFunction: mockRequestFunction,
       failureThreshold: 3,
       timeout: 5000,
       resetTimeout: 10000,
-      logger: mockLogger
+      logger: mockLogger,
     });
   });
 
@@ -38,7 +43,7 @@ describe('CircuitBreaker', () => {
   describe('constructor', () => {
     it('should initialize with default configuration', () => {
       const cb = new CircuitBreaker({ requestFunction: jest.fn() });
-      
+
       expect(cb.failureThreshold).toBe(5);
       expect(cb.timeout).toBe(30000);
       expect(cb.resetTimeout).toBe(60000);
@@ -70,8 +75,10 @@ describe('CircuitBreaker', () => {
       const error = new Error('Request failed');
       mockRequestFunction.mockRejectedValue(error);
 
-      await expect(circuitBreaker.execute('test')).rejects.toThrow('Request failed');
-      
+      await expect(circuitBreaker.execute('test')).rejects.toThrow(
+        'Request failed'
+      );
+
       expect(circuitBreaker.failureCount).toBe(1);
       expect(circuitBreaker.metrics.failedRequests).toBe(1);
       expect(circuitBreaker.state).toBe(CIRCUIT_STATES.CLOSED);
@@ -104,8 +111,10 @@ describe('CircuitBreaker', () => {
     });
 
     it('should reject requests immediately when circuit is open', async () => {
-      await expect(circuitBreaker.execute('test')).rejects.toThrow(CircuitBreakerError);
-      
+      await expect(circuitBreaker.execute('test')).rejects.toThrow(
+        CircuitBreakerError
+      );
+
       expect(mockRequestFunction).not.toHaveBeenCalled();
       expect(circuitBreaker.metrics.rejectedRequests).toBe(1);
     });
@@ -143,8 +152,10 @@ describe('CircuitBreaker', () => {
       const error = new Error('Request failed');
       mockRequestFunction.mockRejectedValue(error);
 
-      await expect(circuitBreaker.execute('test')).rejects.toThrow('Request failed');
-      
+      await expect(circuitBreaker.execute('test')).rejects.toThrow(
+        'Request failed'
+      );
+
       expect(circuitBreaker.state).toBe(CIRCUIT_STATES.OPEN);
     });
 
@@ -158,7 +169,9 @@ describe('CircuitBreaker', () => {
       }
 
       // Next call should be rejected
-      await expect(circuitBreaker.execute('test')).rejects.toThrow(CircuitBreakerError);
+      await expect(circuitBreaker.execute('test')).rejects.toThrow(
+        CircuitBreakerError
+      );
     });
   });
 
@@ -176,8 +189,11 @@ describe('CircuitBreaker', () => {
     });
 
     it('should not timeout fast requests', async () => {
-      mockRequestFunction.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve({ data: 'success' }), 1000))
+      mockRequestFunction.mockImplementation(
+        () =>
+          new Promise(resolve =>
+            setTimeout(() => resolve({ data: 'success' }), 1000)
+          )
       );
 
       const executePromise = circuitBreaker.execute('test');
@@ -305,16 +321,19 @@ describe('CircuitBreaker', () => {
       await circuitBreaker.execute('test1');
       try {
         await circuitBreaker.execute('test2');
-      } catch (e) { /* Expected */ }
+      } catch (e) {
+        /* Expected */
+      }
       await circuitBreaker.execute('test3');
 
       const failureRate = circuitBreaker.getFailureRate();
-      expect(failureRate).toBeCloseTo(1/3, 2); // 1 failure out of 3 requests
+      expect(failureRate).toBeCloseTo(1 / 3, 2); // 1 failure out of 3 requests
     });
 
     it('should track state changes', () => {
-      const initialStateChanges = circuitBreaker.getMetrics().metrics.stateChanges.length;
-      
+      const initialStateChanges =
+        circuitBreaker.getMetrics().metrics.stateChanges.length;
+
       circuitBreaker.setState(CIRCUIT_STATES.OPEN);
       circuitBreaker.setState(CIRCUIT_STATES.HALF_OPEN);
       circuitBreaker.setState(CIRCUIT_STATES.CLOSED);
@@ -327,21 +346,21 @@ describe('CircuitBreaker', () => {
   describe('health monitoring', () => {
     it('should report healthy when closed with low failure rate', async () => {
       mockRequestFunction.mockResolvedValue({ data: 'success' });
-      
+
       await circuitBreaker.execute('test');
-      
+
       expect(circuitBreaker.isHealthy()).toBe(true);
     });
 
     it('should report unhealthy when open', () => {
       circuitBreaker.setState(CIRCUIT_STATES.OPEN);
-      
+
       expect(circuitBreaker.isHealthy()).toBe(false);
     });
 
     it('should generate health report', () => {
       const report = circuitBreaker.getHealthReport();
-      
+
       expect(report.timestamp).toBeDefined();
       expect(report.state).toBe(CIRCUIT_STATES.CLOSED);
       expect(report.healthy).toBeDefined();
@@ -351,26 +370,28 @@ describe('CircuitBreaker', () => {
 
     it('should generate recommendations based on state', () => {
       circuitBreaker.setState(CIRCUIT_STATES.OPEN);
-      
+
       const report = circuitBreaker.getHealthReport();
-      
-      expect(report.recommendations).toContain('Circuit is open - service may be unhealthy');
+
+      expect(report.recommendations).toContain(
+        'Circuit is open - service may be unhealthy'
+      );
     });
   });
 
   describe('manual control', () => {
     it('should force open circuit', () => {
       circuitBreaker.forceOpen();
-      
+
       expect(circuitBreaker.state).toBe(CIRCUIT_STATES.OPEN);
     });
 
     it('should force close circuit', () => {
       circuitBreaker.setState(CIRCUIT_STATES.OPEN);
       circuitBreaker.failureCount = 5;
-      
+
       circuitBreaker.forceClose();
-      
+
       expect(circuitBreaker.state).toBe(CIRCUIT_STATES.CLOSED);
       expect(circuitBreaker.failureCount).toBe(0);
     });
@@ -380,15 +401,15 @@ describe('CircuitBreaker', () => {
     it('should emit success events', async () => {
       const successHandler = jest.fn();
       circuitBreaker.on('success', successHandler);
-      
+
       mockRequestFunction.mockResolvedValue({ data: 'success' });
-      
+
       await circuitBreaker.execute('test');
-      
+
       expect(successHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           duration: expect.any(Number),
-          state: CIRCUIT_STATES.CLOSED
+          state: CIRCUIT_STATES.CLOSED,
         })
       );
     });
@@ -396,23 +417,23 @@ describe('CircuitBreaker', () => {
     it('should emit failure events', async () => {
       const failureHandler = jest.fn();
       circuitBreaker.on('failure', failureHandler);
-      
+
       const error = new Error('Request failed');
       mockRequestFunction.mockRejectedValue(error);
-      
+
       try {
         await circuitBreaker.execute('test');
       } catch (e) {
         // Expected failure
       }
-      
+
       expect(failureHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           error,
           category: ERROR_CATEGORIES.UNKNOWN,
           duration: expect.any(Number),
           state: CIRCUIT_STATES.CLOSED,
-          failureCount: 1
+          failureCount: 1,
         })
       );
     });
@@ -420,12 +441,12 @@ describe('CircuitBreaker', () => {
     it('should emit state change events', () => {
       const stateChangeHandler = jest.fn();
       circuitBreaker.on('stateChange', stateChangeHandler);
-      
+
       circuitBreaker.setState(CIRCUIT_STATES.OPEN);
-      
+
       expect(stateChangeHandler).toHaveBeenCalledWith({
         from: CIRCUIT_STATES.CLOSED,
-        to: CIRCUIT_STATES.OPEN
+        to: CIRCUIT_STATES.OPEN,
       });
     });
   });
