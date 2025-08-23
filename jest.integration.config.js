@@ -3,7 +3,10 @@ export default {
   testEnvironment: 'node',
 
   // File extensions to test (integration tests)
-  testMatch: ['**/__tests__/**/*.integration.(js|ts)', '**/*.integration.(test|spec).(js|ts)'],
+  testMatch: [
+    '**/__tests__/**/*.integration.(js|ts)',
+    '**/*.integration.(test|spec).(js|ts)',
+  ],
 
   // File extensions to process
   moduleFileExtensions: ['js', 'ts', 'json'],
