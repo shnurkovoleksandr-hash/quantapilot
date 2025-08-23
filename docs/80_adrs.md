@@ -732,16 +732,149 @@ of QuantaPilot™:
 | 010 | Implement Self-Hosted Deployment Model                          | Accepted | High   |
 | 011 | Implement Comprehensive Logging                                 | Accepted | Medium |
 | 012 | Mandatory .cursor/rules Generation and Documentation Compliance | Accepted | High   |
+| 013 | Comprehensive Testing and Git Workflow Automation               | Accepted | High   |
+
+---
+
+## ADR-013: Comprehensive Testing and Git Workflow Automation
+
+### Status
+
+Accepted
+
+### Context
+
+As QuantaPilot™ matures from basic infrastructure (Stages 1.1-1.2) to AI agent implementation and
+beyond, we need to ensure that each development stage is properly validated, tested, and integrated
+through automated Git workflows before proceeding to the next stage.
+
+Current challenges:
+
+- No standardized testing validation after stage completion
+- Manual Git operations are error-prone and inconsistent
+- No quality gates to prevent progression with defective code
+- Documentation updates are manual and often forgotten
+- CI/CD integration is not systematically enforced
+- Lack of automated merge validation and branch management
+
+The system needs to ensure that:
+
+- Every stage completion includes comprehensive testing (unit, integration, security, performance)
+- All relevant documentation is automatically updated after successful testing
+- Git operations are automated with intelligent branch management and PR creation
+- GitHub Actions and CI/CD pipelines are monitored and validated
+- Quality gates prevent progression on test failures or quality issues
+- All changes are properly committed, reviewed, and merged before next stage
+
+### Decision
+
+We will implement comprehensive testing and Git workflow automation as core infrastructure services:
+
+1. **Testing Service (Port 3006)**:
+   - Comprehensive multi-framework testing automation (Jest, Mocha, PyTest, JUnit, etc.)
+   - Quality gate enforcement with configurable thresholds (coverage, security, performance)
+   - Automated test result analysis and failure recommendations
+   - Integration with code quality tools (ESLint, SonarQube, Snyk, OWASP)
+   - Support for unit, integration, end-to-end, security, and performance testing
+
+2. **Git Workflow Service (Port 3007)**:
+   - Automated stage-specific branch creation (feature/stage-{number}-{description})
+   - Intelligent commit message generation with comprehensive context
+   - Automated pull request creation with test results and quality reports
+   - GitHub Actions monitoring and CI/CD pipeline validation
+   - Automated merging after all quality checks pass
+   - Branch cleanup and release management
+
+3. **Enhanced Stage Completion Workflow**:
+   - Core Development Work → Comprehensive Testing → Quality Gate Validation
+   - Automated Documentation Updates → Git Workflow Automation → CI/CD Pipeline Validation
+   - Final Quality Verification → Automated Merge and Progression
+
+4. **Database Schema Extensions**:
+   - `test_executions`: Store comprehensive test results and metrics
+   - `quality_gates`: Track quality criteria and pass/fail status
+   - `git_operations`: Log all Git operations and PR management
+   - `github_checks`: Monitor CI/CD pipeline results and status
+
+5. **n8n Workflow Integration**:
+   - Testing phase nodes for comprehensive test execution
+   - Documentation update nodes for automatic file generation
+   - Git operation nodes for branch and PR management
+   - Quality gate nodes with decision logic based on test results
+   - CI/CD monitoring nodes for GitHub Actions validation
+
+### Consequences
+
+**Positive:**
+
+- Ensures every stage is thoroughly tested before progression
+- Eliminates manual Git operations and reduces human error
+- Provides consistent, high-quality Git history with meaningful commits
+- Enables true autonomous development with quality assurance
+- Automates documentation updates, keeping them synchronized with code
+- Enables rollback capabilities and maintains clean project state
+- Provides comprehensive audit trail of all development activities
+- Improves collaboration between AI agents and human developers
+- Ensures production-ready code at every stage completion
+
+**Negative:**
+
+- Increases infrastructure complexity with two additional services
+- Adds 3-5 minutes to each stage completion time for testing and Git operations
+- Requires additional system resources (CPU, memory, storage)
+- Increases dependencies on external services (GitHub, testing frameworks)
+- May create false positives in quality gates requiring manual override
+- Adds complexity to error handling and failure recovery scenarios
+- Increases token usage for intelligent commit message generation
+
+### Alternatives Considered
+
+- **Manual Testing and Git Operations**: Too error-prone and inconsistent for autonomous operation
+- **Post-Stage Testing**: Would allow defective code to progress, compromising system reliability
+- **Simple Git Automation**: Insufficient for complex development workflows and quality assurance
+- **External CI/CD Only**: Lacks integration with QuantaPilot™ workflow orchestration
+- **Optional Quality Gates**: Would compromise the reliability of autonomous development
+
+### Implementation Details
+
+1. **Testing Service Implementation**:
+   - Multi-framework test execution engine with Docker isolation
+   - Quality criteria configuration and evaluation engine
+   - Test result aggregation and intelligent failure analysis
+   - Integration APIs for n8n workflow orchestration
+   - Comprehensive reporting and metrics collection
+
+2. **Git Workflow Service Implementation**:
+   - Git CLI integration with error handling and retry logic
+   - GitHub API integration for PR and webhook management
+   - Intelligent branching strategies and conflict resolution
+   - CI/CD monitoring with status polling and notification
+   - Automated merge strategies with quality gate integration
+
+3. **Enhanced n8n Workflows**:
+   - Update all existing workflows to include testing and Git phases
+   - Add failure handling nodes with automatic retry and HITL escalation
+   - Implement quality gate decision nodes with threshold configuration
+   - Create monitoring nodes for real-time progress tracking
+
+4. **Database Integration**:
+   - Extend existing schema with new tables for testing and Git operations
+   - Implement comprehensive logging and audit trail capabilities
+   - Add performance monitoring and analytics collection
+
+### Date
+
+2024-01-20
 
 ## Future ADRs
 
 ### Planned Decisions
 
-- **ADR-013**: Multi-language support strategy
-- **ADR-014**: Plugin and extension architecture
-- **ADR-015**: Performance optimization strategies
-- **ADR-016**: Security hardening approach
-- **ADR-017**: Backup and disaster recovery strategy
+- **ADR-014**: Multi-language support strategy
+- **ADR-015**: Plugin and extension architecture
+- **ADR-016**: Performance optimization strategies
+- **ADR-017**: Security hardening approach
+- **ADR-018**: Backup and disaster recovery strategy
 
 ### Review Process
 

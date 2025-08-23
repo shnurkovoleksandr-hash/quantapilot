@@ -246,6 +246,146 @@ patterns.
 
 **Dependencies**: AI service monitoring, billing integration
 
+### FR-012: Comprehensive Testing Automation 🆕 NEW REQUIREMENT
+
+**Priority**: High  
+**Description**: The system must perform comprehensive automated testing after each development
+stage completion, ensuring code quality, functionality, and security before progression to the next
+stage.
+
+**Acceptance Criteria**:
+
+- **Multi-Framework Testing Support**:
+  - Support for JavaScript/TypeScript testing (Jest, Mocha, Jasmine)
+  - Support for Python testing (PyTest, UnitTest)
+  - Support for Java testing (JUnit, TestNG)
+  - Support for Go testing (built-in testing package)
+  - Support for other popular language-specific testing frameworks
+  - Automatic framework detection based on project technology stack
+
+- **Comprehensive Test Execution**:
+  - Execute unit tests with coverage reporting (minimum 85% coverage)
+  - Run integration tests for API endpoints and database operations
+  - Perform end-to-end testing for web applications
+  - Execute performance and load testing for critical components
+  - Run security vulnerability scans (OWASP, Snyk integration)
+  - Perform static code analysis for quality metrics
+
+- **Quality Gate Enforcement**:
+  - Define customizable quality criteria for each project type
+  - Block stage progression if quality gates fail
+  - Generate detailed quality reports with actionable recommendations
+  - Support for quality threshold overrides with HITL approval
+  - Track quality trends across project stages
+
+- **Test Result Management**:
+  - Store comprehensive test results in database
+  - Generate human-readable test reports
+  - Provide detailed failure analysis and recommendations
+  - Support test result comparison across iterations
+  - Archive test artifacts for future reference
+
+- **Automatic Issue Resolution**:
+  - Detect common test failures and apply automatic fixes
+  - Re-run tests after automatic fixes are applied
+  - Escalate to HITL for complex issues that cannot be auto-resolved
+  - Track fix success rates and improve resolution strategies
+
+**Dependencies**: Testing frameworks, code analysis tools, GitHub integration, AI agents
+
+### FR-013: Git Workflow Automation 🆕 NEW REQUIREMENT
+
+**Priority**: High  
+**Description**: The system must automate Git operations including branch management, commit
+creation, pull request handling, and CI/CD integration for each development stage.
+
+**Acceptance Criteria**:
+
+- **Automated Branch Management**:
+  - Create stage-specific branches with naming convention: `feature/stage-{number}-{description}`
+  - Automatically switch to appropriate branches for each stage
+  - Maintain clean branch history with meaningful commit messages
+  - Support for branch cleanup after successful merges
+  - Handle merge conflicts with intelligent resolution strategies
+
+- **Intelligent Commit Operations**:
+  - Generate descriptive commit messages based on stage activities
+  - Include stage progress information in commit metadata
+  - Bundle related changes into logical commits
+  - Support for conventional commit message formatting
+  - Automatic code formatting and pre-commit hook execution
+
+- **Pull Request Automation**:
+  - Create detailed pull requests with stage summary and changes
+  - Include automated testing results in PR description
+  - Add appropriate labels and reviewers based on project configuration
+  - Link PRs to related issues and project milestones
+  - Generate visual diff summaries for non-technical stakeholders
+
+- **CI/CD Integration and Monitoring**:
+  - Monitor GitHub Actions workflows and CI/CD pipeline status
+  - Wait for all required checks to pass before allowing merge
+  - Retry failed checks automatically when possible
+  - Provide detailed status reporting on check failures
+  - Support for custom CI/CD pipeline configurations
+
+- **Automated Merge Management**:
+  - Merge PRs automatically only after all checks pass
+  - Use appropriate merge strategies (merge commit, squash, rebase)
+  - Delete feature branches after successful merge
+  - Update main branch protection rules as needed
+  - Tag releases and create release notes automatically
+
+- **Quality Assurance Integration**:
+  - Ensure all tests pass before creating PRs
+  - Include test coverage reports in PR descriptions
+  - Block merges if quality gates are not met
+  - Provide rollback mechanisms if issues are detected post-merge
+
+**Dependencies**: Git CLI, GitHub API, CI/CD systems, testing service, notification service
+
+### FR-014: Stage Completion Workflow 🆕 NEW REQUIREMENT
+
+**Priority**: High  
+**Description**: The system must implement a comprehensive stage completion workflow that ensures
+each development stage is fully tested, documented, and merged before proceeding to the next stage.
+
+**Acceptance Criteria**:
+
+- **Stage Completion Pipeline**:
+  - Execute comprehensive testing suite after AI agent completes stage work
+  - Update all relevant documentation files automatically
+  - Create Git branch and commit changes for the completed stage
+  - Generate pull request with stage summary and validation results
+  - Monitor CI/CD checks and ensure all pass successfully
+  - Merge PR to main branch only after all validations succeed
+  - Proceed to next stage only after successful merge completion
+
+- **Documentation Update Automation**:
+  - Update README.md with new features and functionality
+  - Generate or update API documentation for backend changes
+  - Update ARCHITECTURE.md if system design changes
+  - Refresh deployment and configuration documentation
+  - Update CHANGELOG.md with stage completion details
+  - Ensure all cross-references and links remain valid
+
+- **Failure Handling and Recovery**:
+  - Automatically retry failed tests with incremental fixes
+  - Escalate persistent failures to HITL for resolution
+  - Provide detailed failure analysis and suggested fixes
+  - Support for partial stage completion and resumption
+  - Maintain rollback capabilities to previous stable state
+
+- **Progress Tracking and Reporting**:
+  - Real-time progress monitoring for each stage completion step
+  - Comprehensive reporting on test results, quality metrics, and Git operations
+  - Notification of completion status to stakeholders
+  - Historical tracking of stage completion times and success rates
+  - Analytics on common failure points and resolution strategies
+
+**Dependencies**: Testing service, Git workflow service, documentation generators, notification
+service
+
 ## Non-Functional Requirements
 
 ### NFR-001: Performance
@@ -258,6 +398,9 @@ patterns.
 - Web dashboard load time: < 2 seconds
 - Database query response: < 500ms (95th percentile)
 - Concurrent project support: 50+ projects simultaneously
+- **Testing service response time**: < 5 minutes for comprehensive test suite
+- **Git operation completion**: < 2 minutes for branch creation and PR generation
+- **CI/CD monitoring cycle**: < 30 seconds for status checks
 
 ### NFR-002: Reliability
 
@@ -269,6 +412,9 @@ patterns.
 - Data durability: 99.99% (no data loss)
 - Automatic recovery from transient failures
 - Graceful degradation during high load
+- **Testing success rate**: 98% successful test execution without manual intervention
+- **Git operation success rate**: 99% successful Git operations and PR merges
+- **CI/CD integration reliability**: 99.5% successful CI/CD pipeline monitoring
 
 ### NFR-003: Scalability
 
@@ -350,14 +496,19 @@ patterns.
 - **Telegram API**: Bot functionality and message limits
 - **Docker Hub**: Image availability and download speeds
 - **DNS and Network**: Internet connectivity requirements
+- **Testing Frameworks**: Jest, Mocha, PyTest, JUnit availability and compatibility
+- **Code Analysis Tools**: SonarQube, ESLint, Snyk service availability
+- **CI/CD Platforms**: GitHub Actions, Jenkins, or other CI/CD service reliability
 
 ### TC-003: Resource Requirements
 
 - **Minimum Hardware**: 4 CPU cores, 8GB RAM, 100GB storage
 - **Recommended Hardware**: 8 CPU cores, 16GB RAM, 500GB SSD
+- **Enhanced Hardware** (with testing and Git services): 12 CPU cores, 24GB RAM, 1TB SSD
 - **Network**: Stable internet connection with 10Mbps bandwidth
 - **Operating System**: Linux-based systems preferred
 - **Docker Version**: 20.10+ with Compose v2 support
+- **Additional Storage**: 200GB+ for test artifacts and Git repositories
 
 ### TC-004: Compliance Requirements
 
